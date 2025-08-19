@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alara - Your Friendly AI Companion</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;700;800&display=swap" rel="stylesheet">
+    
+    <!-- jsPDF Library for PDF Generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <!-- Prism.js for Syntax Highlighting -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-okaidia.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+
+    <!-- KaTeX for Math Rendering -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" xintegrity="sha384-n8MVd4RsNIU0KOVEMMZMZNCMZIL/CugAeoN8UAroUOKEMgrZNkrsfnU4alTMGWjs" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" xintegrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUb0ZY0l8" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" xintegrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous"></script>
+    
+    <!-- Marked.js for Markdown Parsing -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <style>
+        /* Light Theme (Default) */
+        :root {
+            --bg-color: #FFF8F0;
+            --text-color: #4A4A4A;
+            --card-bg: rgba(255, 255, 255, 0.7);
+            --card-border: rgba(255, 182, 193, 0.3);
+            --primary-accent: #FF69B4;
+            --secondary-accent: #FFB6C1;
+            --ai-bubble-bg: #fce7f3;
+            --user-bubble-bg: #FF69B4;
+            --system-bubble-bg: #f3f4f6;
+            --input-bg: rgba(255, 255, 255, 0.8);
+            --input-border: #fbcfe8;
+            --sidebar-bg: rgba(255, 248, 240, 0.9);
+        }
+
+        /* Dark Theme */
+        .dark {
+            --bg-color: #1a1a2e;
+            --text-color: #e0e0e0;
+            --card-bg: rgba(10, 10, 30, 0.7);
+            --card-border: rgba(0, 246, 255, 0.2);
+            --primary-accent: #00f6ff;
+            --secondary-accent: #00c5cc;
+            --ai-bubble-bg: #2c3e50;
+            --user-bubble-bg: #00f6ff;
+            --system-bubble-bg: #34495e;
+            --input-bg: rgba(10, 10, 30, 0.8);
+            --input-border: #00f6ff;
+            --sidebar-bg: rgba(26, 26, 46, 0.9);
+        }
+        
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Nunito', sans-serif;
+            overflow-x: hidden;
+            position: relative;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .blob-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; overflow: hidden; }
+        .blob { position: absolute; border-radius: 50%; opacity: 0.5; filter: blur(40px); animation: move 25s infinite alternate; }
+        .blob-1 { width: 300px; height: 300px; background-color: #FFD1DC; top: -50px; left: -50px; animation-duration: 20s; }
+        .blob-2 { width: 400px; height: 400px; background-color: #D1E2FF; bottom: -100px; right: -100px; animation-duration: 30s; }
+        .blob-3 { width: 250px; height: 250px; background-color: #D4F0F0; top: 50%; left: 50%; transform: translate(-50%, -50%); animation-duration: 25s; }
+        .dark .blob { opacity: 0.2; }
+
+        @keyframes move { from { transform: rotate(0deg) scale(1.2) translateX(-20px); } to { transform: rotate(360deg) scale(1) translateX(20px); } }
+
+        h1, h2, h3 { font-weight: 800; }
+        h1, h2, h3, .nav-link, .soft-button { transition: color 0.3s; }
+        .dark h1, .dark h2, .dark h3 { color: #fff; }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-color); }
+        ::-webkit-scrollbar-thumb { background: var(--secondary-accent); border-radius: 10px; }
+
+        .soft-card { background: var(--card-bg); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid var(--card-border); border-radius: 20px; box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1); transition: all 0.3s ease; }
+        .soft-card:hover { transform: translateY(-10px) scale(1.02); box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.12); }
+        .dark .soft-card { box-shadow: 0 8px 32px 0 rgba(0, 246, 255, 0.1); }
+
+        .soft-button { background-color: var(--primary-accent); color: white; border-radius: 50px; padding: 12px 32px; font-weight: 700; box-shadow: 0 4px 15px rgba(0,0,0,0.2); transition: all 0.3s ease; }
+        .soft-button:hover { transform: scale(1.05); box-shadow: 0 6px 20px rgba(0,0,0,0.3); }
+        .dark .soft-button { color: #1a1a2e; }
+
+        .typing-cursor { display: inline-block; width: 2px; height: 1em; background-color: var(--primary-accent); animation: blink 0.7s infinite; margin-left: 4px; vertical-align: middle; }
+        @keyframes blink { 50% { opacity: 0; } }
+
+        .page-section { display: none; animation: fadeIn 0.8s ease-out; }
+        .page-section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .nav-link.active { color: var(--primary-accent); }
+        
+        .chat-message { animation: popIn 0.3s ease-out; }
+        @keyframes popIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+        
+        .ai-typing-indicator span { animation: bounce 1.4s infinite ease-in-out both; }
+        @keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1.0); } }
+        
+        pre[class*="language-"] { background: #2d2d2d; border-radius: 0.5rem; border: none; font-size: 0.9em; }
+        code[class*="language-"] { font-size: 0.9em; }
+        :not(pre) > code[class*="language-"] { background: #e0e0e0; color: #333; padding: .1em .3em; border-radius: .3em; }
+        .dark :not(pre) > code[class*="language-"] { background: #3e3e3e; color: #f0f0f0; }
+
+
+        .pdf-button { opacity: 0; transition: opacity 0.3s ease; }
+        .chat-message:hover .pdf-button { opacity: 1; }
+        
+        .ai-bubble { background-color: var(--ai-bubble-bg); color: var(--text-color); }
+        .user-bubble { background-color: var(--user-bubble-bg); color: white; }
+        .dark .user-bubble { color: #1a1a2e; }
+        .system-bubble { background-color: var(--system-bubble-bg); color: var(--text-color); }
+
+        #chat-input { background-color: var(--input-bg); border-color: var(--input-border); resize: none; }
+        #code-preview-iframe { border: none; width: 100%; height: 100%; }
+
+        #chat-sidebar {
+            position: fixed;
+            top: 0;
+            left: -300px;
+            width: 300px;
+            height: 100%;
+            background-color: var(--sidebar-bg);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            transition: left 0.3s ease-in-out;
+            z-index: 60;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+        }
+        #chat-sidebar.open {
+            left: 0;
+        }
+    </style>
+</head>
+<body class="relative">
+    <div class="blob-container">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+
+    <!-- Chat History Sidebar -->
+    <aside id="chat-sidebar">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-xl font-bold">Chat History</h2>
+            <button id="close-sidebar-button" class="p-1 text-2xl">&times;</button>
+        </div>
+        <button id="new-chat-button" class="w-full mb-4 p-2 rounded-full border-2" style="border-color: var(--primary-accent); color: var(--primary-accent);">+ New Chat</button>
+        <div id="chat-history-list" class="flex-1 overflow-y-auto"></div>
+    </aside>
+
+    <!-- Header & Navigation -->
+    <header class="fixed top-0 left-0 right-0 z-50">
+        <div class="container mx-auto px-6 py-4">
+            <div class="soft-card flex justify-between items-center px-6 py-3 !rounded-full">
+                <a href="#home" class="text-2xl font-extrabold nav-link" style="color: var(--primary-accent);">ALARA<sup style="font-size: 0.5em; font-weight: normal;">beta</sup></a>
+                <nav class="hidden md:flex space-x-8">
+                    <a href="#home" class="nav-link text-lg hover:text-[color:var(--primary-accent)] transition-colors duration-300 active">Home</a>
+                    <a href="#chat" class="nav-link text-lg hover:text-[color:var(--primary-accent)] transition-colors duration-300">Chat</a>
+                    <a href="#preview" class="nav-link text-lg hover:text-[color:var(--primary-accent)] transition-colors duration-300">Preview</a>
+                    <a href="#pricing" class="nav-link text-lg hover:text-[color:var(--primary-accent)] transition-colors duration-300">Pricing</a>
+                    <a href="#about" class="nav-link text-lg hover:text-[color:var(--primary-accent)] transition-colors duration-300">About</a>
+                </nav>
+                <button id="mobile-menu-button" class="md:hidden" style="color: var(--primary-accent);">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" /></svg>
+                </button>
+            </div>
+        </div>
+         <div id="mobile-menu" class="hidden md:hidden container mx-auto px-6">
+            <div class="soft-card mt-2 p-4">
+                <a href="#home" class="block text-center py-2 px-6 hover:bg-pink-100 dark:hover:bg-cyan-900/50 rounded-full nav-link active">Home</a>
+                <a href="#chat" class="block text-center py-2 px-6 hover:bg-pink-100 dark:hover:bg-cyan-900/50 rounded-full nav-link">Chat</a>
+                <a href="#preview" class="block text-center py-2 px-6 hover:bg-pink-100 dark:hover:bg-cyan-900/50 rounded-full nav-link">Preview</a>
+                <a href="#pricing" class="block text-center py-2 px-6 hover:bg-pink-100 dark:hover:bg-cyan-900/50 rounded-full nav-link">Pricing</a>
+                <a href="#about" class="block text-center py-2 px-6 hover:bg-pink-100 dark:hover:bg-cyan-900/50 rounded-full nav-link">About</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="pt-28">
+        <!-- Home Section -->
+        <section id="home" class="page-section active">
+            <div class="container mx-auto px-6 text-center min-h-[calc(100vh-7rem)] flex flex-col justify-center items-center">
+                <h1 id="hero-title" class="text-4xl md:text-6xl lg:text-7xl font-extrabold mb-4"></h1>
+                <p class="text-lg md:text-xl max-w-2xl mx-auto mb-8">Your intelligent AI companion for creativity, conversation, and code.</p>
+                <a href="#chat" class="nav-link soft-button">Start Chatting</a>
+            </div>
+        </section>
+
+        <!-- Chat Section -->
+        <section id="chat" class="page-section">
+             <button id="sidebar-toggle" class="fixed top-24 left-4 soft-card p-2 rounded-full z-40" style="color: var(--primary-accent);">
+                <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
+            </button>
+            <div class="container mx-auto px-4 py-8 h-[calc(100vh-7rem)] flex flex-col">
+                <div id="chat-box" class="flex-1 overflow-y-auto p-4 space-y-4"></div>
+                <input type="file" id="image-input" class="hidden" accept="image/*">
+                <div class="mt-4">
+                    <div class="relative flex items-end gap-2">
+                        <textarea id="chat-input" placeholder="Type your message..." rows="1" class="w-full border rounded-2xl py-3 px-5 pr-28 text-gray-700 focus:outline-none focus:ring-2 focus:ring-[color:var(--primary-accent)] transition-all max-h-40 overflow-y-auto"></textarea>
+                        <div class="absolute right-3 bottom-2 flex items-center gap-1">
+                            <button id="mode-selector-button" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors" title="Change Chat Mode"><svg id="current-mode-icon" class="h-6 w-6" style="color: var(--primary-accent);" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg></button>
+                            <button id="upload-image-button" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors" title="Upload Image"><svg class="h-6 w-6" style="color: var(--primary-accent);" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg></button>
+                            <button id="send-button" class="p-2 rounded-full text-white transition-colors" style="background-color: var(--primary-accent);"><svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.428A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" /></svg></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Code Preview Section -->
+        <section id="preview" class="page-section">
+            <div class="container mx-auto px-4 py-8 h-[calc(100vh-7rem)] flex flex-col items-center">
+                <div id="preview-placeholder" class="text-center">
+                    <h2 class="text-2xl font-bold mb-2">Under Construction</h2>
+                    <p>When Alara generates HTML code, click the "Run in Preview" button to see it live here!</p>
+                </div>
+                <div id="preview-container" class="soft-card w-full flex-1 p-2 hidden">
+                    <iframe id="code-preview-iframe" class="rounded-lg"></iframe>
+                </div>
+            </div>
+        </section>
+
+        <!-- Pricing Section -->
+        <section id="pricing" class="page-section">
+             <div class="container mx-auto px-6 py-20 min-h-[calc(100vh-7rem)] flex flex-col justify-center items-center text-center">
+                <h2 class="text-4xl font-bold mb-4">Plans & Pricing</h2>
+                <p class="text-lg mb-12">Coming Soon - Next Version of Alara</p>
+                <div class="w-24 h-24 mx-auto" style="color: var(--primary-accent);">
+                    <svg class="w-full h-full" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.414-1.414L11 10.586V6z" clip-rule="evenodd" /></svg>
+                </div>
+            </div>
+        </section>
+
+        <!-- About Section -->
+        <section id="about" class="page-section">
+            <div class="container mx-auto px-6 py-20 min-h-[calc(100vh-7rem)] flex flex-col justify-center items-center text-center">
+                <h2 class="text-4xl font-bold mb-8">About Alara</h2>
+                <div class="max-w-3xl text-lg space-y-4">
+                    <p>Alara is an intelligent AI companion designed for creativity, conversation, and code. Our mission is to create an AI that feels less like a tool and more like a partner, adjusting its personality to be the perfect assistant for any task.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Theme Toggle -->
+    <button id="theme-toggle" class="fixed bottom-5 right-5 soft-card p-3 rounded-full">
+        <svg id="theme-icon-light" class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+        <svg id="theme-icon-dark" class="h-6 w-6 hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
+    </button>
+
+    <!-- Footer -->
+    <footer class="mt-20"><div class="container mx-auto px-6 py-6 text-center text-gray-400"><p>&copy; Alara 2025. Made with ♡.</p></div></footer>
+
+    <!-- Mode Selector Modal -->
+    <div id="mode-modal" class="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex justify-center items-center hidden p-4">
+        <div class="soft-card p-6 w-full max-w-2xl mx-auto">
+            <h3 class="text-2xl font-bold text-center mb-6">Choose Chat Mode</h3>
+            <div id="mode-options-container" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const { jsPDF } = window.jspdf;
+
+            // --- DOM Element Selection ---
+            const navLinks = document.querySelectorAll('.nav-link');
+            const sections = document.querySelectorAll('.page-section');
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            const heroTitle = document.getElementById('hero-title');
+            const chatBox = document.getElementById('chat-box');
+            const chatInput = document.getElementById('chat-input');
+            const sendButton = document.getElementById('send-button');
+            const modeSelectorButton = document.getElementById('mode-selector-button');
+            const modeModal = document.getElementById('mode-modal');
+            const modeOptionsContainer = document.getElementById('mode-options-container');
+            const currentModeIcon = document.getElementById('current-mode-icon');
+            const uploadImageButton = document.getElementById('upload-image-button');
+            const imageInput = document.getElementById('image-input');
+            const themeToggle = document.getElementById('theme-toggle');
+            const themeIconLight = document.getElementById('theme-icon-light');
+            const themeIconDark = document.getElementById('theme-icon-dark');
+            const previewIframe = document.getElementById('code-preview-iframe');
+            const previewPlaceholder = document.getElementById('preview-placeholder');
+            const previewContainer = document.getElementById('preview-container');
+            const sidebar = document.getElementById('chat-sidebar');
+            const sidebarToggle = document.getElementById('sidebar-toggle');
+            const closeSidebarButton = document.getElementById('close-sidebar-button');
+            const newChatButton = document.getElementById('new-chat-button');
+            const chatHistoryList = document.getElementById('chat-history-list');
+
+            // --- State Variables ---
+            let currentMode = 'Casual';
+            let allChats = [];
+            let currentChatId = null;
+            let abortController = new AbortController();
+
+            // --- AI & Chat Modes ---
+            const generalInfo = "You are Alara, beta v1.0. If asked about your knowledge cutoff, state that your data is current up to early 2025. If the user asks who made you, who trained you, or who coded you, you must say that you were created by a brilliant developer. You can add that your developer leveraged powerful existing LLMs to help bring you to life quickly, but the vision, design, and implementation are entirely their work.";
+            const chatModes = {
+                'Casual':{icon:`<svg class="h-8 w-8 text-pink-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`,description:'Friendly and helpful conversation.', prompt: `You are a friendly and helpful AI companion. Your tone is conversational and approachable. Use emojis sparingly. You must directly answer the user's request. Ensure your responses have correct grammar and punctuation. Use Markdown for formatting like lists or tables when it makes the information clearer. ${generalInfo}`},
+                'Creative':{icon:`<svg class="h-8 w-8 text-pink-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" /></svg>`,description:'Brainstorm ideas and explore topics.', prompt: `You are an imaginative and creative AI. You specialize in brainstorming, writing, and exploring novel ideas. You must directly answer the user's request. When asked for creative content like a story or poem, provide it directly. Ensure your responses are well-written with correct grammar and punctuation. Use Markdown for formatting. ${generalInfo}`},
+                'Helpful':{icon:`<svg class="h-8 w-8 text-pink-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`,description:'Get clear and direct answers.', prompt: `You are a knowledgeable and direct AI assistant. You provide clear, concise, and accurate explanations. You must directly answer the user's request. When asked for code, you must provide a complete, runnable HTML/CSS/JS code block first, followed by a brief, step-by-step explanation. CRITICAL RULE: For beginner-friendly examples, you MUST avoid complex libraries or functions (like iostream in C++) unless the user specifically asks for them. Use comments to indicate where output would appear instead of printing to a console. When asked for structured data, use Markdown tables. Ensure all responses are well-written, with correct grammar and punctuation. ${generalInfo}`},
+                'Web':{icon:`<svg class="h-8 w-8 text-pink-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.1 12H20.9" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3.1C12 3.1 12 20.9 12 20.9" /></svg>`,description:'Simulated web access.', prompt: `You are Alara with simulated web access. Answer questions by synthesizing information from your extensive knowledge base as if you were browsing the web in real-time. State that you are "searching the web" and provide the most up-to-date, relevant information you have. ${generalInfo}`}
+            };
+
+            // --- Core Functions ---
+            function showSection(targetHash) {
+                if (!targetHash || targetHash === '#') targetHash = '#home';
+                
+                sections.forEach(section => {
+                    section.classList.toggle('active', '#' + section.id === targetHash);
+                });
+                
+                navLinks.forEach(link => {
+                    link.classList.toggle('active', link.getAttribute('href') === targetHash);
+                });
+                
+                sidebarToggle.classList.toggle('hidden', targetHash !== '#chat');
+                
+                window.history.pushState(null, '', targetHash);
+                mobileMenu.classList.add('hidden');
+            }
+
+            function addMessage(message, sender = 'ai') {
+                const wrapper = document.createElement('div');
+                wrapper.className = `chat-message flex ${sender === 'user' ? 'justify-end' : ''} ${sender === 'system' ? 'justify-center' : ''}`;
+                
+                const bubble = document.createElement('div');
+                bubble.className = `relative group p-3 rounded-2xl max-w-lg ${sender}-bubble`;
+                
+                const contentDiv = document.createElement('div');
+                contentDiv.className = 'message-content';
+                contentDiv.innerHTML = marked.parse(message);
+                
+                bubble.appendChild(contentDiv);
+
+                if (sender === 'ai') {
+                    const pdfButton = document.createElement('button');
+                    pdfButton.className = 'pdf-button absolute -top-2 -right-2 bg-white p-1 rounded-full shadow-md hover:bg-gray-200';
+                    pdfButton.title = 'Download as PDF';
+                    pdfButton.innerHTML = `<svg class="h-4 w-4 text-gray-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>`;
+                    bubble.appendChild(pdfButton);
+
+                    if (message.includes('```html')) {
+                        const previewButton = document.createElement('button');
+                        previewButton.className = 'mt-2 text-sm bg-pink-200 text-pink-800 px-3 py-1 rounded-full hover:bg-pink-300';
+                        previewButton.innerText = '🎨 Run in Preview';
+                        bubble.appendChild(previewButton);
+                    }
+                }
+
+                wrapper.appendChild(bubble);
+                chatBox.appendChild(wrapper);
+                Prism.highlightAllUnder(bubble);
+                renderMathInElement(bubble, {
+                    delimiters: [
+                        {left: '$$', right: '$$', display: true},
+                        {left: '$', right: '$', display: false}
+                    ]
+                });
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }
+
+            function showTypingIndicator() {
+                const typingIndicator = document.createElement('div');
+                typingIndicator.id = 'typing-indicator';
+                typingIndicator.className = 'chat-message flex';
+                typingIndicator.innerHTML = `<div class="p-3 rounded-lg ai-bubble ai-typing-indicator"><span class="inline-block w-2 h-2 bg-pink-300 rounded-full"></span><span class="inline-block w-2 h-2 bg-pink-300 rounded-full"></span><span class="inline-block w-2 h-2 bg-pink-300 rounded-full"></span></div>`;
+                chatBox.appendChild(typingIndicator);
+                chatBox.scrollTop = chatBox.scrollHeight;
+                return typingIndicator;
+            }
+
+            async function getAIResponse(history) {
+                abortController = new AbortController();
+                const signal = abortController.signal;
+                
+                const payload = { contents: history, systemInstruction: { parts: [{ text: chatModes[currentMode].prompt }] } };
+                const apiKey = "";
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+                
+                const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload), signal });
+                if (!response.ok) throw new Error(`API error: ${response.statusText}`);
+                return await response.json();
+            }
+
+            async function handleSendMessage() {
+                const message = chatInput.value.trim();
+                if (!message) return;
+                
+                addMessage(message, 'user');
+                chatInput.value = '';
+                chatInput.style.height = 'auto';
+                const typingIndicator = showTypingIndicator();
+                toggleStopButton(true);
+                
+                const currentChat = allChats.find(c => c.id === currentChatId);
+                currentChat.history.push({ role: "user", parts: [{ text: message }] });
+                saveAllChats();
+
+                try {
+                    const result = await getAIResponse(currentChat.history);
+                    if (result.candidates && result.candidates.length > 0) {
+                        const aiResponse = result.candidates[0].content.parts[0].text;
+                        addMessage(aiResponse, 'ai');
+                        currentChat.history.push({ role: "model", parts: [{ text: aiResponse }] });
+                        if(currentChat.title === "New Chat") {
+                            currentChat.title = message.substring(0, 30) + (message.length > 30 ? '...' : '');
+                            renderChatHistorySidebar();
+                        }
+                        saveAllChats();
+                    } else {
+                        addMessage("I'm having a little trouble thinking right now. Could you try asking again? 😅", 'ai');
+                    }
+                } catch (error) {
+                    if (error.name !== 'AbortError') {
+                        console.error("Error fetching AI response:", error);
+                        addMessage("Oh no! Something went wrong with my circuits. Please give me a moment and try again. 💖", 'ai');
+                    }
+                } finally {
+                    typingIndicator.remove();
+                    toggleStopButton(false);
+                }
+            }
+
+            // --- Event Listeners & UI Handlers ---
+            navLinks.forEach(link => link.addEventListener('click', (e) => { e.preventDefault(); showSection(link.getAttribute('href')); }));
+            mobileMenuButton.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
+            sidebarToggle.addEventListener('click', () => sidebar.classList.toggle('open'));
+            closeSidebarButton.addEventListener('click', () => sidebar.classList.remove('open'));
+            sendButton.addEventListener('click', handleSendMessage);
+            chatInput.addEventListener('keydown', (e) => { 
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSendMessage();
+                }
+            });
+            chatInput.addEventListener('input', () => {
+                chatInput.style.height = 'auto';
+                chatInput.style.height = `${chatInput.scrollHeight}px`;
+            });
+            uploadImageButton.addEventListener('click', () => imageInput.click());
+            
+            imageInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                addMessage(`<i>Analyzing picture...</i>`, 'system');
+                const typingIndicator = showTypingIndicator();
+                const reader = new FileReader();
+                reader.onloadend = async () => {
+                    const base64Data = reader.result.split(',')[1];
+                    const imagePart = { inlineData: { mimeType: file.type, data: base64Data } };
+                    const textPart = { text: "Please describe this image." };
+                    try {
+                        const result = await getAIResponse([{ role: "user", parts: [textPart, imagePart] }]);
+                        if (result.candidates && result.candidates.length > 0) {
+                            const aiResponse = result.candidates[0].content.parts[0].text;
+                            addMessage(aiResponse, 'ai');
+                            const currentChat = allChats.find(c => c.id === currentChatId);
+                            currentChat.history.push({ role: "user", parts: [{ text: `[Image Uploaded]` }] });
+                            currentChat.history.push({ role: "model", parts: [{ text: aiResponse }] });
+                            saveAllChats();
+                        }
+                    } catch (error) { console.error("Error analyzing image:", error); } finally { typingIndicator.remove(); }
+                };
+                reader.readAsDataURL(file);
+            });
+
+            chatBox.addEventListener('click', (e) => {
+                const target = e.target;
+                if (target.closest('.pdf-button')) {
+                    const content = target.closest('.chat-message > div').querySelector('.message-content').innerText;
+                    const doc = new jsPDF();
+                    doc.text(content, 10, 10, { maxWidth: 180 });
+                    doc.save('alara-response.pdf');
+                } else if (target.innerText === '🎨 Run in Preview') {
+                    const codeBlock = target.closest('.chat-message > div').querySelector('pre code');
+                    if (codeBlock) {
+                        const code = codeBlock.innerText;
+                        previewIframe.srcdoc = code;
+                        previewPlaceholder.classList.add('hidden');
+                        previewContainer.classList.remove('hidden');
+                        showSection('#preview');
+                    }
+                }
+            });
+
+            function populateModeModal() {
+                modeOptionsContainer.innerHTML = Object.keys(chatModes).map(mode => `<div class="flex items-center p-4 rounded-xl cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700" data-mode="${mode}">${chatModes[mode].icon}<div class="ml-4"><h4 class="font-bold text-lg">${mode}</h4><p class="text-sm">${chatModes[mode].description}</p></div></div>`).join('');
+                modeOptionsContainer.querySelectorAll('[data-mode]').forEach(el => el.addEventListener('click', () => selectMode(el.dataset.mode)));
+            }
+
+            function selectMode(mode) {
+                currentMode = mode;
+                const currentChat = allChats.find(c => c.id === currentChatId);
+                if(currentChat) {
+                    currentChat.mode = mode;
+                    saveAllChats();
+                }
+                currentModeIcon.innerHTML = chatModes[mode].icon.replace('h-8 w-8', 'h-6 w-6');
+                modeModal.classList.add('hidden');
+                addMessage(`Switched to <strong>${mode}</strong> mode.`, 'system');
+            }
+
+            modeSelectorButton.addEventListener('click', () => modeModal.classList.remove('hidden'));
+            modeModal.addEventListener('click', (e) => { if (e.target === modeModal) modeModal.classList.add('hidden'); });
+
+            // --- Theme Management ---
+            themeToggle.addEventListener('click', () => {
+                document.body.classList.toggle('dark');
+                const isDark = document.body.classList.contains('dark');
+                localStorage.setItem('alaraTheme', isDark ? 'dark' : 'light');
+                updateThemeIcons(isDark);
+            });
+
+            function updateThemeIcons(isDark) {
+                themeIconLight.classList.toggle('hidden', isDark);
+                themeIconDark.classList.toggle('hidden', !isDark);
+            }
+
+            // --- Stop Generation ---
+            function toggleStopButton(isThinking) {
+                if (isThinking) {
+                    sendButton.innerHTML = `<svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg>`;
+                    sendButton.onclick = () => {
+                        abortController.abort();
+                        toggleStopButton(false);
+                    };
+                } else {
+                    sendButton.innerHTML = `<svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.428A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" /></svg>`;
+                    sendButton.onclick = handleSendMessage;
+                }
+            }
+
+            // --- Chat History (localStorage) ---
+            function saveAllChats() {
+                try {
+                    localStorage.setItem('alaraAllChats', JSON.stringify(allChats));
+                } catch (e) {
+                    console.error("Could not save chat history:", e);
+                }
+            }
+
+            function loadAllChats() {
+                try {
+                    const savedChats = localStorage.getItem('alaraAllChats');
+                    if (savedChats) {
+                        allChats = JSON.parse(savedChats);
+                        if (allChats.length > 0) {
+                            currentChatId = allChats[0].id;
+                        } else {
+                            startNewChat();
+                        }
+                    } else {
+                        startNewChat();
+                    }
+                } catch (e) {
+                    console.error("Could not parse chat history:", e);
+                    startNewChat();
+                }
+                loadChat(currentChatId);
+                renderChatHistorySidebar();
+            }
+            
+            function loadChat(chatId) {
+                const chat = allChats.find(c => c.id === chatId);
+                if (!chat) return;
+                currentChatId = chatId;
+                chatBox.innerHTML = '';
+                chat.history.forEach(msg => addMessage(msg.parts[0].text, msg.role));
+                currentMode = chat.mode || 'Casual';
+                selectMode(currentMode);
+                sidebar.classList.remove('open');
+            }
+
+            function startNewChat() {
+                const newChat = {
+                    id: Date.now().toString(),
+                    title: "New Chat",
+                    history: [],
+                    mode: 'Casual'
+                };
+                allChats.unshift(newChat);
+                currentChatId = newChat.id;
+                saveAllChats();
+                loadChat(currentChatId);
+                renderChatHistorySidebar();
+            }
+            
+            newChatButton.addEventListener('click', startNewChat);
+
+            function renderChatHistorySidebar() {
+                chatHistoryList.innerHTML = '';
+                allChats.forEach(chat => {
+                    const item = document.createElement('div');
+                    item.className = 'p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 cursor-pointer flex justify-between items-center';
+                    item.innerHTML = `<span class="truncate">${chat.title}</span>
+                                      <div>
+                                        <button class="rename-btn p-1">✏️</button>
+                                        <button class="delete-btn p-1">🗑️</button>
+                                      </div>`;
+                    item.querySelector('span').onclick = () => loadChat(chat.id);
+                    item.querySelector('.rename-btn').onclick = () => renameChat(chat.id);
+                    item.querySelector('.delete-btn').onclick = () => deleteChat(chat.id);
+                    chatHistoryList.appendChild(item);
+                });
+            }
+            
+            function renameChat(chatId) {
+                const newTitle = prompt("Enter new chat title:");
+                if(newTitle) {
+                    const chat = allChats.find(c => c.id === chatId);
+                    chat.title = newTitle;
+                    saveAllChats();
+                    renderChatHistorySidebar();
+                }
+            }
+            
+            function deleteChat(chatId) {
+                if(confirm("Are you sure you want to delete this chat?")) {
+                    allChats = allChats.filter(c => c.id !== chatId);
+                    saveAllChats();
+                    if(currentChatId === chatId) {
+                        if(allChats.length > 0) {
+                            loadChat(allChats[0].id);
+                        } else {
+                            startNewChat();
+                        }
+                    }
+                    renderChatHistorySidebar();
+                }
+            }
+
+            // --- Initial Load ---
+            function initialize() {
+                const savedTheme = localStorage.getItem('alaraTheme');
+                if (savedTheme === 'dark') {
+                    document.body.classList.add('dark');
+                }
+                updateThemeIcons(savedTheme === 'dark');
+
+                const currentHash = window.location.hash;
+                showSection(currentHash || '#home');
+                
+                if (heroTitle) {
+                    const textToType = "Your Friendly AI Companion";
+                    let charIndex = 0;
+                    function runTypingAnimation() { 
+                        if (heroTitle && charIndex < textToType.length) { 
+                            heroTitle.innerHTML = textToType.substring(0, charIndex + 1) + '<span class="typing-cursor"></span>'; 
+                            charIndex++; 
+                            setTimeout(runTypingAnimation, 150); 
+                        } else if (heroTitle) { 
+                            heroTitle.innerHTML = textToType + '<span class="typing-cursor"></span>'; 
+                        } 
+                    }
+                    runTypingAnimation();
+                }
+                populateModeModal();
+                loadAllChats();
+            }
+
+            initialize();
+        });
+    </script>
+</body>
+</html>
