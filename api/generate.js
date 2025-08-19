@@ -14,7 +14,7 @@ export default async function handler(request, response) {
   try {
     // FIXED: This robustly handles potential inconsistencies from mobile browsers.
     // It checks if the body is already a string and parses it, ensuring the
-    // payload sent to the Gemini API is always correctly formatted.
+    // payload sent to the Gemini API is always a correctly formatted JSON object.
     let requestPayload = request.body;
     if (typeof requestPayload === 'string') {
         try {
