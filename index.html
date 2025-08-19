@@ -395,8 +395,7 @@
                 const signal = abortController.signal;
                 
                 const payload = { contents: history, systemInstruction: { parts: [{ text: chatModes[currentMode].prompt }] } };
-                const apiKey = "";
-                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+                const apiUrl = '/api/generate'; // Use the secure proxy
                 
                 const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload), signal });
                 if (!response.ok) throw new Error(`API error: ${response.statusText}`);
