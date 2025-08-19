@@ -1,7 +1,6 @@
 // This is a Vercel serverless function that acts as a secure proxy.
 // It receives the chat history from the user's browser,
-// securely adds the secret API key from Vercel's environment variables,
-// and then calls the Gemini API.
+// securely adds the secret API key, and then calls the Gemini API.
 
 export default async function handler(request, response) {
   // Vercel automatically makes environment variables available here.
@@ -13,13 +12,25 @@ export default async function handler(request, response) {
   }
 
   try {
+    // FIXED: This robustly handles potential inconsistencies from mobile browsers.
+    // It checks if the body is already a string and parses it, ensuring the
+    // payload sent to the Gemini API is always correctly formatted.
+    let requestPayload = request.body;
+    if (typeof requestPayload === 'string') {
+        try {
+            requestPayload = JSON.parse(requestPayload);
+        } catch (e) {
+            console.error("Failed to parse request body string:", e);
+            return response.status(400).json({ error: "Invalid JSON in request body." });
+        }
+    }
+
     const geminiResponse = await fetch(apiUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      // Forward the body from the client request to the Gemini API
-      body: JSON.stringify(request.body),
+      body: JSON.stringify(requestPayload),
     });
 
     const data = await geminiResponse.json();
