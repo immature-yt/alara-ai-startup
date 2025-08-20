@@ -393,7 +393,7 @@
                 chatInput.value = '';
                 chatInput.style.height = 'auto';
                 toggleStopButton(true);
-                
+
                 const currentChat = allChats.find(c => c.id === currentChatId);
                 currentChat.history.push({ role: "user", parts: [{ text: message }] });
                 
@@ -403,17 +403,13 @@
                 let fullResponse = "";
                 
                 try {
-                    abortController = new AbortController();
-                    const signal = abortController.signal;
-
                     const response = await fetch('/api/generate', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
                             contents: currentChat.history,
                             systemInstruction: { parts: [{ text: chatModes[currentMode].prompt }] }
-                        }),
-                        signal
+                        })
                     });
 
                     if (!response.ok) throw new Error(`API error: ${response.statusText}`);
@@ -710,4 +706,4 @@
         });
     </script>
 </body>
-</html>
+    </html>
