@@ -115,6 +115,9 @@
         .chat-message { animation: popIn 0.3s ease-out; }
         @keyframes popIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
         
+        .ai-typing-indicator span { animation: bounce 1.4s infinite ease-in-out both; }
+        @keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1.0); } }
+        
         pre[class*="language-"] { background: #2d2d2d; border-radius: 0.5rem; border: none; font-size: 0.9em; }
         code[class*="language-"] { font-size: 0.9em; }
         :not(pre) > code[class*="language-"] { background: #e0e0e0; color: #333; padding: .1em .3em; border-radius: .3em; }
@@ -152,7 +155,7 @@
         }
     </style>
 </head>
-<body class="relative">
+<body class="relative flex flex-col min-h-screen">
     <div class="blob-container">
         <div class="blob blob-1"></div>
         <div class="blob blob-2"></div>
@@ -197,7 +200,7 @@
         </div>
     </header>
 
-    <main class="pt-28">
+    <main class="pt-28 flex-1">
         <!-- Home Section -->
         <section id="home" class="page-section active">
             <div class="container mx-auto px-6 text-center min-h-[calc(100vh-7rem)] flex flex-col justify-center items-center">
@@ -216,6 +219,7 @@
                 <div id="chat-box" class="flex-1 overflow-y-auto p-4 space-y-4"></div>
                 <input type="file" id="image-input" class="hidden" accept="image/*">
                 <div class="mt-4">
+                    <div id="image-preview-container" class="mb-2"></div>
                     <div class="relative flex items-end gap-2">
                         <textarea id="chat-input" placeholder="Type your message..." rows="1" class="w-full border rounded-2xl py-3 px-5 pr-28 text-gray-700 focus:outline-none focus:ring-2 focus:ring-[color:var(--primary-accent)] transition-all max-h-40 overflow-y-auto"></textarea>
                         <div class="absolute right-3 bottom-2 flex items-center gap-1">
@@ -243,7 +247,7 @@
 
         <!-- Pricing Section -->
         <section id="pricing" class="page-section">
-             <div class="container mx-auto px-6 py-20 min-h-[calc(100vh-7rem)] flex flex-col justify-center items-center text-center">
+             <div class="container mx-auto px-6 py-20 flex flex-col justify-center items-center text-center">
                 <h2 class="text-4xl font-bold mb-4">Plans & Pricing</h2>
                 <p class="text-lg mb-12">Coming Soon - Next Version of Alara</p>
                 <div class="w-24 h-24 mx-auto" style="color: var(--primary-accent);">
@@ -254,7 +258,7 @@
 
         <!-- About Section -->
         <section id="about" class="page-section">
-            <div class="container mx-auto px-6 py-20 min-h-[calc(100vh-7rem)] flex flex-col justify-center items-center text-center">
+            <div class="container mx-auto px-6 py-20 flex flex-col justify-center items-center text-center">
                 <h2 class="text-4xl font-bold mb-8">About Alara</h2>
                 <div class="max-w-3xl text-lg space-y-4">
                     <p>Alara is an intelligent AI companion designed for creativity, conversation, and code. Our mission is to create an AI that feels less like a tool and more like a partner, adjusting its personality to be the perfect assistant for any task.</p>
@@ -270,7 +274,7 @@
     </button>
 
     <!-- Footer -->
-    <footer class="mt-20"><div class="container mx-auto px-6 py-6 text-center text-gray-400"><p>&copy; Alara 2025. Made with ♡.</p></div></footer>
+    <footer class="mt-auto"><div class="container mx-auto px-6 py-6 text-center text-gray-400"><p>&copy; Alara 2025. Made with ♡.</p></div></footer>
 
     <!-- Mode Selector Modal -->
     <div id="mode-modal" class="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex justify-center items-center hidden p-4">
@@ -299,6 +303,7 @@
             const currentModeIcon = document.getElementById('current-mode-icon');
             const uploadImageButton = document.getElementById('upload-image-button');
             const imageInput = document.getElementById('image-input');
+            const imagePreviewContainer = document.getElementById('image-preview-container');
             const themeToggle = document.getElementById('theme-toggle');
             const themeIconLight = document.getElementById('theme-icon-light');
             const themeIconDark = document.getElementById('theme-icon-dark');
@@ -316,9 +321,10 @@
             let allChats = [];
             let currentChatId = null;
             let abortController = new AbortController();
+            let attachedFile = null;
 
             // --- AI & Chat Modes ---
-            const generalInfo = "You are Alara, beta v1.0. If asked about your knowledge cutoff, state that your data is current up to early 2025. If the user asks who made you, who trained you, or who coded you, you must say that you were created by a brilliant developer. You can add that your developer leveraged powerful existing LLMs to help bring you to life quickly, but the vision, design, and implementation are entirely their work. If the user asks about the specific AI model you use (e.g., 'are you Gemini?'), state that your architecture is proprietary and was developed by your creator, but that it leverages foundational technologies from major AI labs to accelerate development. You should also inject witty and clever humor into your responses where appropriate, while still remaining helpful and on-topic.";
+            const generalInfo = "You are Alara, beta v1.0. If asked about your knowledge cutoff, state that your data is current up to early 2025. If the user asks who made you, who trained you, or who coded you, you must say that you were created by a brilliant developer. You can add that your developer leveraged powerful existing LLMs to help bring you to life quickly, but the vision, design, and implementation are entirely their work. If the user asks about the specific AI model you use (e.g., 'are you Gemini?'), state that your architecture is proprietary and was developed by your creator, but that it leverages foundational technologies from major AI labs to accelerate development.";
             const chatModes = {
                 'Casual':{icon:`<svg class="h-8 w-8 text-pink-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`,description:'Friendly and helpful conversation.', prompt: `You are a friendly and helpful AI companion. Your tone is conversational and approachable. Use emojis sparingly. You must directly answer the user's request. Ensure your responses have correct grammar and punctuation. Use Markdown for formatting like lists or tables when it makes the information clearer. ${generalInfo}`},
                 'Creative':{icon:`<svg class="h-8 w-8 text-pink-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" /></svg>`,description:'Brainstorm ideas and explore topics.', prompt: `You are an imaginative and creative AI. You specialize in brainstorming, writing, and exploring novel ideas. You must directly answer the user's request. When asked for creative content like a story or poem, provide it directly. Ensure your responses are well-written with correct grammar and punctuation. Use Markdown for formatting. ${generalInfo}`},
@@ -385,82 +391,91 @@
                 return bubble;
             }
 
+            function showTypingIndicator() {
+                const typingIndicator = document.createElement('div');
+                typingIndicator.id = 'typing-indicator';
+                typingIndicator.className = 'chat-message flex';
+                typingIndicator.innerHTML = `<div class="p-3 rounded-lg ai-bubble ai-typing-indicator"><span class="inline-block w-2 h-2 bg-pink-300 rounded-full"></span><span class="inline-block w-2 h-2 bg-pink-300 rounded-full"></span><span class="inline-block w-2 h-2 bg-pink-300 rounded-full"></span></div>`;
+                chatBox.appendChild(typingIndicator);
+                chatBox.scrollTop = chatBox.scrollHeight;
+                return typingIndicator;
+            }
+
+            async function getAIResponse(history) {
+                abortController = new AbortController();
+                const signal = abortController.signal;
+                
+                const isPreview = window.location.hostname.includes('localhost') || window.location.hostname.includes('usercontent.goog');
+                
+                const payload = { contents: history, systemInstruction: { parts: [{ text: chatModes[currentMode].prompt }] } };
+                
+                let apiUrl;
+                let fetchOptions;
+
+                if (isPreview) {
+                    const tempApiKey = ""; 
+                    apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${tempApiKey}`;
+                    fetchOptions = { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload), signal };
+                } else {
+                    apiUrl = new URL('/api/generate', window.location.origin).toString();
+                    fetchOptions = { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload), signal };
+                }
+                
+                const response = await fetch(apiUrl, fetchOptions);
+                if (!response.ok) throw new Error(`API error: ${response.statusText}`);
+                return await response.json();
+            }
+
             async function handleSendMessage() {
                 const message = chatInput.value.trim();
-                if (!message) return;
+                if (!message && !attachedFile) return;
                 
-                addMessage(message, 'user');
+                let userMessage = message;
+                if (attachedFile) {
+                    userMessage = `[Image Attached] ${message}`;
+                }
+                addMessage(userMessage, 'user');
                 chatInput.value = '';
                 chatInput.style.height = 'auto';
+                
+                const typingIndicator = showTypingIndicator();
                 toggleStopButton(true);
-
+                
                 const currentChat = allChats.find(c => c.id === currentChatId);
-                currentChat.history.push({ role: "user", parts: [{ text: message }] });
                 
-                const aiBubble = addMessage("", 'ai');
-                const contentDiv = aiBubble.querySelector('.message-content');
-                
-                let fullResponse = "";
-                
+                const userParts = [];
+                if (message) {
+                    userParts.push({ text: message });
+                }
+                if (attachedFile) {
+                    userParts.push({ inlineData: { mimeType: attachedFile.mimeType, data: attachedFile.base64Data } });
+                }
+
+                currentChat.history.push({ role: "user", parts: userParts });
+                saveAllChats();
+                clearAttachment();
+
                 try {
-                    const response = await fetch('/api/generate', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            contents: currentChat.history,
-                            systemInstruction: { parts: [{ text: chatModes[currentMode].prompt }] }
-                        })
-                    });
-
-                    if (!response.ok) throw new Error(`API error: ${response.statusText}`);
-
-                    const reader = response.body.getReader();
-                    const decoder = new TextDecoder();
-
-                    while (true) {
-                        const { value, done } = await reader.read();
-                        if (done) break;
-                        
-                        const chunk = decoder.decode(value);
-                        const lines = chunk.split('\n');
-                        const parsedLines = lines
-                            .map(line => line.replace(/^data: /, "").trim())
-                            .filter(line => line !== "" && line !== "[DONE]")
-                            .map(line => JSON.parse(line));
-
-                        for (const parsedLine of parsedLines) {
-                            if (parsedLine.candidates && parsedLine.candidates[0].content) {
-                                const text = parsedLine.candidates[0].content.parts[0].text;
-                                fullResponse += text;
-                                contentDiv.innerHTML = marked.parse(fullResponse + "█");
-                                Prism.highlightAllUnder(contentDiv);
-                                chatBox.scrollTop = chatBox.scrollHeight;
-                            }
+                    const result = await getAIResponse(currentChat.history);
+                    if (result.candidates && result.candidates.length > 0) {
+                        const aiResponse = result.candidates[0].content.parts[0].text;
+                        addMessage(aiResponse, 'ai');
+                        currentChat.history.push({ role: "model", parts: [{ text: aiResponse }] });
+                        if(currentChat.title === "New Chat") {
+                            currentChat.title = message.substring(0, 30) + (message.length > 30 ? '...' : '');
+                            renderChatHistorySidebar();
                         }
+                        saveAllChats();
+                    } else {
+                        addMessage("I'm having a little trouble thinking right now. Could you try asking again? 😅", 'ai');
                     }
-
-                    contentDiv.innerHTML = marked.parse(fullResponse);
-                    Prism.highlightAllUnder(contentDiv);
-                    renderMathInElement(contentDiv, {
-                        delimiters: [
-                            {left: '$$', right: '$$', display: true},
-                            {left: '$', right: '$', display: false}
-                        ]
-                    });
-
-                    currentChat.history.push({ role: "model", parts: [{ text: fullResponse }] });
-                    if(currentChat.title === "New Chat") {
-                        currentChat.title = message.substring(0, 30) + (message.length > 30 ? '...' : '');
-                        renderChatHistorySidebar();
-                    }
-                    saveAllChats();
-
                 } catch (error) {
                     if (error.name !== 'AbortError') {
                         console.error("Error fetching AI response:", error);
                         addMessage("Oh no! Something went wrong with my circuits. Please give me a moment and try again. 💖", 'ai');
                     }
                 } finally {
+                    typingIndicator.remove();
                     toggleStopButton(false);
                 }
             }
@@ -486,27 +501,36 @@
             imageInput.addEventListener('change', (e) => {
                 const file = e.target.files[0];
                 if (!file) return;
-                addMessage(`<i>Analyzing picture...</i>`, 'system');
-                const typingIndicator = showTypingIndicator();
+                
                 const reader = new FileReader();
-                reader.onloadend = async () => {
+                reader.onloadend = () => {
                     const base64Data = reader.result.split(',')[1];
-                    const imagePart = { inlineData: { mimeType: file.type, data: base64Data } };
-                    const textPart = { text: "Please describe this image." };
-                    try {
-                        const result = await getAIResponse([{ role: "user", parts: [textPart, imagePart] }]);
-                        if (result.candidates && result.candidates.length > 0) {
-                            const aiResponse = result.candidates[0].content.parts[0].text;
-                            addMessage(aiResponse, 'ai');
-                            const currentChat = allChats.find(c => c.id === currentChatId);
-                            currentChat.history.push({ role: "user", parts: [{ text: `[Image Uploaded]` }] });
-                            currentChat.history.push({ role: "model", parts: [{ text: aiResponse }] });
-                            saveAllChats();
-                        }
-                    } catch (error) { console.error("Error analyzing image:", error); } finally { typingIndicator.remove(); }
+                    attachedFile = {
+                        base64Data,
+                        mimeType: file.type,
+                        name: file.name
+                    };
+                    renderImagePreview();
                 };
                 reader.readAsDataURL(file);
             });
+
+            function renderImagePreview() {
+                if (!attachedFile) return;
+                imagePreviewContainer.innerHTML = `
+                    <div class="relative inline-block">
+                        <img src="data:${attachedFile.mimeType};base64,${attachedFile.base64Data}" class="h-16 w-16 object-cover rounded-lg">
+                        <button id="remove-image-btn" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full h-6 w-6 flex items-center justify-center">&times;</button>
+                    </div>
+                `;
+                document.getElementById('remove-image-btn').addEventListener('click', clearAttachment);
+            }
+
+            function clearAttachment() {
+                attachedFile = null;
+                imagePreviewContainer.innerHTML = '';
+                imageInput.value = ''; // Reset file input
+            }
 
             chatBox.addEventListener('click', (e) => {
                 const target = e.target;
@@ -706,4 +730,4 @@
         });
     </script>
 </body>
-    </html>
+</html>
