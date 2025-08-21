@@ -13,8 +13,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;700;800&display=swap" rel="stylesheet">
     
-    <!-- jsPDF Library for PDF Generation -->
+    <!-- jsPDF & html2canvas Libraries for PDF Generation -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <!-- Prism.js for Syntax Highlighting -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-okaidia.min.css">
@@ -41,32 +42,32 @@
         :root {
             --bg-color: #FFF8F0;
             --text-color: #4A4A4A;
-            --card-bg: rgba(255, 255, 255, 0.7);
-            --card-border: rgba(255, 182, 193, 0.3);
+            --card-bg: rgba(255, 255, 255, 0.6);
+            --card-border: rgba(255, 182, 193, 0.2);
             --primary-accent: #FF69B4;
             --secondary-accent: #FFB6C1;
             --ai-bubble-bg: #fce7f3;
             --user-bubble-bg: #FF69B4;
             --system-bubble-bg: #f3f4f6;
-            --input-bg: rgba(255, 255, 255, 0.8);
+            --input-bg: rgba(255, 255, 255, 0.7);
             --input-border: #fbcfe8;
-            --sidebar-bg: rgba(255, 248, 240, 0.9);
+            --sidebar-bg: rgba(255, 248, 240, 0.85);
         }
 
         /* Dark Theme */
         .dark {
             --bg-color: #1a1a2e;
             --text-color: #e0e0e0;
-            --card-bg: rgba(10, 10, 30, 0.7);
-            --card-border: rgba(0, 246, 255, 0.2);
+            --card-bg: rgba(10, 10, 30, 0.6);
+            --card-border: rgba(0, 246, 255, 0.15);
             --primary-accent: #00f6ff;
             --secondary-accent: #00c5cc;
             --ai-bubble-bg: #2c3e50;
             --user-bubble-bg: #00f6ff;
             --system-bubble-bg: #34495e;
-            --input-bg: rgba(10, 10, 30, 0.8);
+            --input-bg: rgba(10, 10, 30, 0.7);
             --input-border: #00f6ff;
-            --sidebar-bg: rgba(26, 26, 46, 0.9);
+            --sidebar-bg: rgba(26, 26, 46, 0.85);
         }
         
         body {
@@ -79,7 +80,7 @@
         }
 
         .blob-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; overflow: hidden; }
-        .blob { position: absolute; border-radius: 50%; opacity: 0.5; filter: blur(40px); animation: move 25s infinite alternate; }
+        .blob { position: absolute; border-radius: 50%; opacity: 0.5; filter: blur(50px); animation: move 25s infinite alternate; }
         .blob-1 { width: 300px; height: 300px; background-color: #FFD1DC; top: -50px; left: -50px; animation-duration: 20s; }
         .blob-2 { width: 400px; height: 400px; background-color: #D1E2FF; bottom: -100px; right: -100px; animation-duration: 30s; }
         .blob-3 { width: 250px; height: 250px; background-color: #D4F0F0; top: 50%; left: 50%; transform: translate(-50%, -50%); animation-duration: 25s; }
@@ -95,12 +96,23 @@
         ::-webkit-scrollbar-track { background: var(--bg-color); }
         ::-webkit-scrollbar-thumb { background: var(--secondary-accent); border-radius: 10px; }
 
-        .soft-card { background: var(--card-bg); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid var(--card-border); border-radius: 20px; box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1); transition: all 0.3s ease; }
-        .soft-card:hover { transform: translateY(-10px) scale(1.02); box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.12); }
+        .soft-card { background: var(--card-bg); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid var(--card-border); border-radius: 20px; box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1); transition: all 0.3s ease; }
+        .soft-card:hover { transform: translateY(-5px) scale(1.01); box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.12); }
         .dark .soft-card { box-shadow: 0 8px 32px 0 rgba(0, 246, 255, 0.1); }
 
-        .soft-button { background-color: var(--primary-accent); color: white; border-radius: 50px; padding: 12px 32px; font-weight: 700; box-shadow: 0 4px 15px rgba(0,0,0,0.2); transition: all 0.3s ease; }
-        .soft-button:hover { transform: scale(1.05); box-shadow: 0 6px 20px rgba(0,0,0,0.3); }
+        .soft-button { 
+            background-image: linear-gradient(45deg, var(--primary-accent), var(--secondary-accent));
+            color: white; 
+            border-radius: 50px; 
+            padding: 12px 32px; 
+            font-weight: 700; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2); 
+            transition: all 0.3s ease; 
+        }
+        .soft-button:hover { 
+            transform: scale(1.05); 
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3); 
+        }
         .dark .soft-button { color: #1a1a2e; }
 
         .typing-cursor { display: inline-block; width: 2px; height: 1em; background-color: var(--primary-accent); animation: blink 0.7s infinite; margin-left: 4px; vertical-align: middle; }
@@ -203,7 +215,7 @@
     <main class="pt-28 flex-1">
         <!-- Home Section -->
         <section id="home" class="page-section active">
-            <div class="container mx-auto px-6 text-center min-h-[calc(100vh-7rem)] flex flex-col justify-center items-center">
+            <div class="container mx-auto px-6 text-center flex flex-col justify-center items-center" style="min-height: calc(100vh - 14rem);">
                 <h1 id="hero-title" class="text-4xl md:text-6xl lg:text-7xl font-extrabold mb-4"></h1>
                 <p class="text-lg md:text-xl max-w-2xl mx-auto mb-8">Your intelligent AI companion for creativity, conversation, and code.</p>
                 <a href="#chat" class="nav-link soft-button">Start Chatting</a>
@@ -211,11 +223,11 @@
         </section>
 
         <!-- Chat Section -->
-        <section id="chat" class="page-section">
+        <section id="chat" class="page-section h-full">
              <button id="sidebar-toggle" class="fixed top-24 left-4 soft-card p-2 rounded-full z-40" style="color: var(--primary-accent);">
                 <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
             </button>
-            <div class="container mx-auto px-4 py-8 h-[calc(100vh-7rem)] flex flex-col">
+            <div class="container mx-auto px-4 h-full flex flex-col" style="padding-bottom: 1rem;">
                 <div id="chat-box" class="flex-1 overflow-y-auto p-4 space-y-4"></div>
                 <input type="file" id="image-input" class="hidden" accept="image/*">
                 <div class="mt-4">
@@ -315,6 +327,7 @@
             const closeSidebarButton = document.getElementById('close-sidebar-button');
             const newChatButton = document.getElementById('new-chat-button');
             const chatHistoryList = document.getElementById('chat-history-list');
+            const footer = document.querySelector('footer');
 
             // --- State Variables ---
             let currentMode = 'Casual';
@@ -324,14 +337,14 @@
             let attachedFile = null;
 
             // --- AI & Chat Modes ---
-            const generalInfo = "You are Alara, beta v1.0. If asked about your knowledge cutoff, state that your data is current up to early 2025. If the user asks who made you, who trained you, or who coded you, you must say that you were created by a brilliant developer. You can add that your developer leveraged powerful existing LLMs to help bring you to life quickly, but the vision, design, and implementation are entirely their work. If the user asks about the specific AI model you use (e.g., 'are you Gemini?'), state that your architecture is proprietary and was developed by your creator, but that it leverages foundational technologies from major AI labs to accelerate development.";
+            const generalInfo = "You are Alara, beta v1.0. If asked about your knowledge cutoff, state that your data is current up to early 2025. If the user asks who made you, who trained you, or who coded you, you must say that you were created by a brilliant developer. You can add that your developer leveraged powerful existing LLMs to help bring you to life quickly, but the vision, design, and implementation are entirely their work. If the user asks about the specific AI model you use (e.g., 'are you Gemini?'), state that your architecture is proprietary and was developed by your creator, but that it leverages foundational technologies from major AI labs to accelerate development. When a user asks you to create a PDF on a topic, you should provide only the core content for that topic, without any conversational filler or introductory/concluding remarks.";
             const chatModes = {
                 'Casual':{icon:`<svg class="h-8 w-8 text-pink-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`,description:'Friendly and helpful conversation.', prompt: `You are a friendly and helpful AI companion. Your tone is conversational and approachable. Use emojis sparingly. You must directly answer the user's request. Ensure your responses have correct grammar and punctuation. Use Markdown for formatting like lists or tables when it makes the information clearer. ${generalInfo}`},
                 'Creative':{icon:`<svg class="h-8 w-8 text-pink-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" /></svg>`,description:'Brainstorm ideas and explore topics.', prompt: `You are an imaginative and creative AI. You specialize in brainstorming, writing, and exploring novel ideas. You must directly answer the user's request. When asked for creative content like a story or poem, provide it directly. Ensure your responses are well-written with correct grammar and punctuation. Use Markdown for formatting. ${generalInfo}`},
                 'Helpful':{icon:`<svg class="h-8 w-8 text-pink-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`,description:'Get clear and direct answers.', prompt: `You are a knowledgeable and direct AI assistant. You provide clear, concise, and accurate explanations. You must directly answer the user's request. When asked for code, you must provide a complete, runnable HTML/CSS/JS code block first, followed by a brief, step-by-step explanation. CRITICAL RULE: For beginner-friendly examples, you MUST avoid complex libraries or functions (like iostream in C++) unless the user specifically asks for them. Use comments to indicate where output would appear instead of printing to a console. When asked for structured data, use Markdown tables. Ensure all responses are well-written, with correct grammar and punctuation. ${generalInfo}`},
                 'Web':{icon:`<svg class="h-8 w-8 text-pink-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.1 12H20.9" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3.1C12 3.1 12 20.9 12 20.9" /></svg>`,description:'Simulated web access.', prompt: `You are Alara with simulated web access. Answer questions by synthesizing information from your extensive knowledge base as if you were browsing the web in real-time. State that you are "searching the web" and provide the most up-to-date, relevant information you have. ${generalInfo}`}
             };
-
+    
             // --- Core Functions ---
             function showSection(targetHash) {
                 if (!targetHash || targetHash === '#') targetHash = '#home';
@@ -345,11 +358,12 @@
                 });
                 
                 sidebarToggle.classList.toggle('hidden', targetHash !== '#chat');
+                footer.classList.toggle('hidden', targetHash === '#chat');
                 
                 window.history.pushState(null, '', targetHash);
                 mobileMenu.classList.add('hidden');
             }
-
+    
             function addMessage(message, sender = 'ai') {
                 const wrapper = document.createElement('div');
                 wrapper.className = `chat-message flex ${sender === 'user' ? 'justify-end' : ''} ${sender === 'system' ? 'justify-center' : ''}`;
@@ -362,14 +376,14 @@
                 contentDiv.innerHTML = marked.parse(message);
                 
                 bubble.appendChild(contentDiv);
-
+    
                 if (sender === 'ai') {
                     const pdfButton = document.createElement('button');
                     pdfButton.className = 'pdf-button absolute -top-2 -right-2 bg-white p-1 rounded-full shadow-md hover:bg-gray-200';
                     pdfButton.title = 'Download as PDF';
                     pdfButton.innerHTML = `<svg class="h-4 w-4 text-gray-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>`;
                     bubble.appendChild(pdfButton);
-
+    
                     if (message.includes('```html')) {
                         const previewButton = document.createElement('button');
                         previewButton.className = 'mt-2 text-sm bg-pink-200 text-pink-800 px-3 py-1 rounded-full hover:bg-pink-300';
@@ -377,7 +391,7 @@
                         bubble.appendChild(previewButton);
                     }
                 }
-
+    
                 wrapper.appendChild(bubble);
                 chatBox.appendChild(wrapper);
                 Prism.highlightAllUnder(bubble);
@@ -390,7 +404,7 @@
                 chatBox.scrollTop = chatBox.scrollHeight;
                 return bubble;
             }
-
+    
             function showTypingIndicator() {
                 const typingIndicator = document.createElement('div');
                 typingIndicator.id = 'typing-indicator';
@@ -400,32 +414,22 @@
                 chatBox.scrollTop = chatBox.scrollHeight;
                 return typingIndicator;
             }
-
+    
             async function getAIResponse(history) {
                 abortController = new AbortController();
                 const signal = abortController.signal;
                 
-                const isPreview = window.location.hostname.includes('localhost') || window.location.hostname.includes('usercontent.goog');
-                
                 const payload = { contents: history, systemInstruction: { parts: [{ text: chatModes[currentMode].prompt }] } };
                 
-                let apiUrl;
-                let fetchOptions;
-
-                if (isPreview) {
-                    const tempApiKey = ""; 
-                    apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${tempApiKey}`;
-                    fetchOptions = { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload), signal };
-                } else {
-                    apiUrl = new URL('/api/generate', window.location.origin).toString();
-                    fetchOptions = { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload), signal };
-                }
+                const tempApiKey = ""; 
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${tempApiKey}`;
+                const fetchOptions = { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload), signal };
                 
                 const response = await fetch(apiUrl, fetchOptions);
                 if (!response.ok) throw new Error(`API error: ${response.statusText}`);
                 return await response.json();
             }
-
+    
             async function handleSendMessage() {
                 const message = chatInput.value.trim();
                 if (!message && !attachedFile) return;
@@ -450,22 +454,27 @@
                 if (attachedFile) {
                     userParts.push({ inlineData: { mimeType: attachedFile.mimeType, data: attachedFile.base64Data } });
                 }
-
+    
                 currentChat.history.push({ role: "user", parts: userParts });
                 saveAllChats();
                 clearAttachment();
-
+    
                 try {
                     const result = await getAIResponse(currentChat.history);
                     if (result.candidates && result.candidates.length > 0) {
                         const aiResponse = result.candidates[0].content.parts[0].text;
-                        addMessage(aiResponse, 'ai');
+                        const aiBubble = addMessage(aiResponse, 'ai');
                         currentChat.history.push({ role: "model", parts: [{ text: aiResponse }] });
                         if(currentChat.title === "New Chat") {
                             currentChat.title = message.substring(0, 30) + (message.length > 30 ? '...' : '');
                             renderChatHistorySidebar();
                         }
                         saveAllChats();
+                        
+                        if (message.toLowerCase().includes('make a pdf')) {
+                            generatePdfFromElement(aiBubble.querySelector('.message-content'));
+                        }
+    
                     } else {
                         addMessage("I'm having a little trouble thinking right now. Could you try asking again? 😅", 'ai');
                     }
@@ -479,7 +488,7 @@
                     toggleStopButton(false);
                 }
             }
-
+    
             // --- Event Listeners & UI Handlers ---
             navLinks.forEach(link => link.addEventListener('click', (e) => { e.preventDefault(); showSection(link.getAttribute('href')); }));
             mobileMenuButton.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
@@ -514,7 +523,7 @@
                 };
                 reader.readAsDataURL(file);
             });
-
+    
             function renderImagePreview() {
                 if (!attachedFile) return;
                 imagePreviewContainer.innerHTML = `
@@ -525,20 +534,39 @@
                 `;
                 document.getElementById('remove-image-btn').addEventListener('click', clearAttachment);
             }
-
+    
             function clearAttachment() {
                 attachedFile = null;
                 imagePreviewContainer.innerHTML = '';
                 imageInput.value = ''; // Reset file input
             }
-
+    
+            function generatePdfFromElement(element) {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                const content = element.innerText;
+                const margin = 10;
+                const pageWidth = doc.internal.pageSize.getWidth();
+                const usableWidth = pageWidth - margin * 2;
+                const lines = doc.splitTextToSize(content, usableWidth);
+                
+                let cursorY = margin;
+                lines.forEach(line => {
+                    if (cursorY > doc.internal.pageSize.getHeight() - margin) {
+                        doc.addPage();
+                        cursorY = margin;
+                    }
+                    doc.text(line, margin, cursorY);
+                    cursorY += 7;
+                });
+                doc.save('alara-response.pdf');
+            }
+    
             chatBox.addEventListener('click', (e) => {
                 const target = e.target;
                 if (target.closest('.pdf-button')) {
-                    const content = target.closest('.chat-message > div').querySelector('.message-content').innerText;
-                    const doc = new jsPDF();
-                    doc.text(content, 10, 10, { maxWidth: 180 });
-                    doc.save('alara-response.pdf');
+                    const contentDiv = target.closest('.chat-message > div').querySelector('.message-content');
+                    generatePdfFromElement(contentDiv);
                 } else if (target.innerText === '🎨 Run in Preview') {
                     const codeBlock = target.closest('.chat-message > div').querySelector('pre code');
                     if (codeBlock) {
@@ -550,12 +578,12 @@
                     }
                 }
             });
-
+    
             function populateModeModal() {
                 modeOptionsContainer.innerHTML = Object.keys(chatModes).map(mode => `<div class="flex items-center p-4 rounded-xl cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700" data-mode="${mode}">${chatModes[mode].icon}<div class="ml-4"><h4 class="font-bold text-lg">${mode}</h4><p class="text-sm">${chatModes[mode].description}</p></div></div>`).join('');
                 modeOptionsContainer.querySelectorAll('[data-mode]').forEach(el => el.addEventListener('click', () => selectMode(el.dataset.mode)));
             }
-
+    
             function selectMode(mode) {
                 currentMode = mode;
                 const currentChat = allChats.find(c => c.id === currentChatId);
@@ -567,10 +595,10 @@
                 modeModal.classList.add('hidden');
                 addMessage(`Switched to <strong>${mode}</strong> mode.`, 'system');
             }
-
+    
             modeSelectorButton.addEventListener('click', () => modeModal.classList.remove('hidden'));
             modeModal.addEventListener('click', (e) => { if (e.target === modeModal) modeModal.classList.add('hidden'); });
-
+    
             // --- Theme Management ---
             themeToggle.addEventListener('click', () => {
                 document.body.classList.toggle('dark');
@@ -578,12 +606,12 @@
                 localStorage.setItem('alaraTheme', isDark ? 'dark' : 'light');
                 updateThemeIcons(isDark);
             });
-
+    
             function updateThemeIcons(isDark) {
                 themeIconLight.classList.toggle('hidden', isDark);
                 themeIconDark.classList.toggle('hidden', !isDark);
             }
-
+    
             // --- Stop Generation ---
             function toggleStopButton(isThinking) {
                 if (isThinking) {
@@ -597,7 +625,7 @@
                     sendButton.onclick = handleSendMessage;
                 }
             }
-
+    
             // --- Chat History (localStorage) ---
             function saveAllChats() {
                 try {
@@ -606,7 +634,7 @@
                     console.error("Could not save chat history:", e);
                 }
             }
-
+    
             function loadAllChats() {
                 try {
                     const savedChats = localStorage.getItem('alaraAllChats');
@@ -638,7 +666,7 @@
                 selectMode(currentMode);
                 sidebar.classList.remove('open');
             }
-
+    
             function startNewChat() {
                 const newChat = {
                     id: Date.now().toString(),
@@ -654,7 +682,7 @@
             }
             
             newChatButton.addEventListener('click', startNewChat);
-
+    
             function renderChatHistorySidebar() {
                 chatHistoryList.innerHTML = '';
                 allChats.forEach(chat => {
@@ -696,7 +724,7 @@
                     renderChatHistorySidebar();
                 }
             }
-
+    
             // --- Initial Load ---
             function initialize() {
                 const savedTheme = localStorage.getItem('alaraTheme');
@@ -704,7 +732,7 @@
                     document.body.classList.add('dark');
                 }
                 updateThemeIcons(savedTheme === 'dark');
-
+    
                 const currentHash = window.location.hash;
                 showSection(currentHash || '#home');
                 
@@ -725,7 +753,7 @@
                 populateModeModal();
                 loadAllChats();
             }
-
+    
             initialize();
         });
     </script>
