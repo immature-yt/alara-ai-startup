@@ -1,54 +1,26 @@
-// This is a Vercel serverless function for image generation.
-// It receives a prompt from the user's browser,
-// securely adds the secret API key, and calls the Imagen API.
+// This is a Vercel serverless function that acts as a proxy for image generation.
+// It receives a prompt, formats it for the Pollinations API, and returns the image.
 
-export const config = {
-  runtime: 'edge',
-};
-
-export default async function handler(request) {
+export default async function handler(request, response) {
   if (request.method !== 'POST') {
-    return new Response(JSON.stringify({ error: 'Method not allowed' }), { status: 405 });
+    return response.status(405).json({ error: 'Method not allowed' });
   }
 
   try {
-    const { prompt } = await request.json();
+    const { prompt } = request.body;
     if (!prompt) {
-      return new Response(JSON.stringify({ error: 'Prompt is required' }), { status: 400 });
+      return response.status(400).json({ error: 'Prompt is required' });
     }
 
-    const apiKey = process.env.GEMINI_API_KEY;
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict?key=${apiKey}`;
+    // Format the prompt for the Pollinations API URL
+    const formattedPrompt = encodeURIComponent(prompt.replace(/ /g, "_"));
+    const imageUrl = `https://image.pollinations.ai/prompt/${formattedPrompt}`;
 
-    const payload = {
-      instances: [{ prompt: prompt }],
-      parameters: { "sampleCount": 1 }
-    };
-
-    const imageResponse = await fetch(apiUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(payload),
-    });
-
-    if (!imageResponse.ok) {
-      const errorData = await imageResponse.json();
-      console.error('Imagen API Error:', errorData);
-      return new Response(JSON.stringify({ error: 'Failed to generate image from API' }), { status: imageResponse.status });
-    }
-
-    const data = await imageResponse.json();
-    
-    // Send the successful response back to the user's browser.
-    return new Response(JSON.stringify(data), {
-      headers: { 'Content-Type': 'application/json' },
-      status: 200
-    });
+    // Return the image URL to the client
+    return response.status(200).json({ imageUrl: imageUrl });
 
   } catch (error) {
     console.error('Internal Server Error:', error);
-    return new Response(JSON.stringify({ error: 'Internal server error' }), { status: 500 });
+    return response.status(500).json({ error: 'Internal server error' });
   }
 }
