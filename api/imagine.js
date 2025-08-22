@@ -1,26 +1,27 @@
-// This is a Vercel serverless function that acts as a proxy for image generation.
-// It receives a prompt, formats it for the Pollinations API, and returns the image.
+// api/imagine.js
+import express from "express";
+import fetch from "node-fetch";
 
-export default async function handler(request, response) {
-  if (request.method !== 'POST') {
-    return response.status(405).json({ error: 'Method not allowed' });
-  }
+const router = express.Router();
 
+router.post("/", async (req, res) => {
   try {
-    const { prompt } = request.body;
+    const { prompt } = req.body;
     if (!prompt) {
-      return response.status(400).json({ error: 'Prompt is required' });
+      return res.status(400).json({ error: "Prompt is required" });
     }
 
-    // Format the prompt for the Pollinations API URL
-    const formattedPrompt = encodeURIComponent(prompt.replace(/ /g, "_"));
-    const imageUrl = `https://image.pollinations.ai/prompt/${formattedPrompt}`;
+    // Pollinations generates directly from URL
+    const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(
+      prompt
+    )}`;
 
-    // Return the image URL to the client
-    return response.status(200).json({ imageUrl: imageUrl });
-
+    // You could test fetch to confirm it's valid, but returning URL is enough
+    res.json({ imageUrl });
   } catch (error) {
-    console.error('Internal Server Error:', error);
-    return response.status(500).json({ error: 'Internal server error' });
+    console.error("Image generation error:", error);
+    res.status(500).json({ error: "Image generation failed" });
   }
-}
+});
+
+export default router;
