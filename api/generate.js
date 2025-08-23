@@ -1,59 +1,50 @@
-export default async function handler(req, res) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
+// This is a Vercel serverless function that acts as a secure proxy.
+// It receives the chat history from the user's browser,
+// securely adds the secret API key, and then calls the Gemini API.
+
+export default async function handler(request, response) {
+  // Vercel automatically makes environment variables available here.
+  const apiKey = process.env.GEMINI_API_KEY;
+  const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+
+  if (request.method !== 'POST') {
+    return response.status(405).json({ error: 'Method not allowed' });
   }
 
   try {
-    // ✅ Support Gemini-style request format
-    const userMessage = req.body.message 
-      || req.body.contents?.[0]?.parts?.[0]?.text 
-      || "";
-
-    if (!userMessage) {
-      return res.status(400).json({ error: "No user message provided" });
-    }
-
-    const apiKey = process.env.OPENAI_API_KEY;
-    if (!apiKey) {
-      return res.status(500).json({ error: "Missing OpenAI API key in environment variables" });
-    }
-
-    // ✅ Call OpenAI API
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "gpt-4o-mini",  // ⚡ cheapest + good
-        messages: [
-          { role: "system", content: `You are Alara, an intelligent and conversational AI. Always give clear, detailed, and helpful answers to the user’s messages. Do not just greet them — always respond meaningfully to what they ask.` },
-          { role: "user", content: userMessage }
-        ]
-      })
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.error?.message || "OpenAI API error");
-    }
-
-    const reply = data.choices?.[0]?.message?.content || "No reply";
-
-    // ✅ Send back in Gemini-style response structure (so index.html works unchanged)
-    res.status(200).json({
-      candidates: [
-        {
-          content: {
-            parts: [{ text: reply }]
-          }
+    // FIXED: This robustly handles potential inconsistencies from mobile browsers.
+    // It checks if the body is already a string and parses it, ensuring the
+    // payload sent to the Gemini API is always a correctly formatted JSON object.
+    let requestPayload = request.body;
+    if (typeof requestPayload === 'string') {
+        try {
+            requestPayload = JSON.parse(requestPayload);
+        } catch (e) {
+            console.error("Failed to parse request body string:", e);
+            return response.status(400).json({ error: "Invalid JSON in request body." });
         }
-      ]
+    }
+
+    const geminiResponse = await fetch(apiUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(requestPayload),
     });
+
+    const data = await geminiResponse.json();
+
+    if (!geminiResponse.ok) {
+        console.error('Gemini API Error:', data);
+        return response.status(geminiResponse.status).json({ error: 'Failed to fetch response from Gemini API' });
+    }
+
+    // Send the successful response back to the user's browser.
+    return response.status(200).json(data);
 
   } catch (error) {
-    res.status(500).json({ error: "API request failed", details: error.message });
+    console.error('Internal Server Error:', error);
+    return response.status(500).json({ error: 'Internal server error' });
   }
 }
