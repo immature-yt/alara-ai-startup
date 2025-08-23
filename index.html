@@ -155,12 +155,41 @@
         .ai-typing-indicator span { animation: bounce 1.4s infinite ease-in-out both; }
         @keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1.0); } }
         
-        pre[class*="language-"] { background: #2d2d2d; border-radius: 0.75rem; border: none; font-size: 0.9em; padding: 1.25rem; } /* Softer border-radius and more padding */
+        pre[class*="language-"] { 
+            background: #2d2d2d; 
+            border-radius: 0.75rem; 
+            border: none; 
+            font-size: 0.9em; 
+            padding: 1.25rem; 
+            position: relative; /* Needed for absolute positioning of copy button */
+        }
         code[class*="language-"] { font-size: 0.9em; font-family: 'Fira Code', 'Monaco', monospace; } /* Better code font, consider adding Fira Code */
         :not(pre) > code[class*="language-"] { background: var(--system-bubble-bg); color: var(--text-color); padding: .2em .4em; border-radius: .4em; } /* Inline code styling */
         .dark :not(pre) > code[class*="language-"] { background: #3e3e3e; color: #f0f0f0; }
 
+        /* Copy Button for code blocks */
+        .copy-code-button {
+            position: absolute;
+            top: 0.75rem; /* Adjust as needed */
+            right: 0.75rem; /* Adjust as needed */
+            background-color: rgba(255, 255, 255, 0.2); /* Semi-transparent white */
+            color: white;
+            padding: 0.4rem 0.6rem;
+            border-radius: 0.5rem;
+            font-size: 0.8em;
+            cursor: pointer;
+            opacity: 0; /* Hidden by default */
+            transition: opacity 0.3s ease, background-color 0.2s ease;
+        }
 
+        .copy-code-button:hover {
+            background-color: rgba(255, 255, 255, 0.4);
+        }
+
+        pre[class*="language-"]:hover .copy-code-button {
+            opacity: 1; /* Show on hover of the code block */
+        }
+        
         .pdf-button { opacity: 0; transition: opacity 0.3s ease; }
         .chat-message:hover .pdf-button { opacity: 1; }
         
@@ -254,7 +283,7 @@
 
     <!-- Header & Navigation -->
     <header class="fixed top-0 left-0 right-0 z-50">
-        <div class="container mx-auto px-6 py-4">
+        <div class="container mx-auto px-6 py-4 max-w-7xl">
             <div class="soft-card flex justify-between items-center px-6 py-3 !rounded-full shadow-lg">
                 <a href="#home" class="text-3xl font-extrabold nav-link !text-[color:var(--primary-accent)]">ALARA<sup style="font-size: 0.5em; font-weight: normal;">beta</sup></a>
                 <nav class="hidden md:flex space-x-8">
@@ -269,7 +298,7 @@
                 </button>
             </div>
         </div>
-         <div id="mobile-menu" class="hidden md:hidden container mx-auto px-6">
+         <div id="mobile-menu" class="hidden md:hidden container mx-auto px-6 max-w-7xl">
             <div class="soft-card mt-2 p-4">
                 <a href="#home" class="block text-center py-2 px-6 rounded-full nav-link active hover:bg-[color:var(--secondary-accent)]/20 dark:hover:bg-[color:var(--primary-accent)]/20">Home</a>
                 <a href="#chat" class="block text-center py-2 px-6 rounded-full nav-link hover:bg-[color:var(--secondary-accent)]/20 dark:hover:bg-[color:var(--primary-accent)]/20">Chat</a>
@@ -283,7 +312,7 @@
     <main class="pt-28 flex-1">
         <!-- Home Section -->
         <section id="home" class="page-section active relative">
-            <div class="container mx-auto px-6 text-center min-h-[calc(100vh-7rem)] flex flex-col justify-center items-center">
+            <div class="container mx-auto px-6 text-center min-h-[calc(100vh-7rem)] flex flex-col justify-center items-center max-w-7xl">
                 <h1 id="hero-title" class="text-5xl md:text-7xl lg:text-8xl font-extrabold mb-6 drop-shadow-lg leading-tight"></h1>
                 <p class="text-xl md:text-2xl max-w-3xl mx-auto mb-10 opacity-85">Your intelligent AI companion for creativity, conversation, and code.</p>
                 <a href="#chat" class="nav-link soft-button text-xl">Start Chatting</a>
@@ -295,12 +324,12 @@
              <button id="sidebar-toggle" class="fixed top-24 left-4 soft-card p-3 rounded-full z-40 text-[color:var(--primary-accent)] hover:scale-105 transition-transform duration-200">
                 <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
             </button>
-            <div class="container mx-auto px-4 py-8 h-[calc(100vh-7rem)] flex flex-col">
+            <div class="container mx-auto px-4 py-8 h-[calc(100vh-7rem)] flex flex-col max-w-7xl">
                 <div id="chat-box" class="flex-1 overflow-y-auto p-4 space-y-4"></div>
                 <input type="file" id="image-input" class="hidden" accept="image/*">
                 
-                <!-- Input area container shifted to the bottom -->
-                <div class="input-area-container soft-card p-4 rounded-3xl mt-4"> <!-- Added mt-4 back for spacing from chatbox -->
+                <!-- Input area container is now at the natural bottom of the flex column -->
+                <div class="input-area-container soft-card p-4 rounded-3xl mt-4"> 
                     <div id="image-preview-container" class="mb-2"></div>
                     <div class="relative flex items-end gap-2">
                         <textarea id="chat-input" placeholder="Type your message or image prompt..." rows="1" class="w-full border rounded-2xl py-3 px-5 pr-40 text-base focus:outline-none focus:ring-2 focus:ring-[color:var(--primary-accent)] transition-all max-h-40 overflow-y-auto"
@@ -320,7 +349,7 @@
 
         <!-- Code Preview Section -->
         <section id="preview" class="page-section">
-            <div class="container mx-auto px-4 py-8 h-[calc(100vh-7rem)] flex flex-col items-center">
+            <div class="container mx-auto px-4 py-8 h-[calc(100vh-7rem)] flex flex-col items-center max-w-7xl">
                 <div id="preview-placeholder" class="text-center soft-card p-8 rounded-2xl max-w-xl mx-auto">
                     <h2 class="text-3xl font-bold mb-4">Under Construction</h2>
                     <p class="text-lg opacity-80">When Alara generates HTML code, click the "Run in Preview" button to see it live here!</p>
@@ -333,7 +362,7 @@
 
         <!-- Pricing Section -->
         <section id="pricing" class="page-section">
-             <div class="container mx-auto px-6 py-20 flex flex-col justify-center items-center text-center">
+             <div class="container mx-auto px-6 py-20 flex flex-col justify-center items-center text-center max-w-7xl">
                 <h2 class="text-4xl font-bold mb-4">Plans & Pricing</h2>
                 <p class="text-lg mb-12 opacity-80">Coming Soon - Next Version of Alara</p>
                 <div class="w-24 h-24 mx-auto text-[color:var(--primary-accent)] opacity-70">
@@ -344,7 +373,7 @@
 
         <!-- About Section -->
         <section id="about" class="page-section">
-            <div class="container mx-auto px-6 py-20 flex flex-col justify-center items-center text-center">
+            <div class="container mx-auto px-6 py-20 flex flex-col justify-center items-center text-center max-w-7xl">
                 <h2 class="text-4xl font-bold mb-8">About Alara</h2>
                 <div class="max-w-3xl text-lg space-y-4 opacity-80">
                     <p>Alara is an intelligent AI companion designed for creativity, conversation, and code. Our mission is to create an AI that feels less like a tool and more like a partner, adjusting its personality to be the perfect assistant for any task.</p>
@@ -401,7 +430,7 @@
             const chatHistoryList = document.getElementById('chat-history-list');
             
             // Image generation elements (now uses chatInput for prompt)
-            const generateImageButton = document.getElementById('generate-image-button'); // Renamed from imagePromptInput to match new usage
+            const generateImageButton = document.getElementById('generate-image-button');
 
             // --- State Variables ---
             let currentMode = 'Casual';
@@ -465,27 +494,25 @@
                 window.history.pushState(null, '', targetHash);
                 mobileMenu.classList.add('hidden');
 
-                // NEW: Control hero title animation based on active section
+                // Control hero title animation based on active section
                 if (targetHash === '#home') {
-                    // Only run if not already running or completed
                     if (!typingAnimationTimeout && currentHeroCharIndex === 0) {
                         heroTitle.innerHTML = ''; // Clear for fresh animation
                         runTypingAnimation();
                     } else if (currentHeroCharIndex === heroText.length) {
-                        heroTitle.innerHTML = heroText + '<span class="typing-cursor"></span>'; // Ensure cursor if already typed
+                        heroTitle.innerHTML = heroText + '<span class="typing-cursor"></span>';
                     }
                 } else {
                     stopTypingAnimation();
                 }
             }
 
-            // MODIFIED: addMessage to accept options for images
+            // MODIFIED: addMessage to accept options for images and copy code button
             function addMessage(message, sender = 'ai', options = {}) {
                 const wrapper = document.createElement('div');
                 wrapper.className = `chat-message flex ${sender === 'user' ? 'justify-end' : ''} ${sender === 'system' ? 'justify-center' : ''}`;
                 
                 const bubble = document.createElement('div');
-                // Ensure user bubble has correct text color in dark mode
                 bubble.className = `relative group p-3 rounded-2xl max-w-lg ${sender}-bubble ${sender === 'user' ? 'dark:text-gray-900' : ''}`;
                 
                 const contentDiv = document.createElement('div');
@@ -505,26 +532,41 @@
                     imgElement.className = 'max-w-full rounded-lg mt-2'; // Tailwind classes for styling
                     contentDiv.appendChild(imgElement);
                 } else {
-                    // Existing behavior for text messages
                     contentDiv.innerHTML = marked.parse(message);
                 }
                 
                 bubble.appendChild(contentDiv);
 
                 if (sender === 'ai') {
-                    const pdfButton = document.createElement('button');
-                    pdfButton.className = 'pdf-button absolute -top-2 -right-2 bg-white p-1 rounded-full shadow-md hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700';
-                    pdfButton.title = 'Download as PDF';
-                    pdfButton.innerHTML = `<svg class="h-4 w-4 text-gray-600 dark:text-gray-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>`;
-                    bubble.appendChild(pdfButton);
+                    const buttonContainer = document.createElement('div');
+                    buttonContainer.className = 'absolute top-2 right-2 flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10'; // Button container, hidden by default
 
-                    // Only show preview button if it's an HTML code block AND not an image message
+                    // PDF Button
+                    const pdfButton = document.createElement('button');
+                    pdfButton.className = 'pdf-button p-1 rounded-full shadow-md bg-white hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-colors';
+                    pdfButton.title = 'Download as PDF';
+                    pdfButton.innerHTML = `<svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>`;
+                    buttonContainer.appendChild(pdfButton);
+
+                    // Copy Code Button
+                    if (message.includes('```')) { // Check if message contains a code block
+                        const copyCodeButton = document.createElement('button');
+                        copyCodeButton.className = 'copy-code-button p-1 rounded-full shadow-md bg-white hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-colors';
+                        copyCodeButton.title = 'Copy Code';
+                        copyCodeButton.innerHTML = `<svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1m-4-4l1 1m0 0l-1 1m-1-1v10h10V7H8z" /></svg>`;
+                        buttonContainer.appendChild(copyCodeButton);
+                    }
+
+                    // Run in Preview Button
                     if (message.includes('```html') && !options.imageUrl) { 
                         const previewButton = document.createElement('button');
-                        previewButton.className = 'mt-2 text-sm bg-pink-200 text-pink-800 px-3 py-1 rounded-full hover:bg-pink-300 dark:bg-cyan-900 dark:text-cyan-200 dark:hover:bg-cyan-800';
-                        previewButton.innerText = '🎨 Run in Preview';
-                        bubble.appendChild(previewButton);
+                        previewButton.className = 'p-1 rounded-full shadow-md bg-white hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-colors';
+                        previewButton.title = 'Run in Preview';
+                        previewButton.innerHTML = `<svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" /></svg>`;
+                        buttonContainer.appendChild(previewButton);
                     }
+                    
+                    bubble.appendChild(buttonContainer); // Append the button container
                 }
 
                 wrapper.appendChild(bubble);
@@ -726,21 +768,45 @@
                 imageInput.value = ''; // Reset file input
             }
 
-            chatBox.addEventListener('click', (e) => {
+            chatBox.addEventListener('click', async (e) => { // Made async to use await for clipboard API
                 const target = e.target;
+                const messageBubble = target.closest('.chat-message > div');
+
                 if (target.closest('.pdf-button')) {
-                    const content = target.closest('.chat-message > div').querySelector('.message-content').innerText;
-                    const doc = new jsPDF();
-                    doc.text(content, 10, 10, { maxWidth: 180 });
-                    doc.save('alara-response.pdf');
-                } else if (target.innerText === '🎨 Run in Preview') {
-                    const codeBlock = target.closest('.chat-message > div').querySelector('pre code');
-                    if (codeBlock) {
-                        const code = codeBlock.innerText;
-                        previewIframe.srcdoc = code;
-                        previewPlaceholder.classList.add('hidden');
-                        previewContainer.classList.remove('hidden');
-                        showSection('#preview');
+                    if (messageBubble) {
+                        const content = messageBubble.querySelector('.message-content').innerText;
+                        const doc = new jsPDF();
+                        doc.text(content, 10, 10, { maxWidth: 180 });
+                        doc.save('alara-response.pdf');
+                    }
+                } else if (target.closest('.copy-code-button')) {
+                    if (messageBubble) {
+                        const codeBlock = messageBubble.querySelector('pre code');
+                        if (codeBlock) {
+                            const codeToCopy = codeBlock.innerText;
+                            try {
+                                await navigator.clipboard.writeText(codeToCopy);
+                                const originalText = target.innerText;
+                                target.innerText = 'Copied!';
+                                setTimeout(() => {
+                                    target.innerText = originalText;
+                                }, 1500);
+                            } catch (err) {
+                                console.error('Failed to copy text:', err);
+                                alert('Failed to copy code. Please try again or copy manually.');
+                            }
+                        }
+                    }
+                } else if (target.closest('[title="Run in Preview"]')) { // Used title for more robust selection
+                    if (messageBubble) {
+                        const codeBlock = messageBubble.querySelector('pre code');
+                        if (codeBlock) {
+                            const code = codeBlock.innerText;
+                            previewIframe.srcdoc = code;
+                            previewPlaceholder.classList.add('hidden');
+                            previewContainer.classList.remove('hidden');
+                            showSection('#preview');
+                        }
                     }
                 }
             });
@@ -767,10 +833,8 @@
             modeSelectorButton.addEventListener('click', () => modeModal.classList.remove('hidden'));
             modeModal.addEventListener('click', (e) => { if (e.target === modeModal) modeModal.classList.add('hidden'); });
 
-            // NEW: Event listeners for image generation using chatInput
+            // Event listeners for image generation using chatInput
             generateImageButton.addEventListener('click', generateImage);
-            // No keydown listener needed for imagePromptInput, as it's removed.
-            // If you want ENTER to trigger image generation if the "Generate Image" button has focus, that's a different logic.
 
             // --- Theme Management ---
             themeToggle.addEventListener('click', () => {
@@ -823,7 +887,6 @@
                     }
                 } catch (e) {
                     console.error("Could not parse chat history (it might be corrupted or an old format, starting new chat):", e);
-                    // NEW: If loading fails, start a fresh chat to prevent UI issues
                     allChats = []; 
                     startNewChat();
                 }
@@ -838,27 +901,21 @@
                     startNewChat();
                     return;
                 }
-                currentChatId = chat.id; // Ensure currentChatId is correctly set
+                currentChatId = chat.id;
                 chatBox.innerHTML = '';
-                // Render chat history messages
                 chat.history.forEach(msg => {
                     const textPart = msg.parts.find(p => p.text)?.text || '';
                     const inlineImageData = msg.parts.find(p => p.inlineData);
 
                     let options = {};
-                    // This logic assumes image URLs from image generation are not stored in parts (as per original API design)
-                    // and that user-uploaded images might be in inlineData.
-                    // If your /api/generate started returning image URLs as part of its text, you'd need more robust parsing here.
-                    
                     if (inlineImageData) {
-                        // This assumes user-uploaded images are always prefixed with '[Image Attached]'
+                        // This logic assumes user-uploaded images are always prefixed with '[Image Attached]'
                         // and their actual rendering happens via the attachment preview logic, not here in history load
-                        // This might be a point to refine if you want to store and re-display uploaded images directly in chat bubbles from history
                     }
                     addMessage(textPart, msg.role, options); 
                 });
                 currentMode = chat.mode || 'Casual';
-                selectMode(currentMode); // This will also update the mode icon and send system message
+                selectMode(currentMode);
                 sidebar.classList.remove('open');
             }
 
@@ -930,10 +987,10 @@
                 updateThemeIcons(savedTheme === 'dark');
 
                 const currentHash = window.location.hash;
-                showSection(currentHash || '#home'); // This will now correctly trigger/stop typing animation
+                showSection(currentHash || '#home');
                 
                 populateModeModal();
-                loadAllChats(); // This will load the last chat and set current mode
+                loadAllChats();
             }
 
             initialize();
