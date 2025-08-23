@@ -512,7 +512,8 @@
                 
                 const bubble = document.createElement('div');
                 // Ensure user bubble has correct text color in dark mode
-                bubble.className = `relative group p-3 rounded-2xl max-w-lg ${sender}-bubble ${sender === 'user' ? 'dark:text-gray-900' : ''}`;
+                // Apply max-w-[80%] to both AI and user bubbles
+                bubble.className = `relative group p-3 rounded-2xl max-w-[80%] ${sender}-bubble ${sender === 'user' ? 'dark:text-gray-900' : ''}`;
                 
                 const contentDiv = document.createElement('div');
                 contentDiv.className = 'message-content'; /* Apply word-wrap here */
