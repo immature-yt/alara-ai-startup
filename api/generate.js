@@ -4,11 +4,16 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { message } = req.body;
+    // ✅ Support Gemini-style request format
+    const userMessage = req.body.message 
+      || req.body.contents?.[0]?.parts?.[0]?.text 
+      || "";
 
-    // ✅ Grab API key from Vercel environment variables
+    if (!userMessage) {
+      return res.status(400).json({ error: "No user message provided" });
+    }
+
     const apiKey = process.env.OPENAI_API_KEY;
-
     if (!apiKey) {
       return res.status(500).json({ error: "Missing OpenAI API key in environment variables" });
     }
@@ -21,10 +26,10 @@ export default async function handler(req, res) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "gpt-4o-mini", // ⚡ cheapest + good quality
+        model: "gpt-4o-mini",  // ⚡ cheapest + good
         messages: [
           { role: "system", content: "You are Alara, a helpful AI assistant." },
-          { role: "user", content: message }
+          { role: "user", content: userMessage }
         ]
       })
     });
@@ -35,7 +40,19 @@ export default async function handler(req, res) {
       throw new Error(data.error?.message || "OpenAI API error");
     }
 
-    res.status(200).json({ reply: data.choices[0].message.content });
+    const reply = data.choices?.[0]?.message?.content || "No reply";
+
+    // ✅ Send back in Gemini-style response structure (so index.html works unchanged)
+    res.status(200).json({
+      candidates: [
+        {
+          content: {
+            parts: [{ text: reply }]
+          }
+        }
+      ]
+    });
+
   } catch (error) {
     res.status(500).json({ error: "API request failed", details: error.message });
   }
