@@ -28,7 +28,7 @@ export default async function handler(req, res) {
       body: JSON.stringify({
         model: "gpt-4o-mini",  // ⚡ cheapest + good
         messages: [
-          { role: "system", content: "You are Alara, a helpful AI assistant." },
+          { role: "system", content: `You are Alara, an intelligent and conversational AI. Always give clear, detailed, and helpful answers to the user’s messages. Do not just greet them — always respond meaningfully to what they ask.` },
           { role: "user", content: userMessage }
         ]
       })
