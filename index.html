@@ -77,7 +77,7 @@
             background-color: var(--bg-color);
             color: var(--text-color);
             font-family: 'Nunito', sans-serif; /* Kept Nunito for general text, might use Poppins for headings */
-            overflow-x: hidden;
+            overflow-x: hidden; /* Prevent overall horizontal scroll */
             position: relative;
             transition: background-color 0.4s ease-in-out, color 0.4s ease-in-out;
         }
@@ -155,41 +155,63 @@
         .ai-typing-indicator span { animation: bounce 1.4s infinite ease-in-out both; }
         @keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1.0); } }
         
+        /* Code-specific styling */
         pre[class*="language-"] { 
             background: #2d2d2d; 
             border-radius: 0.75rem; 
             border: none; 
             font-size: 0.9em; 
-            padding: 1.25rem; 
-            position: relative; /* Needed for absolute positioning of copy button */
+            padding: 1.25rem;
+            position: relative; /* Essential for positioning the copy button */
+            overflow-x: auto; /* Allows horizontal scroll for code blocks only */
         }
-        code[class*="language-"] { font-size: 0.9em; font-family: 'Fira Code', 'Monaco', monospace; } /* Better code font, consider adding Fira Code */
-        :not(pre) > code[class*="language-"] { background: var(--system-bubble-bg); color: var(--text-color); padding: .2em .4em; border-radius: .4em; } /* Inline code styling */
-        .dark :not(pre) > code[class*="language-"] { background: #3e3e3e; color: #f0f0f0; }
-
-        /* Copy Button for code blocks */
-        .copy-code-button {
+        code[class*="language-"] { 
+            font-size: 0.9em; 
+            font-family: 'Fira Code', 'Monaco', monospace; 
+            word-break: normal; /* Prevents code from breaking mid-word */
+            white-space: pre; /* Maintains whitespace formatting */
+        }
+        /* Styles for the copy button */
+        .copy-button {
             position: absolute;
-            top: 0.75rem; /* Adjust as needed */
-            right: 0.75rem; /* Adjust as needed */
-            background-color: rgba(255, 255, 255, 0.2); /* Semi-transparent white */
+            top: 0.75rem; /* Adjusted slightly */
+            right: 0.75rem; /* Adjusted slightly */
+            background-color: rgba(255, 255, 255, 0.2);
             color: white;
             padding: 0.4rem 0.6rem;
             border-radius: 0.5rem;
-            font-size: 0.8em;
             cursor: pointer;
+            font-size: 0.8em;
+            font-weight: 600;
             opacity: 0; /* Hidden by default */
-            transition: opacity 0.3s ease, background-color 0.2s ease;
+            transition: opacity 0.2s ease-in-out, background-color 0.2s ease-in-out;
+            border: none;
+            display: flex; /* For SVG alignment */
+            align-items: center;
+            justify-content: center;
+            gap: 0.25rem; /* Space between icon and text */
+        }
+        pre:hover .copy-button {
+            opacity: 1; /* Show on hover of the pre block */
+        }
+        .copy-button:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+        .copy-button.copied {
+            background-color: var(--primary-accent); /* Accent color when copied */
+            color: white;
+            opacity: 1;
+        }
+        .dark .copy-button {
+            background-color: rgba(0, 0, 0, 0.3);
+        }
+        .dark .copy-button:hover {
+            background-color: rgba(0, 0, 0, 0.4);
         }
 
-        .copy-code-button:hover {
-            background-color: rgba(255, 255, 255, 0.4);
-        }
+        :not(pre) > code[class*="language-"] { background: var(--system-bubble-bg); color: var(--text-color); padding: .2em .4em; border-radius: .4em; } /* Inline code styling */
+        .dark :not(pre) > code[class*="language-"] { background: #3e3e3e; color: #f0f0f0; }
 
-        pre[class*="language-"]:hover .copy-code-button {
-            opacity: 1; /* Show on hover of the code block */
-        }
-        
         .pdf-button { opacity: 0; transition: opacity 0.3s ease; }
         .chat-message:hover .pdf-button { opacity: 1; }
         
@@ -212,13 +234,19 @@
             box-shadow: 0 1px 4px rgba(0,0,0,0.03);
         }
 
-        #chat-input, .input-area-container input { /* Unified styling for all inputs in the chat footer */
+        /* CSS for content inside chat bubbles, allowing text to wrap but not break code */
+        .message-content {
+            word-break: break-word;
+            overflow-wrap: break-word;
+        }
+
+        #chat-input { 
             background-color: var(--input-bg); 
             border-color: var(--input-border); 
             color: var(--text-color);
             transition: border-color 0.3s ease;
         }
-        #chat-input:focus, .input-area-container input:focus {
+        #chat-input:focus {
             border-color: var(--primary-accent);
         }
 
@@ -328,17 +356,26 @@
                 <div id="chat-box" class="flex-1 overflow-y-auto p-4 space-y-4"></div>
                 <input type="file" id="image-input" class="hidden" accept="image/*">
                 
-                <!-- Input area container is now at the natural bottom of the flex column -->
-                <div class="input-area-container soft-card p-4 rounded-3xl mt-4"> 
+                <div class="input-area-container mt-4 soft-card p-4 rounded-3xl"> 
                     <div id="image-preview-container" class="mb-2"></div>
                     <div class="relative flex items-end gap-2">
-                        <textarea id="chat-input" placeholder="Type your message or image prompt..." rows="1" class="w-full border rounded-2xl py-3 px-5 pr-40 text-base focus:outline-none focus:ring-2 focus:ring-[color:var(--primary-accent)] transition-all max-h-40 overflow-y-auto"
+                        <textarea id="chat-input" placeholder="Type your message or image prompt..." rows="1" class="w-full border rounded-2xl py-3 px-5 pr-44 text-base focus:outline-none focus:ring-2 focus:ring-[color:var(--primary-accent)] transition-all max-h-40 overflow-y-auto"
                             style="background-color: var(--input-bg); border-color: var(--input-border); color: var(--text-color);"></textarea>
                         <div class="absolute right-3 bottom-2 flex items-center gap-1">
-                            <button id="mode-selector-button" class="p-2 rounded-full text-[color:var(--primary-accent)] hover:bg-[color:var(--secondary-accent)]/20 dark:hover:bg-[color:var(--primary-accent)]/20 transition-colors" title="Change Chat Mode"><svg id="current-mode-icon" class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg></button>
-                            <button id="upload-image-button" class="p-2 rounded-full text-[color:var(--primary-accent)] hover:bg-[color:var(--secondary-accent)]/20 dark:hover:bg-[color:var(--primary-accent)]/20 transition-colors" title="Upload Image"><svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg></button>
-                            <button id="generate-image-button" class="p-2 rounded-full text-[color:var(--primary-accent)] hover:bg-[color:var(--secondary-accent)]/20 dark:hover:bg-[color:var(--primary-accent)]/20 transition-colors" title="Generate Image"><svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v14a1 1 0 01-1 1H5a1 1 0 01-1-1V5z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l-3 3-3-3m0 0l-3-3m3 3V3m6 6v12M9 9H5" /></svg></button>
-                            <button id="send-button" class="p-2 rounded-full text-white soft-button !px-0 !py-0 !shadow-none !rounded-full !w-10 !h-10 flex items-center justify-center" style="background-color: var(--primary-accent);">
+                            <button id="mode-selector-button" class="p-2 rounded-full text-[color:var(--primary-accent)] hover:bg-[color:var(--secondary-accent)]/20 dark:hover:bg-[color:var(--primary-accent)]/20 transition-colors" title="Change Chat Mode">
+                                <svg id="current-mode-icon" class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                            </button>
+                            <button id="upload-image-button" class="p-2 rounded-full text-[color:var(--primary-accent)] hover:bg-[color:var(--secondary-accent)]/20 dark:hover:bg-[color:var(--primary-accent)]/20 transition-colors" title="Upload Image">
+                                <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                            </button>
+                            <!-- Generate Image button -->
+                            <button id="generate-image-button" class="p-2 rounded-full text-[color:var(--primary-accent)] hover:bg-[color:var(--secondary-accent)]/20 dark:hover:bg-[color:var(--primary-accent)]/20 transition-colors" title="Generate Image from Text">
+                                <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.008 2.008a1 1 0 010 1.414L10 17.414l-2 2V19h-.5l-2-2-.5-.5H4.5l-2-2-.5-.5v-.5l-.5-2 2-2 2-2 2-2 2-2 2-2 2-2zM15 5h.01M19 8h.01M15 11h.01" />
+                                </svg>
+                            </button>
+                            <!-- Send Button -->
+                            <button id="send-button" class="soft-button w-10 h-10 p-2 flex items-center justify-center !bg-[color:var(--primary-accent)] !text-white !shadow-md hover:!shadow-lg">
                                 <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.428A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" /></svg>
                             </button>
                         </div>
@@ -507,16 +544,18 @@
                 }
             }
 
-            // MODIFIED: addMessage to accept options for images and copy code button
+            // MODIFIED: addMessage to accept options for images and add copy button
             function addMessage(message, sender = 'ai', options = {}) {
                 const wrapper = document.createElement('div');
                 wrapper.className = `chat-message flex ${sender === 'user' ? 'justify-end' : ''} ${sender === 'system' ? 'justify-center' : ''}`;
                 
                 const bubble = document.createElement('div');
-                bubble.className = `relative group p-3 rounded-2xl max-w-lg ${sender}-bubble ${sender === 'user' ? 'dark:text-gray-900' : ''}`;
+                // Ensure user bubble has correct text color in dark mode
+                // Apply max-w-[80%] to both AI and user bubbles
+                bubble.className = `relative group p-3 rounded-2xl max-w-[80%] ${sender}-bubble ${sender === 'user' ? 'dark:text-gray-900' : ''}`;
                 
                 const contentDiv = document.createElement('div');
-                contentDiv.className = 'message-content';
+                contentDiv.className = 'message-content'; /* Apply word-wrap here */
 
                 // Handle image generation output
                 if (options.imageUrl) {
@@ -532,32 +571,34 @@
                     imgElement.className = 'max-w-full rounded-lg mt-2'; // Tailwind classes for styling
                     contentDiv.appendChild(imgElement);
                 } else {
+                    // Existing behavior for text messages
                     contentDiv.innerHTML = marked.parse(message);
                 }
                 
                 bubble.appendChild(contentDiv);
 
+                // Add action buttons for AI messages (PDF, Copy, Preview)
                 if (sender === 'ai') {
                     const buttonContainer = document.createElement('div');
-                    buttonContainer.className = 'absolute top-2 right-2 flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10'; // Button container, hidden by default
+                    buttonContainer.className = 'absolute top-2 right-2 flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10';
 
                     // PDF Button
                     const pdfButton = document.createElement('button');
-                    pdfButton.className = 'pdf-button p-1 rounded-full shadow-md bg-white hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-colors';
+                    pdfButton.className = 'p-1 rounded-full shadow-md bg-white hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-colors';
                     pdfButton.title = 'Download as PDF';
                     pdfButton.innerHTML = `<svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>`;
                     buttonContainer.appendChild(pdfButton);
 
-                    // Copy Code Button
-                    if (message.includes('```')) { // Check if message contains a code block
+                    // Copy Code Button - only if there's a code block
+                    if (message.includes('```')) {
                         const copyCodeButton = document.createElement('button');
-                        copyCodeButton.className = 'copy-code-button p-1 rounded-full shadow-md bg-white hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-colors';
-                        copyCodeButton.title = 'Copy Code';
-                        copyCodeButton.innerHTML = `<svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1m-4-4l1 1m0 0l-1 1m-1-1v10h10V7H8z" /></svg>`;
+                        copyCodeButton.className = 'copy-button p-1 rounded-full shadow-md bg-white hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-colors';
+                        copyCodeButton.title = 'Copy code to clipboard';
+                        copyCodeButton.innerHTML = `<svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1.5M9 3v2m6-2v2m6 11V7a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2h2m4-2h2M9 13h10a2 2 0 012 2v4a2 2 0 01-2 2H9a2 2 0 01-2-2v-4a2 2 0 012-2z" /></svg>`;
                         buttonContainer.appendChild(copyCodeButton);
                     }
 
-                    // Run in Preview Button
+                    // Run in Preview Button - only if it's an HTML code block
                     if (message.includes('```html') && !options.imageUrl) { 
                         const previewButton = document.createElement('button');
                         previewButton.className = 'p-1 rounded-full shadow-md bg-white hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-colors';
@@ -566,7 +607,7 @@
                         buttonContainer.appendChild(previewButton);
                     }
                     
-                    bubble.appendChild(buttonContainer); // Append the button container
+                    bubble.appendChild(buttonContainer);
                 }
 
                 wrapper.appendChild(bubble);
@@ -579,6 +620,7 @@
                     ]
                 });
                 chatBox.scrollTop = chatBox.scrollHeight;
+
                 return bubble;
             }
 
@@ -676,21 +718,21 @@
 
             // generateImage function - now uses chatInput.value
             async function generateImage() {
-                const prompt = chatInput.value.trim(); // Use the main chat input for the prompt
+                const prompt = chatInput.value.trim(); // Use the main chat input
                 if (!prompt) {
-                    addMessage("Please enter a prompt to generate an image.", 'system');
+                    alert("Please type a prompt in the input field to generate an image.");
                     return;
                 }
 
                 addMessage("[Image Request] " + prompt, 'user');
                 chatInput.value = ''; // Clear input immediately
-                chatInput.style.height = 'auto';
+                chatInput.style.height = 'auto'; // Reset input height
                 
                 const typingIndicator = showTypingIndicator(); // Show typing indicator for image generation
                 generateImageButton.disabled = true; // Disable button while generating
+                sendButton.disabled = true; // Also disable send button
 
                 try {
-                    // Assuming /api/imagine is a separate endpoint for image generation
                     const response = await fetch("/api/imagine", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
@@ -701,6 +743,11 @@
 
                     if (response.ok && data.imageUrl) {
                         addMessage(`Here's your image based on: "${prompt}"`, 'ai', { imageUrl: data.imageUrl, imageAlt: prompt });
+                        // Add to chat history for image requests as well
+                        const currentChat = allChats.find(c => c.id === currentChatId);
+                        currentChat.history.push({ role: "user", parts: [{ text: `[Image Request] ${prompt}` }] });
+                        currentChat.history.push({ role: "model", parts: [{ text: `Image generated: ${data.imageUrl}` }] }); // Store a simple text representation
+                        saveAllChats();
                     } else {
                         const errorMessage = data.error || "Failed to generate image. Please try again.";
                         addMessage(`System: ${errorMessage}`, 'system');
@@ -711,6 +758,7 @@
                 } finally {
                     typingIndicator.remove();
                     generateImageButton.disabled = false; // Re-enable button
+                    sendButton.disabled = false; // Re-enable send button
                 }
             }
 
@@ -719,8 +767,6 @@
             mobileMenuButton.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
             sidebarToggle.addEventListener('click', () => sidebar.classList.toggle('open'));
             closeSidebarButton.addEventListener('click', () => sidebar.classList.remove('open'));
-            
-            // Send button listener
             sendButton.addEventListener('click', handleSendMessage);
             chatInput.addEventListener('keydown', (e) => { 
                 if (e.key === 'Enter' && !e.shiftKey) {
@@ -779,18 +825,22 @@
                         doc.text(content, 10, 10, { maxWidth: 180 });
                         doc.save('alara-response.pdf');
                     }
-                } else if (target.closest('.copy-code-button')) {
+                } else if (target.closest('.copy-button')) {
                     if (messageBubble) {
+                        // Find the <pre><code> block closest to the clicked button within the message bubble
                         const codeBlock = messageBubble.querySelector('pre code');
                         if (codeBlock) {
                             const codeToCopy = codeBlock.innerText;
                             try {
                                 await navigator.clipboard.writeText(codeToCopy);
-                                const originalText = target.innerText;
-                                target.innerText = 'Copied!';
+                                const copyButton = target.closest('.copy-button');
+                                const originalIcon = copyButton.innerHTML; // Store original icon HTML
+                                copyButton.innerHTML = `<svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg> Copied!`; // Checkmark icon
+                                copyButton.classList.add('copied');
                                 setTimeout(() => {
-                                    target.innerText = originalText;
-                                }, 1500);
+                                    copyButton.innerHTML = originalIcon;
+                                    copyButton.classList.remove('copied');
+                                }, 2000);
                             } catch (err) {
                                 console.error('Failed to copy text:', err);
                                 alert('Failed to copy code. Please try again or copy manually.');
@@ -833,7 +883,7 @@
             modeSelectorButton.addEventListener('click', () => modeModal.classList.remove('hidden'));
             modeModal.addEventListener('click', (e) => { if (e.target === modeModal) modeModal.classList.add('hidden'); });
 
-            // Event listeners for image generation using chatInput
+            // Event listener for image generation button
             generateImageButton.addEventListener('click', generateImage);
 
             // --- Theme Management ---
@@ -886,8 +936,7 @@
                         startNewChat();
                     }
                 } catch (e) {
-                    console.error("Could not parse chat history (it might be corrupted or an old format, starting new chat):", e);
-                    allChats = []; 
+                    console.error("Could not parse chat history:", e);
                     startNewChat();
                 }
                 loadChat(currentChatId);
@@ -896,23 +945,21 @@
             
             function loadChat(chatId) {
                 const chat = allChats.find(c => c.id === chatId);
-                if (!chat) {
-                    console.warn(`Chat with ID ${chatId} not found. Starting a new chat.`);
-                    startNewChat();
-                    return;
-                }
+                if (!chat) return;
                 currentChatId = chat.id;
                 chatBox.innerHTML = '';
                 chat.history.forEach(msg => {
                     const textPart = msg.parts.find(p => p.text)?.text || '';
-                    const inlineImageData = msg.parts.find(p => p.inlineData);
-
+                    // For image history, if you stored `Image generated: <URL>`
                     let options = {};
-                    if (inlineImageData) {
-                        // This logic assumes user-uploaded images are always prefixed with '[Image Attached]'
-                        // and their actual rendering happens via the attachment preview logic, not here in history load
+                    const imageMatch = textPart.match(/^Image generated: (https:\/\/[^\s]+)$/);
+                    if (imageMatch && msg.role === 'model') {
+                        options.imageUrl = imageMatch[1];
+                        options.imageAlt = textPart.replace('Image generated: ', ''); // Use the prompt from the text as alt
+                        addMessage(`Here's your image:`, 'ai', options); // Display text, then the image
+                    } else {
+                        addMessage(textPart, msg.role, options); 
                     }
-                    addMessage(textPart, msg.role, options); 
                 });
                 currentMode = chat.mode || 'Casual';
                 selectMode(currentMode);
