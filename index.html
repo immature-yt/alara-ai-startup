@@ -77,7 +77,7 @@
             background-color: var(--bg-color);
             color: var(--text-color);
             font-family: 'Nunito', sans-serif; /* Kept Nunito for general text, might use Poppins for headings */
-            overflow-x: hidden;
+            overflow-x: hidden; /* Prevent overall horizontal scroll */
             position: relative;
             transition: background-color 0.4s ease-in-out, color 0.4s ease-in-out;
         }
@@ -155,11 +155,61 @@
         .ai-typing-indicator span { animation: bounce 1.4s infinite ease-in-out both; }
         @keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1.0); } }
         
-        pre[class*="language-"] { background: #2d2d2d; border-radius: 0.75rem; border: none; font-size: 0.9em; padding: 1.25rem; } /* Softer border-radius and more padding */
-        code[class*="language-"] { font-size: 0.9em; font-family: 'Fira Code', 'Monaco', monospace; } /* Better code font, consider adding Fira Code */
+        /* NEW: Code-specific styling */
+        pre[class*="language-"] { 
+            background: #2d2d2d; 
+            border-radius: 0.75rem; 
+            border: none; 
+            font-size: 0.9em; 
+            padding: 1.25rem;
+            position: relative; /* Essential for positioning the copy button */
+            overflow-x: auto; /* Allows horizontal scroll for code blocks only */
+        }
+        code[class*="language-"] { 
+            font-size: 0.9em; 
+            font-family: 'Fira Code', 'Monaco', monospace; 
+            word-break: normal; /* Prevents code from breaking mid-word */
+            white-space: pre; /* Maintains whitespace formatting */
+        }
+        /* NEW: Styles for the copy button */
+        .copy-button {
+            position: absolute;
+            top: 0.75rem; /* Adjusted slightly */
+            right: 0.75rem; /* Adjusted slightly */
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 0.4rem 0.6rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-size: 0.8em;
+            font-weight: 600;
+            opacity: 0; /* Hidden by default */
+            transition: opacity 0.2s ease-in-out, background-color 0.2s ease-in-out;
+            border: none;
+            display: flex; /* For SVG alignment */
+            align-items: center;
+            justify-content: center;
+        }
+        pre:hover .copy-button {
+            opacity: 1; /* Show on hover of the pre block */
+        }
+        .copy-button:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+        .copy-button.copied {
+            background-color: var(--primary-accent); /* Accent color when copied */
+            color: white;
+            opacity: 1;
+        }
+        .dark .copy-button {
+            background-color: rgba(0, 0, 0, 0.3);
+        }
+        .dark .copy-button:hover {
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+
         :not(pre) > code[class*="language-"] { background: var(--system-bubble-bg); color: var(--text-color); padding: .2em .4em; border-radius: .4em; } /* Inline code styling */
         .dark :not(pre) > code[class*="language-"] { background: #3e3e3e; color: #f0f0f0; }
-
 
         .pdf-button { opacity: 0; transition: opacity 0.3s ease; }
         .chat-message:hover .pdf-button { opacity: 1; }
@@ -183,13 +233,19 @@
             box-shadow: 0 1px 4px rgba(0,0,0,0.03);
         }
 
-        #chat-input, .image-generation-box input { 
+        /* NEW: CSS for content inside chat bubbles, allowing text to wrap but not break code */
+        .message-content {
+            word-break: break-word;
+            overflow-wrap: break-word;
+        }
+
+        #chat-input { 
             background-color: var(--input-bg); 
             border-color: var(--input-border); 
             color: var(--text-color);
             transition: border-color 0.3s ease;
         }
-        #chat-input:focus, .image-generation-box input:focus {
+        #chat-input:focus {
             border-color: var(--primary-accent);
         }
 
@@ -311,10 +367,10 @@
                             <button id="upload-image-button" class="p-2 rounded-full text-[color:var(--primary-accent)] hover:bg-[color:var(--secondary-accent)]/20 dark:hover:bg-[color:var(--primary-accent)]/20 transition-colors" title="Upload Image">
                                 <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
                             </button>
-                            <!-- NEW: Generate Image button -->
+                            <!-- Generate Image button -->
                             <button id="generate-image-button" class="p-2 rounded-full text-[color:var(--primary-accent)] hover:bg-[color:var(--secondary-accent)]/20 dark:hover:bg-[color:var(--primary-accent)]/20 transition-colors" title="Generate Image from Text">
                                 <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.008 2.008a1 1 0 010 1.414L10 17.414l-2 2V19h-.5l-2-2-.5-.5H4.5l-2-2-.5-.5v-.5l-.5-2 2-2 2-2 2-2 2-2 2-2 2-2 2-2 2-2zM15 5h.01M19 8h.01M15 11h.01" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.008 2.008a1 1 0 010 1.414L10 17.414l-2 2V19h-.5l-2-2-.5-.5H4.5l-2-2-.5-.5v-.5l-.5-2 2-2 2-2 2-2 2-2 2-2 2-2 2-2zM15 5h.01M19 8h.01M15 11h.01" />
                                 </svg>
                             </button>
                             <!-- Send Button -->
@@ -449,7 +505,7 @@
                 mobileMenu.classList.add('hidden');
             }
 
-            // MODIFIED: addMessage to accept options for images
+            // MODIFIED: addMessage to accept options for images and add copy button
             function addMessage(message, sender = 'ai', options = {}) {
                 const wrapper = document.createElement('div');
                 wrapper.className = `chat-message flex ${sender === 'user' ? 'justify-end' : ''} ${sender === 'system' ? 'justify-center' : ''}`;
@@ -459,7 +515,7 @@
                 bubble.className = `relative group p-3 rounded-2xl max-w-lg ${sender}-bubble ${sender === 'user' ? 'dark:text-gray-900' : ''}`;
                 
                 const contentDiv = document.createElement('div');
-                contentDiv.className = 'message-content';
+                contentDiv.className = 'message-content'; /* Apply word-wrap here */
 
                 // Handle image generation output
                 if (options.imageUrl) {
@@ -507,6 +563,34 @@
                     ]
                 });
                 chatBox.scrollTop = chatBox.scrollHeight;
+
+                // NEW: Add copy buttons to code blocks
+                bubble.querySelectorAll('pre code').forEach(codeElement => {
+                    const preElement = codeElement.parentElement;
+                    if (preElement.tagName === 'PRE') { // Ensure it's directly inside a <pre>
+                        const copyButton = document.createElement('button');
+                        copyButton.className = 'copy-button';
+                        copyButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1.5M9 3v2m6-2v2m6 11V7a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2h2m4-2h2M9 13h10a2 2 0 012 2v4a2 2 0 01-2 2H9a2 2 0 01-2-2v-4a2 2 0 012-2z" /></svg>`; // Copy icon
+                        copyButton.title = 'Copy code to clipboard';
+
+                        copyButton.addEventListener('click', () => {
+                            navigator.clipboard.writeText(codeElement.innerText).then(() => {
+                                const originalIcon = copyButton.innerHTML;
+                                copyButton.innerHTML = 'Copied!';
+                                copyButton.classList.add('copied');
+                                setTimeout(() => {
+                                    copyButton.innerHTML = originalIcon;
+                                    copyButton.classList.remove('copied');
+                                }, 2000);
+                            }).catch(err => {
+                                console.error('Failed to copy code: ', err);
+                            });
+                        });
+                        preElement.appendChild(copyButton);
+                    }
+                });
+
+
                 return bubble;
             }
 
@@ -602,7 +686,10 @@
             // generateImage function - now uses chatInput.value
             async function generateImage() {
                 const prompt = chatInput.value.trim(); // Use the main chat input
-                if (!prompt) return;
+                if (!prompt) {
+                    alert("Please type a prompt in the input field to generate an image.");
+                    return;
+                }
 
                 addMessage("[Image Request] " + prompt, 'user');
                 chatInput.value = ''; // Clear input immediately
@@ -610,6 +697,7 @@
                 
                 const typingIndicator = showTypingIndicator(); // Show typing indicator for image generation
                 generateImageButton.disabled = true; // Disable button while generating
+                sendButton.disabled = true; // Also disable send button
 
                 try {
                     const response = await fetch("/api/imagine", {
@@ -622,6 +710,11 @@
 
                     if (response.ok && data.imageUrl) {
                         addMessage(`Here's your image based on: "${prompt}"`, 'ai', { imageUrl: data.imageUrl, imageAlt: prompt });
+                        // Add to chat history for image requests as well
+                        const currentChat = allChats.find(c => c.id === currentChatId);
+                        currentChat.history.push({ role: "user", parts: [{ text: `[Image Request] ${prompt}` }] });
+                        currentChat.history.push({ role: "model", parts: [{ text: `Image generated: ${data.imageUrl}` }] }); // Store a simple text representation
+                        saveAllChats();
                     } else {
                         const errorMessage = data.error || "Failed to generate image. Please try again.";
                         addMessage(`System: ${errorMessage}`, 'system');
@@ -632,6 +725,7 @@
                 } finally {
                     typingIndicator.remove();
                     generateImageButton.disabled = false; // Re-enable button
+                    sendButton.disabled = false; // Re-enable send button
                 }
             }
 
@@ -795,22 +889,17 @@
                 chatBox.innerHTML = '';
                 // Render chat history messages
                 chat.history.forEach(msg => {
-                    // Check if the message parts contain an image and handle it
                     const textPart = msg.parts.find(p => p.text)?.text || '';
-                    const imageData = msg.parts.find(p => p.inlineData); // If you save inlineData in history for user-uploaded images
-
+                    // For image history, if you stored `Image generated: <URL>`
                     let options = {};
-                    // This part would need modification if you store generated image URLs in chat history
-                    // For now, it assumes generated images are added directly to the DOM and not stored in history in a special way
-                    // If msg.role is 'ai' and it's a known image message from generateImage, extract URL
-                    if (msg.role === 'ai' && textPart.startsWith("Here's your image based on:")) {
-                        // This is a heuristic. A more robust solution would store imageUrl directly in history.
-                        // For now, if the text suggests an image was generated, we won't try to re-render it from text alone.
-                        // Or, for simplicity, you might only store the prompt and re-generate on load (not ideal)
-                        // or, better: store `{ type: 'image', url: '...' }` in history.parts or msg itself.
-                        // For this exercise, I'm assuming you just need to display *text* from history.
+                    const imageMatch = textPart.match(/^Image generated: (https:\/\/[^\s]+)$/);
+                    if (imageMatch && msg.role === 'model') {
+                        options.imageUrl = imageMatch[1];
+                        options.imageAlt = textPart.replace('Image generated: ', ''); // Use the prompt from the text as alt
+                        addMessage(`Here's your image:`, 'ai', options); // Display text, then the image
+                    } else {
+                        addMessage(textPart, msg.role, options); 
                     }
-                    addMessage(textPart, msg.role, options); 
                 });
                 currentMode = chat.mode || 'Casual';
                 selectMode(currentMode);
