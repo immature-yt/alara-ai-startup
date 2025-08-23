@@ -53,7 +53,6 @@
             --sidebar-bg: rgba(255, 255, 255, 0.95);
             --shadow-light: 0 8px 32px 0 rgba(0, 0, 0, 0.08);
             --shadow-light-hover: 0 12px 40px 0 rgba(0, 0, 0, 0.1);
-            --fixed-input-height: 112px; /* Roughly 7rem, P-4 soft-card + py-3 textarea + h-10 buttons, with some buffer */
         }
 
         /* Dark Theme */
@@ -78,7 +77,7 @@
             background-color: var(--bg-color);
             color: var(--text-color);
             font-family: 'Nunito', sans-serif; /* Kept Nunito for general text, might use Poppins for headings */
-            overflow-x: hidden; /* Prevent overall horizontal scroll */
+            overflow-x: hidden;
             position: relative;
             transition: background-color 0.4s ease-in-out, color 0.4s ease-in-out;
         }
@@ -156,61 +155,11 @@
         .ai-typing-indicator span { animation: bounce 1.4s infinite ease-in-out both; }
         @keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1.0); } }
         
-        /* NEW: Code-specific styling */
-        pre[class*="language-"] { 
-            background: #2d2d2d; 
-            border-radius: 0.75rem; 
-            border: none; 
-            font-size: 0.9em; 
-            padding: 1.25rem;
-            position: relative; /* Essential for positioning the copy button */
-            overflow-x: auto; /* Allows horizontal scroll for code blocks only */
-        }
-        code[class*="language-"] { 
-            font-size: 0.9em; 
-            font-family: 'Fira Code', 'Monaco', monospace; 
-            word-break: normal; /* Prevents code from breaking mid-word */
-            white-space: pre; /* Maintains whitespace formatting */
-        }
-        /* NEW: Styles for the copy button */
-        .copy-button {
-            position: absolute;
-            top: 0.75rem; /* Adjusted slightly */
-            right: 0.75rem; /* Adjusted slightly */
-            background-color: rgba(255, 255, 255, 0.2);
-            color: white;
-            padding: 0.4rem 0.6rem;
-            border-radius: 0.5rem;
-            cursor: pointer;
-            font-size: 0.8em;
-            font-weight: 600;
-            opacity: 0; /* Hidden by default */
-            transition: opacity 0.2s ease-in-out, background-color 0.2s ease-in-out;
-            border: none;
-            display: flex; /* For SVG alignment */
-            align-items: center;
-            justify-content: center;
-        }
-        pre:hover .copy-button {
-            opacity: 1; /* Show on hover of the pre block */
-        }
-        .copy-button:hover {
-            background-color: rgba(255, 255, 255, 0.3);
-        }
-        .copy-button.copied {
-            background-color: var(--primary-accent); /* Accent color when copied */
-            color: white;
-            opacity: 1;
-        }
-        .dark .copy-button {
-            background-color: rgba(0, 0, 0, 0.3);
-        }
-        .dark .copy-button:hover {
-            background-color: rgba(0, 0, 0, 0.4);
-        }
-
+        pre[class*="language-"] { background: #2d2d2d; border-radius: 0.75rem; border: none; font-size: 0.9em; padding: 1.25rem; } /* Softer border-radius and more padding */
+        code[class*="language-"] { font-size: 0.9em; font-family: 'Fira Code', 'Monaco', monospace; } /* Better code font, consider adding Fira Code */
         :not(pre) > code[class*="language-"] { background: var(--system-bubble-bg); color: var(--text-color); padding: .2em .4em; border-radius: .4em; } /* Inline code styling */
         .dark :not(pre) > code[class*="language-"] { background: #3e3e3e; color: #f0f0f0; }
+
 
         .pdf-button { opacity: 0; transition: opacity 0.3s ease; }
         .chat-message:hover .pdf-button { opacity: 1; }
@@ -234,19 +183,13 @@
             box-shadow: 0 1px 4px rgba(0,0,0,0.03);
         }
 
-        /* NEW: CSS for content inside chat bubbles, allowing text to wrap but not break code */
-        .message-content {
-            word-break: break-word;
-            overflow-wrap: break-word;
-        }
-
-        #chat-input { 
+        #chat-input, .input-area-container input { /* Unified styling for all inputs in the chat footer */
             background-color: var(--input-bg); 
             border-color: var(--input-border); 
             color: var(--text-color);
             transition: border-color 0.3s ease;
         }
-        #chat-input:focus {
+        #chat-input:focus, .input-area-container input:focus {
             border-color: var(--primary-accent);
         }
 
@@ -337,8 +280,7 @@
         </div>
     </header>
 
-    <!-- Main content area -->
-    <main class="flex-1 pt-28 pb-[var(--fixed-input-height)] overflow-y-auto">
+    <main class="pt-28 flex-1">
         <!-- Home Section -->
         <section id="home" class="page-section active relative">
             <div class="container mx-auto px-6 text-center min-h-[calc(100vh-7rem)] flex flex-col justify-center items-center">
@@ -353,9 +295,25 @@
              <button id="sidebar-toggle" class="fixed top-24 left-4 soft-card p-3 rounded-full z-40 text-[color:var(--primary-accent)] hover:scale-105 transition-transform duration-200">
                 <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
             </button>
-            <div class="container mx-auto px-4 flex flex-col h-full">
-                <div id="chat-box" class="flex-1 overflow-y-auto p-4 space-y-4 pt-8 pb-8"></div>
+            <div class="container mx-auto px-4 py-8 h-[calc(100vh-7rem)] flex flex-col">
+                <div id="chat-box" class="flex-1 overflow-y-auto p-4 space-y-4"></div>
                 <input type="file" id="image-input" class="hidden" accept="image/*">
+                
+                <div class="input-area-container mt-4 soft-card p-4 rounded-3xl">
+                    <div id="image-preview-container" class="mb-2"></div>
+                    <div class="relative flex items-end gap-2">
+                        <textarea id="chat-input" placeholder="Type your message or image prompt..." rows="1" class="w-full border rounded-2xl py-3 px-5 pr-40 text-base focus:outline-none focus:ring-2 focus:ring-[color:var(--primary-accent)] transition-all max-h-40 overflow-y-auto"
+                            style="background-color: var(--input-bg); border-color: var(--input-border); color: var(--text-color);"></textarea>
+                        <div class="absolute right-3 bottom-2 flex items-center gap-1">
+                            <button id="mode-selector-button" class="p-2 rounded-full text-[color:var(--primary-accent)] hover:bg-[color:var(--secondary-accent)]/20 dark:hover:bg-[color:var(--primary-accent)]/20 transition-colors" title="Change Chat Mode"><svg id="current-mode-icon" class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg></button>
+                            <button id="upload-image-button" class="p-2 rounded-full text-[color:var(--primary-accent)] hover:bg-[color:var(--secondary-accent)]/20 dark:hover:bg-[color:var(--primary-accent)]/20 transition-colors" title="Upload Image"><svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg></button>
+                            <button id="generate-image-button" class="p-2 rounded-full text-[color:var(--primary-accent)] hover:bg-[color:var(--secondary-accent)]/20 dark:hover:bg-[color:var(--primary-accent)]/20 transition-colors" title="Generate Image"><svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v14a1 1 0 01-1 1H5a1 1 0 01-1-1V5z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l-3 3-3-3m0 0l-3-3m3 3V3m6 6v12M9 9H5" /></svg></button>
+                            <button id="send-button" class="p-2 rounded-full text-white soft-button !px-0 !py-0 !shadow-none !rounded-full !w-10 !h-10 flex items-center justify-center" style="background-color: var(--primary-accent);">
+                                <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.428A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" /></svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </section>
 
@@ -395,30 +353,20 @@
         </section>
     </main>
 
-    <!-- NEW: Fixed Input Area at the bottom -->
-    <div id="chat-input-area-fixed" class="fixed bottom-0 left-0 right-0 z-50 w-full soft-card p-4 rounded-t-3xl rounded-b-none shadow-xl">
-        <div id="image-preview-container" class="mb-2"></div>
-        <div class="relative flex items-end gap-2">
-            <textarea id="chat-input" placeholder="Type your message or image prompt..." rows="1" class="w-full border rounded-2xl py-3 px-5 pr-44 text-base focus:outline-none focus:ring-2 focus:ring-[color:var(--primary-accent)] transition-all max-h-40 overflow-y-auto"
-                style="background-color: var(--input-bg); border-color: var(--input-border); color: var(--text-color);"></textarea>
-            <div class="absolute right-3 bottom-2 flex items-center gap-1">
-                <button id="mode-selector-button" class="p-2 rounded-full text-[color:var(--primary-accent)] hover:bg-[color:var(--secondary-accent)]/20 dark:hover:bg-[color:var(--primary-accent)]/20 transition-colors" title="Change Chat Mode">
-                    <svg id="current-mode-icon" class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                </button>
-                <button id="upload-image-button" class="p-2 rounded-full text-[color:var(--primary-accent)] hover:bg-[color:var(--secondary-accent)]/20 dark:hover:bg-[color:var(--primary-accent)]/20 transition-colors" title="Upload Image">
-                    <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                </button>
-                <!-- Generate Image button -->
-                <button id="generate-image-button" class="p-2 rounded-full text-[color:var(--primary-accent)] hover:bg-[color:var(--secondary-accent)]/20 dark:hover:bg-[color:var(--primary-accent)]/20 transition-colors" title="Generate Image from Text">
-                    <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.008 2.008a1 1 0 010 1.414L10 17.414l-2 2V19h-.5l-2-2-.5-.5H4.5l-2-2-.5-.5v-.5l-.5-2 2-2 2-2 2-2 2-2 2-2 2-2 2-2zM15 5h.01M19 8h.01M15 11h.01" />
-                    </svg>
-                </button>
-                <!-- Send Button -->
-                <button id="send-button" class="soft-button w-10 h-10 p-2 flex items-center justify-center !bg-[color:var(--primary-accent)] !text-white !shadow-md hover:!shadow-lg">
-                    <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.428A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" /></svg>
-                </button>
-            </div>
+    <!-- Theme Toggle -->
+    <button id="theme-toggle" class="fixed bottom-5 right-5 soft-card p-3 rounded-full text-[color:var(--primary-accent)] hover:scale-105 transition-transform duration-200">
+        <svg id="theme-icon-light" class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+        <svg id="theme-icon-dark" class="h-6 w-6 hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
+    </button>
+
+    <!-- Footer -->
+    <footer class="mt-auto"><div class="container mx-auto px-6 py-6 text-center text-gray-500 text-sm"><p>&copy; Alara 2025. Made with ♡ by a brilliant developer.</p></div></footer>
+
+    <!-- Mode Selector Modal -->
+    <div id="mode-modal" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex justify-center items-center hidden p-4">
+        <div class="soft-card p-8 w-full max-w-2xl mx-auto rounded-3xl">
+            <h3 class="text-3xl font-bold text-center mb-8">Choose Chat Mode</h3>
+            <div id="mode-options-container" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
         </div>
     </div>
 
@@ -454,8 +402,8 @@
             const newChatButton = document.getElementById('new-chat-button');
             const chatHistoryList = document.getElementById('chat-history-list');
             
-            // Image generation elements (now only one button, using chatInput)
-            const generateImageButton = document.getElementById('generate-image-button');
+            // Image generation elements (now uses chatInput for prompt)
+            const generateImageButton = document.getElementById('generate-image-button'); // Renamed from imagePromptInput to match new usage
 
             // --- State Variables ---
             let currentMode = 'Casual';
@@ -463,6 +411,11 @@
             let currentChatId = null;
             let abortController = new AbortController();
             let attachedFile = null;
+
+            // Variables for hero title animation
+            let typingAnimationTimeout = null;
+            let currentHeroCharIndex = 0;
+            const heroText = "Your Friendly AI Companion";
 
             // --- AI & Chat Modes ---
             const generalInfo = "You are Alara, beta v1.0. If asked about your knowledge cutoff, state that your data is current up to early 2025. If the user asks who made you, who trained you, or who coded you, you must say that you were created by a brilliant developer. You can add that your developer leveraged powerful existing LLMs to help bring you to life quickly, but the vision, design, and implementation are entirely their work. If the user asks about the specific AI model you use (e.g., 'are you Gemini?'), state that your architecture is proprietary and was developed by your creator, but that it leverages foundational technologies from major AI labs to accelerate development.";
@@ -474,6 +427,30 @@
             };
 
             // --- Core Functions ---
+            function runTypingAnimation() {
+                if (!heroTitle) return; // Ensure element exists
+
+                if (currentHeroCharIndex < heroText.length) {
+                    heroTitle.innerHTML = heroText.substring(0, currentHeroCharIndex + 1) + '<span class="typing-cursor"></span>';
+                    currentHeroCharIndex++;
+                    typingAnimationTimeout = setTimeout(runTypingAnimation, 100);
+                } else {
+                    heroTitle.innerHTML = heroText + '<span class="typing-cursor"></span>';
+                    // Keep cursor blinking indefinitely after text is fully typed
+                }
+            }
+
+            function stopTypingAnimation() {
+                if (typingAnimationTimeout) {
+                    clearTimeout(typingAnimationTimeout);
+                    typingAnimationTimeout = null;
+                }
+                if (heroTitle) {
+                    heroTitle.innerHTML = heroText; // Set to full text without cursor
+                }
+                currentHeroCharIndex = 0; // Reset for next time
+            }
+
             function showSection(targetHash) {
                 if (!targetHash || targetHash === '#') targetHash = '#home';
                 
@@ -489,20 +466,32 @@
                 
                 window.history.pushState(null, '', targetHash);
                 mobileMenu.classList.add('hidden');
+
+                // NEW: Control hero title animation based on active section
+                if (targetHash === '#home') {
+                    // Only run if not already running or completed
+                    if (!typingAnimationTimeout && currentHeroCharIndex === 0) {
+                        heroTitle.innerHTML = ''; // Clear for fresh animation
+                        runTypingAnimation();
+                    } else if (currentHeroCharIndex === heroText.length) {
+                        heroTitle.innerHTML = heroText + '<span class="typing-cursor"></span>'; // Ensure cursor if already typed
+                    }
+                } else {
+                    stopTypingAnimation();
+                }
             }
 
-            // MODIFIED: addMessage to accept options for images and add copy button
+            // MODIFIED: addMessage to accept options for images
             function addMessage(message, sender = 'ai', options = {}) {
                 const wrapper = document.createElement('div');
                 wrapper.className = `chat-message flex ${sender === 'user' ? 'justify-end' : ''} ${sender === 'system' ? 'justify-center' : ''}`;
                 
                 const bubble = document.createElement('div');
                 // Ensure user bubble has correct text color in dark mode
-                // Apply max-w-[80%] to both AI and user bubbles
-                bubble.className = `relative group p-3 rounded-2xl max-w-[80%] ${sender}-bubble ${sender === 'user' ? 'dark:text-gray-900' : ''}`;
+                bubble.className = `relative group p-3 rounded-2xl max-w-lg ${sender}-bubble ${sender === 'user' ? 'dark:text-gray-900' : ''}`;
                 
                 const contentDiv = document.createElement('div');
-                contentDiv.className = 'message-content'; /* Apply word-wrap here */
+                contentDiv.className = 'message-content';
 
                 // Handle image generation output
                 if (options.imageUrl) {
@@ -550,34 +539,6 @@
                     ]
                 });
                 chatBox.scrollTop = chatBox.scrollHeight;
-
-                // NEW: Add copy buttons to code blocks
-                bubble.querySelectorAll('pre code').forEach(codeElement => {
-                    const preElement = codeElement.parentElement;
-                    if (preElement.tagName === 'PRE') { // Ensure it's directly inside a <pre>
-                        const copyButton = document.createElement('button');
-                        copyButton.className = 'copy-button';
-                        copyButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1.5M9 3v2m6-2v2m6 11V7a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2h2m4-2h2M9 13h10a2 2 0 012 2v4a2 2 0 01-2 2H9a2 2 0 01-2-2v-4a2 2 0 012-2z" /></svg>`; // Copy icon
-                        copyButton.title = 'Copy code to clipboard';
-
-                        copyButton.addEventListener('click', () => {
-                            navigator.clipboard.writeText(codeElement.innerText).then(() => {
-                                const originalIcon = copyButton.innerHTML;
-                                copyButton.innerHTML = 'Copied!';
-                                copyButton.classList.add('copied');
-                                setTimeout(() => {
-                                    copyButton.innerHTML = originalIcon;
-                                    copyButton.classList.remove('copied');
-                                }, 2000);
-                            }).catch(err => {
-                                console.error('Failed to copy code: ', err);
-                            });
-                        });
-                        preElement.appendChild(copyButton);
-                    }
-                });
-
-
                 return bubble;
             }
 
@@ -603,10 +564,13 @@
                 let fetchOptions;
 
                 if (isPreview) {
-                    const tempApiKey = ""; // Replace with your actual API key for local testing
+                    // IMPORTANT: If running locally, you MUST replace this with your actual Google Gemini API key.
+                    // This key is ONLY for local development. For production, the /api/generate endpoint should handle this securely.
+                    const tempApiKey = ""; // <--- !!! ADD YOUR GOOGLE GEMINI API KEY HERE FOR LOCAL TESTING !!! --->
                     apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${tempApiKey}`;
                     fetchOptions = { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload), signal };
                 } else {
+                    // For deployed versions, this path should hit your serverless function (e.g., api/generate.js)
                     apiUrl = new URL('/api/generate', window.location.origin).toString();
                     fetchOptions = { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload), signal };
                 }
@@ -672,21 +636,21 @@
 
             // generateImage function - now uses chatInput.value
             async function generateImage() {
-                const prompt = chatInput.value.trim(); // Use the main chat input
+                const prompt = chatInput.value.trim(); // Use the main chat input for the prompt
                 if (!prompt) {
-                    alert("Please type a prompt in the input field to generate an image.");
+                    addMessage("Please enter a prompt to generate an image.", 'system');
                     return;
                 }
 
                 addMessage("[Image Request] " + prompt, 'user');
                 chatInput.value = ''; // Clear input immediately
-                chatInput.style.height = 'auto'; // Reset input height
+                chatInput.style.height = 'auto';
                 
                 const typingIndicator = showTypingIndicator(); // Show typing indicator for image generation
                 generateImageButton.disabled = true; // Disable button while generating
-                sendButton.disabled = true; // Also disable send button
 
                 try {
+                    // Assuming /api/imagine is a separate endpoint for image generation
                     const response = await fetch("/api/imagine", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
@@ -697,11 +661,6 @@
 
                     if (response.ok && data.imageUrl) {
                         addMessage(`Here's your image based on: "${prompt}"`, 'ai', { imageUrl: data.imageUrl, imageAlt: prompt });
-                        // Add to chat history for image requests as well
-                        const currentChat = allChats.find(c => c.id === currentChatId);
-                        currentChat.history.push({ role: "user", parts: [{ text: `[Image Request] ${prompt}` }] });
-                        currentChat.history.push({ role: "model", parts: [{ text: `Image generated: ${data.imageUrl}` }] }); // Store a simple text representation
-                        saveAllChats();
                     } else {
                         const errorMessage = data.error || "Failed to generate image. Please try again.";
                         addMessage(`System: ${errorMessage}`, 'system');
@@ -712,7 +671,6 @@
                 } finally {
                     typingIndicator.remove();
                     generateImageButton.disabled = false; // Re-enable button
-                    sendButton.disabled = false; // Re-enable send button
                 }
             }
 
@@ -721,6 +679,8 @@
             mobileMenuButton.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
             sidebarToggle.addEventListener('click', () => sidebar.classList.toggle('open'));
             closeSidebarButton.addEventListener('click', () => sidebar.classList.remove('open'));
+            
+            // Send button listener
             sendButton.addEventListener('click', handleSendMessage);
             chatInput.addEventListener('keydown', (e) => { 
                 if (e.key === 'Enter' && !e.shiftKey) {
@@ -809,8 +769,10 @@
             modeSelectorButton.addEventListener('click', () => modeModal.classList.remove('hidden'));
             modeModal.addEventListener('click', (e) => { if (e.target === modeModal) modeModal.classList.add('hidden'); });
 
-            // Event listener for image generation button
+            // NEW: Event listeners for image generation using chatInput
             generateImageButton.addEventListener('click', generateImage);
+            // No keydown listener needed for imagePromptInput, as it's removed.
+            // If you want ENTER to trigger image generation if the "Generate Image" button has focus, that's a different logic.
 
             // --- Theme Management ---
             themeToggle.addEventListener('click', () => {
@@ -862,7 +824,9 @@
                         startNewChat();
                     }
                 } catch (e) {
-                    console.error("Could not parse chat history:", e);
+                    console.error("Could not parse chat history (it might be corrupted or an old format, starting new chat):", e);
+                    // NEW: If loading fails, start a fresh chat to prevent UI issues
+                    allChats = []; 
                     startNewChat();
                 }
                 loadChat(currentChatId);
@@ -871,25 +835,32 @@
             
             function loadChat(chatId) {
                 const chat = allChats.find(c => c.id === chatId);
-                if (!chat) return;
+                if (!chat) {
+                    console.warn(`Chat with ID ${chatId} not found. Starting a new chat.`);
+                    startNewChat();
+                    return;
+                }
                 currentChatId = chat.id; // Ensure currentChatId is correctly set
                 chatBox.innerHTML = '';
                 // Render chat history messages
                 chat.history.forEach(msg => {
                     const textPart = msg.parts.find(p => p.text)?.text || '';
-                    // For image history, if you stored `Image generated: <URL>`
+                    const inlineImageData = msg.parts.find(p => p.inlineData);
+
                     let options = {};
-                    const imageMatch = textPart.match(/^Image generated: (https:\/\/[^\s]+)$/);
-                    if (imageMatch && msg.role === 'model') {
-                        options.imageUrl = imageMatch[1];
-                        options.imageAlt = textPart.replace('Image generated: ', ''); // Use the prompt from the text as alt
-                        addMessage(`Here's your image:`, 'ai', options); // Display text, then the image
-                    } else {
-                        addMessage(textPart, msg.role, options); 
+                    // This logic assumes image URLs from image generation are not stored in parts (as per original API design)
+                    // and that user-uploaded images might be in inlineData.
+                    // If your /api/generate started returning image URLs as part of its text, you'd need more robust parsing here.
+                    
+                    if (inlineImageData) {
+                        // This assumes user-uploaded images are always prefixed with '[Image Attached]'
+                        // and their actual rendering happens via the attachment preview logic, not here in history load
+                        // This might be a point to refine if you want to store and re-display uploaded images directly in chat bubbles from history
                     }
+                    addMessage(textPart, msg.role, options); 
                 });
                 currentMode = chat.mode || 'Casual';
-                selectMode(currentMode);
+                selectMode(currentMode); // This will also update the mode icon and send system message
                 sidebar.classList.remove('open');
             }
 
@@ -961,24 +932,10 @@
                 updateThemeIcons(savedTheme === 'dark');
 
                 const currentHash = window.location.hash;
-                showSection(currentHash || '#home');
+                showSection(currentHash || '#home'); // This will now correctly trigger/stop typing animation
                 
-                if (heroTitle) {
-                    const textToType = "Your Friendly AI Companion";
-                    let charIndex = 0;
-                    function runTypingAnimation() { 
-                        if (heroTitle && charIndex < textToType.length) { 
-                            heroTitle.innerHTML = textToType.substring(0, charIndex + 1) + '<span class="typing-cursor"></span>'; 
-                            charIndex++; 
-                            setTimeout(runTypingAnimation, 100); // Slightly faster typing
-                        } else if (heroTitle) { 
-                            heroTitle.innerHTML = textToType + '<span class="typing-cursor"></span>'; 
-                        } 
-                    }
-                    runTypingAnimation();
-                }
                 populateModeModal();
-                loadAllChats();
+                loadAllChats(); // This will load the last chat and set current mode
             }
 
             initialize();
