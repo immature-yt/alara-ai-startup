@@ -514,7 +514,7 @@
             }
 
             function showSection(targetHash) {
-                if (!targetHash || targetHash === '#') targetHash = '#home';
+                if (!targetHash || targetHash === '#') targetHash = '#chat';
                 sections.forEach(s => s.classList.toggle('active', '#' + s.id === targetHash));
                 navLinks.forEach(l => l.classList.toggle('active', l.getAttribute('href') === targetHash));
                 sidebarToggle.classList.toggle('hidden', targetHash !== '#chat');
@@ -920,3 +920,4 @@
     </script>
 </body>
 </html>
+
