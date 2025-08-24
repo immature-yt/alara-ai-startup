@@ -5,31 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Alara - Your Friendly AI Companion</title>
     
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;700;800&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
     
-    <!-- jsPDF Library for PDF Generation -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
-    <!-- Prism.js for Syntax Highlighting -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-okaidia.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
 
-    <!-- KaTeX for Math Rendering -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
     
-    <!-- Marked.js for Markdown Parsing -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
-    <!-- Vercel Analytics & Speed Insights -->
     <script>
       window.va = window.va || function () { (window.va.q = window.va.q || []).push(arguments); };
     </script>
@@ -171,7 +164,6 @@
             word-break: normal;
             white-space: pre;
         }
-        /* Styles for the copy button */
         .copy-code-button {
             position: absolute;
             top: 0.75rem;
@@ -183,7 +175,7 @@
             cursor: pointer;
             font-size: 0.8em;
             font-weight: 600;
-            opacity: 0; /* Hidden by default */
+            opacity: 0;
             transition: opacity 0.2s ease-in-out, background-color 0.2s ease-in-out;
             border: none;
             display: flex;
@@ -192,7 +184,7 @@
             gap: 0.25rem;
         }
         pre:hover .copy-code-button {
-            opacity: 1; /* Show on hover of the pre block */
+            opacity: 1;
         }
         .copy-code-button:hover {
             background-color: rgba(255, 255, 255, 0.3);
@@ -297,7 +289,6 @@
         <div class="blob blob-3"></div>
     </div>
 
-    <!-- Chat History Sidebar -->
     <aside id="chat-sidebar" class="soft-card !rounded-none">
         <div class="flex justify-between items-center mb-6">
             <h2 class="text-2xl font-bold">Chat History</h2>
@@ -307,7 +298,6 @@
         <div id="chat-history-list" class="flex-1 overflow-y-auto space-y-2"></div>
     </aside>
 
-    <!-- Header & Navigation -->
     <header class="fixed top-0 left-0 right-0 z-50">
         <div class="container mx-auto px-6 py-4 max-w-7xl">
             <div class="soft-card flex justify-between items-center px-6 py-3 !rounded-full shadow-lg">
@@ -336,7 +326,6 @@
     </header>
 
     <main class="pt-28 flex-1">
-        <!-- Home Section -->
         <section id="home" class="page-section active relative">
             <div class="container mx-auto px-6 text-center min-h-[calc(100vh-7rem)] flex flex-col justify-center items-center max-w-7xl">
                 <h1 id="hero-title" class="text-5xl md:text-7xl lg:text-8xl font-extrabold mb-6 drop-shadow-lg leading-tight"></h1>
@@ -345,7 +334,6 @@
             </div>
         </section>
 
-        <!-- Chat Section -->
         <section id="chat" class="page-section">
              <button id="sidebar-toggle" class="fixed top-24 left-4 soft-card p-3 rounded-full z-40 text-[color:var(--primary-accent)] hover:scale-105 transition-transform duration-200">
                  <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
@@ -363,13 +351,11 @@
                             <button id="upload-image-button" class="p-2 rounded-full text-[color:var(--primary-accent)] hover:bg-[color:var(--secondary-accent)]/20 dark:hover:bg-[color:var(--primary-accent)]/20 transition-colors" title="Upload Image">
                                 <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
                             </button>
-                            <!-- Generate Image button -->
                             <button id="generate-image-button" class="p-2 rounded-full text-[color:var(--primary-accent)] hover:bg-[color:var(--secondary-accent)]/20 dark:hover:bg-[color:var(--primary-accent)]/20 transition-colors" title="Generate Image from Text">
                                 <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.008 2.008a1 1 0 010 1.414L10 17.414l-2 2V19h-.5l-2-2-.5-.5H4.5l-2-2-.5-.5v-.5l-.5-2 2-2 2-2 2-2 2-2 2-2zM15 5h.01M19 8h.01M15 11h.01" />
                                 </svg>
                             </button>
-                            <!-- Send Button -->
                             <button id="send-button" class="soft-button w-10 h-10 p-2 flex items-center justify-center !bg-[color:var(--primary-accent)] !text-white !shadow-md hover:!shadow-lg">
                                 <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.428A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" /></svg>
                             </button>
@@ -380,7 +366,6 @@
             </div>
         </section>
 
-        <!-- Code Preview Section -->
         <section id="preview" class="page-section">
             <div class="container mx-auto px-4 py-8 h-[calc(100vh-7rem)] flex flex-col items-center max-w-7xl">
                 <div id="preview-placeholder" class="text-center soft-card p-8 rounded-2xl max-w-xl mx-auto">
@@ -393,7 +378,6 @@
             </div>
         </section>
 
-        <!-- Pricing Section -->
         <section id="pricing" class="page-section">
              <div class="container mx-auto px-6 py-12 max-w-7xl">
                 <div class="text-center mb-12">
@@ -401,7 +385,6 @@
                     <p class="text-lg opacity-80 max-w-2xl mx-auto">Get started for free or unlock Alara's full potential with our Pro plan.</p>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-                    <!-- Free Plan Card -->
                     <div class="soft-card p-8 flex flex-col">
                         <h3 class="text-3xl font-bold mb-2">Free</h3>
                         <p class="text-xl font-medium opacity-80 mb-6">For casual users & exploration</p>
@@ -414,7 +397,6 @@
                         </ul>
                         <button class="soft-button bg-gray-300 !text-gray-700 cursor-default" disabled>Your Current Plan</button>
                     </div>
-                    <!-- Pro Plan Card -->
                     <div class="soft-card p-8 flex flex-col border-2 border-[color:var(--primary-accent)]">
                         <h3 class="text-3xl font-bold mb-2">Alara Pro</h3>
                         <p class="text-xl font-medium opacity-80 mb-6">For power users & professionals</p>
@@ -432,7 +414,6 @@
             </div>
         </section>
 
-        <!-- About Section -->
         <section id="about" class="page-section">
             <div class="container mx-auto px-6 py-20 flex flex-col justify-center items-center text-center max-w-7xl">
                 <h2 class="text-4xl font-bold mb-8">About Alara</h2>
@@ -444,7 +425,6 @@
         </section>
     </main>
 
-    <!-- Theme Toggle -->
     <button id="theme-toggle" class="fixed bottom-5 right-5 soft-card p-3 rounded-full text-[color:var(--primary-accent)] hover:scale-105 transition-transform duration-200">
         <svg id="theme-icon-light" class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
         <svg id="theme-icon-dark" class="h-6 w-6 hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
@@ -541,22 +521,12 @@
                 
                 const contentDiv = document.createElement('div');
                 contentDiv.className = 'message-content';
-
-                if (options.imageUrl) {
-                    if (message && message.trim() !== '') {
-                        const textNode = document.createElement('div');
-                        textNode.innerHTML = marked.parse(message);
-                        contentDiv.appendChild(textNode);
-                    }
-                    const imgElement = document.createElement('img');
-                    imgElement.src = options.imageUrl;
-                    imgElement.alt = options.imageAlt || 'Generated image';
-                    imgElement.className = 'max-w-full rounded-lg mt-2';
-                    contentDiv.appendChild(imgElement);
-                } else {
-                    contentDiv.innerHTML = marked.parse(message);
-                }
                 
+                // For live typing, the initial message is empty
+                if (message) {
+                     contentDiv.innerHTML = marked.parse(message);
+                }
+
                 bubble.appendChild(contentDiv);
 
                 if (sender === 'ai') {
@@ -580,25 +550,40 @@
                 wrapper.appendChild(bubble);
                 chatBox.appendChild(wrapper);
 
-                // --- FIX: Add Copy Buttons to Code Blocks ---
-                const codeBlocks = bubble.querySelectorAll('pre');
-                codeBlocks.forEach(pre => {
-                    const copyButton = document.createElement('button');
-                    copyButton.className = 'copy-code-button';
-                    copyButton.innerHTML = `<svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1.5M9 3v2m6-2v2m6 11V7a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2h2m4-2h2M9 13h10a2 2 0 012 2v4a2 2 0 01-2 2H9a2 2 0 01-2-2v-4a2 2 0 012-2z" /></svg> <span>Copy</span>`;
-                    pre.appendChild(copyButton);
-                });
-
-                Prism.highlightAllUnder(bubble);
-                renderMathInElement(bubble, {
-                    delimiters: [
-                        {left: '$$', right: '$$', display: true},
-                        {left: '$', right: '$', display: false}
-                    ]
-                });
                 chatBox.scrollTop = chatBox.scrollHeight;
                 return bubble;
             }
+
+            function typeOutResponse(bubble, text) {
+                const contentDiv = bubble.querySelector('.message-content');
+                let i = 0;
+                contentDiv.innerHTML = ""; // Clear initial content
+                
+                const typingInterval = setInterval(() => {
+                    if (i < text.length) {
+                        contentDiv.innerHTML = marked.parse(text.substring(0, i + 1) + '<span class="typing-cursor"></span>');
+                        chatBox.scrollTop = chatBox.scrollHeight;
+                        i++;
+                    } else {
+                        clearInterval(typingInterval);
+                        contentDiv.innerHTML = marked.parse(text); // Final render without cursor
+                        
+                        // --- Add Copy Buttons and Render Math/Code AFTER typing ---
+                        const codeBlocks = bubble.querySelectorAll('pre');
+                        codeBlocks.forEach(pre => {
+                            const copyButton = document.createElement('button');
+                            copyButton.className = 'copy-code-button';
+                            copyButton.innerHTML = `<svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1.5M9 3v2m6-2v2m6 11V7a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2h2m4-2h2M9 13h10a2 2 0 012 2v4a2 2 0 01-2 2H9a2 2 0 01-2-2v-4a2 2 0 012-2z" /></svg> <span>Copy</span>`;
+                            pre.appendChild(copyButton);
+                        });
+                        Prism.highlightAllUnder(bubble);
+                        renderMathInElement(bubble, {
+                            delimiters: [ {left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false} ]
+                        });
+                    }
+                }, 20); // Adjust typing speed here (milliseconds)
+            }
+
 
             function showTypingIndicator() {
                 const typingIndicator = document.createElement('div');
@@ -646,11 +631,14 @@
                 clearAttachment();
                 try {
                     const result = await getAIResponse(currentChat.history);
+                    typingIndicator.remove(); // Remove indicator once response is received
                     if (result.candidates && result.candidates.length > 0) {
                         const aiResponse = result.candidates[0].content.parts[0].text;
-                        addMessage(aiResponse, 'ai');
+                        const aiBubble = addMessage("", 'ai'); // Create an empty bubble first
+                        typeOutResponse(aiBubble, aiResponse); // Type out the response
+                        
                         currentChat.history.push({ role: "model", parts: [{ text: aiResponse }] });
-                        if(currentChat.title === "New Chat") {
+                        if(currentChat.title === "New Chat" && message) {
                             currentChat.title = message.substring(0, 30) + (message.length > 30 ? '...' : '');
                             renderChatHistorySidebar();
                         }
@@ -663,8 +651,8 @@
                         console.error("Error fetching AI response:", error);
                         addMessage("Oh no! Something went wrong with my circuits. Please give me a moment and try again. 💖", 'ai');
                     }
+                     typingIndicator.remove();
                 } finally {
-                    typingIndicator.remove();
                     toggleStopButton(false);
                 }
             }
@@ -750,7 +738,7 @@
                 imageInput.value = '';
             }
 
-            chatBox.addEventListener('click', async (e) => {
+            chatBox.addEventListener('click', (e) => {
                 const target = e.target.closest('button');
                 if (!target) return;
 
@@ -760,13 +748,25 @@
                 if (target.matches('.pdf-button')) {
                     const content = messageBubble.querySelector('.message-content').innerText;
                     const doc = new jsPDF();
-                    doc.text(content, 10, 10, { maxWidth: 180 });
+                    const margins = { top: 20, bottom: 20, left: 20, right: 20 };
+                    const maxWidth = doc.internal.pageSize.getWidth() - margins.left - margins.right;
+                    const lineHeight = 7;
+                    const textLines = doc.splitTextToSize(content, maxWidth);
+                    let y = margins.top;
+
+                    textLines.forEach(line => {
+                        if (y + lineHeight > doc.internal.pageSize.getHeight() - margins.bottom) {
+                            doc.addPage();
+                            y = margins.top;
+                        }
+                        doc.text(line, margins.left, y);
+                        y += lineHeight;
+                    });
                     doc.save('alara-response.pdf');
                 } else if (target.matches('.copy-code-button')) {
                     const codeBlock = target.closest('pre')?.querySelector('code');
                     if (codeBlock) {
-                        try {
-                            await navigator.clipboard.writeText(codeBlock.innerText);
+                        navigator.clipboard.writeText(codeBlock.innerText).then(() => {
                             const originalHTML = target.innerHTML;
                             target.innerHTML = `<svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg> <span>Copied!</span>`;
                             target.classList.add('copied');
@@ -774,9 +774,7 @@
                                 target.innerHTML = originalHTML;
                                 target.classList.remove('copied');
                             }, 2000);
-                        } catch (err) {
-                            console.error('Failed to copy text:', err);
-                        }
+                        }).catch(err => console.error('Failed to copy text:', err));
                     }
                 } else if (target.matches('[title="Run in Preview"]')) {
                     const codeBlock = messageBubble.querySelector('pre code');
@@ -821,24 +819,22 @@
                 try {
                     const savedChats = localStorage.getItem('alaraAllChats');
                     allChats = savedChats ? JSON.parse(savedChats) : [];
-                    if (allChats.length > 0) {
-                        currentChatId = allChats[0].id;
-                    } else {
-                        startNewChat();
-                        return; // startNewChat calls loadChat and render
-                    }
                 } catch (e) {
                     console.error("Could not parse chat history:", e);
-                    startNewChat();
-                    return;
+                    allChats = [];
                 }
-                loadChat(currentChatId);
-                renderChatHistorySidebar();
             }
             
             function loadChat(chatId) {
                 const chat = allChats.find(c => c.id === chatId);
-                if (!chat) return;
+                if (!chat) {
+                    if (allChats.length > 0) {
+                        loadChat(allChats[0].id)
+                    } else {
+                        startNewChat();
+                    }
+                    return;
+                };
                 currentChatId = chat.id;
                 chatBox.innerHTML = '';
                 chat.history.forEach(msg => {
@@ -847,11 +843,21 @@
                     if (imageMatch && msg.role === 'model') {
                         addMessage(`Here's your image:`, 'ai', { imageUrl: imageMatch[1], imageAlt: 'Generated image' });
                     } else {
-                        addMessage(textPart, msg.role); 
+                        const bubble = addMessage(textPart, msg.role);
+                        // Post-render processing for loaded messages
+                        const codeBlocks = bubble.querySelectorAll('pre');
+                        codeBlocks.forEach(pre => {
+                            const copyButton = document.createElement('button');
+                            copyButton.className = 'copy-code-button';
+                            copyButton.innerHTML = `<svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1.5M9 3v2m6-2v2m6 11V7a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2h2m4-2h2M9 13h10a2 2 0 012 2v4a2 2 0 01-2 2H9a2 2 0 01-2-2v-4a2 2 0 012-2z" /></svg> <span>Copy</span>`;
+                            pre.appendChild(copyButton);
+                        });
+                        Prism.highlightAllUnder(bubble);
+                        renderMathInElement(bubble, { delimiters: [ {left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false} ] });
                     }
                 });
                 sidebar.classList.remove('open');
-                renderChatHistorySidebar(); // Re-render to update highlight
+                renderChatHistorySidebar();
             }
 
             function startNewChat() {
@@ -860,7 +866,6 @@
                 currentChatId = newChat.id;
                 saveAllChats();
                 loadChat(currentChatId);
-                renderChatHistorySidebar();
             }
             
             newChatButton.addEventListener('click', startNewChat);
@@ -895,9 +900,9 @@
                     allChats = allChats.filter(c => c.id !== chatId);
                     saveAllChats();
                     if(currentChatId === chatId) {
+                        currentChatId = null; // Unset current chat ID
                         if(allChats.length > 0) {
-                            currentChatId = allChats[0].id;
-                            loadChat(currentChatId);
+                            loadChat(allChats[0].id);
                         } else {
                             startNewChat();
                         }
@@ -912,7 +917,9 @@
                 updateThemeIcons(savedTheme === 'dark');
                 const currentHash = window.location.hash;
                 showSection(currentHash || '#home');
-                loadAllChats();
+                
+                loadAllChats(); // Load history first
+                startNewChat(); // Then create a new chat for the session
             }
 
             initialize();
@@ -920,5 +927,3 @@
     </script>
 </body>
 </html>
-
-
