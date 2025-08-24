@@ -514,13 +514,13 @@
             }
 
             function showSection(targetHash) {
-                if (!targetHash || targetHash === '#') targetHash = '#chat';
+                if (!targetHash || targetHash === '#') targetHash = '#home';
                 sections.forEach(s => s.classList.toggle('active', '#' + s.id === targetHash));
                 navLinks.forEach(l => l.classList.toggle('active', l.getAttribute('href') === targetHash));
                 sidebarToggle.classList.toggle('hidden', targetHash !== '#chat');
                 window.history.pushState(null, '', targetHash);
                 mobileMenu.classList.add('hidden');
-                if (targetHash === '#chat') {
+                if (targetHash === '#home') {
                     if (!typingAnimationTimeout && currentHeroCharIndex === 0) {
                         heroTitle.innerHTML = '';
                         runTypingAnimation();
@@ -920,4 +920,5 @@
     </script>
 </body>
 </html>
+
 
