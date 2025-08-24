@@ -522,10 +522,21 @@
                 const contentDiv = document.createElement('div');
                 contentDiv.className = 'message-content';
                 
-                // For live typing, the initial message is empty
+                // If there's a text message, parse and add it
                 if (message) {
-                     contentDiv.innerHTML = marked.parse(message);
+                    contentDiv.innerHTML = marked.parse(message);
                 }
+
+                // **FIX STARTS HERE**: Check for an image URL in options and append the image
+                if (options.imageUrl) {
+                    const imageElement = document.createElement('img');
+                    imageElement.src = options.imageUrl;
+                    imageElement.alt = options.imageAlt || 'Generated image';
+                    // Add some styling to the image
+                    imageElement.className = 'mt-2 rounded-lg max-w-full h-auto shadow-md';
+                    contentDiv.appendChild(imageElement);
+                }
+                // **FIX ENDS HERE**
 
                 bubble.appendChild(contentDiv);
 
