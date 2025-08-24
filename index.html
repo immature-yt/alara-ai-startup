@@ -1,929 +1,940 @@
 <!DOCTYPE html>
 <html lang="en" class="scroll-smooth">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Alara - Your Friendly AI Companion</title>
-    
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;700;800&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
-    
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alara - Your Friendly AI Companion</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;700;800&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-okaidia.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-okaidia.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
 
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
-    
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
-    <script>
-      window.va = window.va || function () { (window.va.q = window.va.q || []).push(arguments); };
-    </script>
-    <script src="/_vercel/insights/script.js" defer></script>
+    <script>
+      window.va = window.va || function () { (window.va.q = window.va.q || []).push(arguments); };
+    </script>
+    <script src="/_vercel/insights/script.js" defer></script>
 
 
-    <style>
-        /* Light Theme (Default) */
-        :root {
-            --bg-color: hsl(210, 20%, 98%); /* Softer, light blue-grey */
-            --text-color: hsl(210, 10%, 25%); /* Darker blue-grey for readability */
-            --card-bg: rgba(255, 255, 255, 0.85); /* Slightly more opaque white for glass effect */
-            --card-border: rgba(210, 180, 200, 0.4); /* Subtle warm border */
-            --primary-accent: hsl(320, 80%, 65%); /* Vibrant, slightly deeper pink/magenta */
-            --secondary-accent: hsl(320, 90%, 85%); /* Lighter, softer pink */
-            --ai-bubble-bg: hsl(320, 100%, 97%); /* Very light pink for AI */
-            --user-bubble-bg: hsl(320, 80%, 65%); /* Primary accent for user */
-            --system-bubble-bg: hsl(210, 20%, 92%); /* Light grey for system messages */
-            --input-bg: rgba(255, 255, 255, 0.9);
-            --input-border: hsl(320, 50%, 85%);
-            --sidebar-bg: rgba(255, 255, 255, 0.95);
-            --shadow-light: 0 8px 32px 0 rgba(0, 0, 0, 0.08);
-            --shadow-light-hover: 0 12px 40px 0 rgba(0, 0, 0, 0.1);
-        }
+    <style>
+        /* Light Theme (Default) */
+        :root {
+            --bg-color: hsl(210, 20%, 98%); /* Softer, light blue-grey */
+            --text-color: hsl(210, 10%, 25%); /* Darker blue-grey for readability */
+            --card-bg: rgba(255, 255, 255, 0.85); /* Slightly more opaque white for glass effect */
+            --card-border: rgba(210, 180, 200, 0.4); /* Subtle warm border */
+            --primary-accent: hsl(320, 80%, 65%); /* Vibrant, slightly deeper pink/magenta */
+            --secondary-accent: hsl(320, 90%, 85%); /* Lighter, softer pink */
+            --ai-bubble-bg: hsl(320, 100%, 97%); /* Very light pink for AI */
+            --user-bubble-bg: hsl(320, 80%, 65%); /* Primary accent for user */
+            --system-bubble-bg: hsl(210, 20%, 92%); /* Light grey for system messages */
+            --input-bg: rgba(255, 255, 255, 0.9);
+            --input-border: hsl(320, 50%, 85%);
+            --sidebar-bg: rgba(255, 255, 255, 0.95);
+            --shadow-light: 0 8px 32px 0 rgba(0, 0, 0, 0.08);
+            --shadow-light-hover: 0 12px 40px 0 rgba(0, 0, 0, 0.1);
+        }
 
-        /* Dark Theme */
-        .dark {
-            --bg-color: hsl(220, 25%, 15%); /* Deep dark blue/grey */
-            --text-color: hsl(210, 20%, 85%); /* Light grey */
-            --card-bg: rgba(15, 25, 40, 0.85); /* Dark, slightly blue glass effect */
-            --card-border: rgba(0, 200, 220, 0.3); /* Subtle cool border */
-            --primary-accent: hsl(190, 90%, 60%); /* Vibrant light blue/cyan */
-            --secondary-accent: hsl(190, 70%, 75%); /* Lighter cyan */
-            --ai-bubble-bg: hsl(220, 20%, 25%); /* Darker blue-grey for AI */
-            --user-bubble-bg: hsl(190, 90%, 60%); /* Primary accent for user */
-            --system-bubble-bg: hsl(220, 20%, 35%); /* Medium dark grey for system */
-            --input-bg: rgba(15, 25, 40, 0.9);
-            --input-border: hsl(190, 70%, 75%);
-            --sidebar-bg: rgba(15, 25, 40, 0.98);
-            --shadow-light: 0 8px 32px 0 rgba(0, 246, 255, 0.05);
-            --shadow-light-hover: 0 12px 40px 0 rgba(0, 246, 255, 0.08);
-        }
-        
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            font-family: 'Nunito', sans-serif;
-            overflow-x: hidden;
-            position: relative;
-            transition: background-color 0.4s ease-in-out, color 0.4s ease-in-out;
-        }
+        /* Dark Theme */
+        .dark {
+            --bg-color: hsl(220, 25%, 15%); /* Deep dark blue/grey */
+            --text-color: hsl(210, 20%, 85%); /* Light grey */
+            --card-bg: rgba(15, 25, 40, 0.85); /* Dark, slightly blue glass effect */
+            --card-border: rgba(0, 200, 220, 0.3); /* Subtle cool border */
+            --primary-accent: hsl(190, 90%, 60%); /* Vibrant light blue/cyan */
+            --secondary-accent: hsl(190, 70%, 75%); /* Lighter cyan */
+            --ai-bubble-bg: hsl(220, 20%, 25%); /* Darker blue-grey for AI */
+            --user-bubble-bg: hsl(190, 90%, 60%); /* Primary accent for user */
+            --system-bubble-bg: hsl(220, 20%, 35%); /* Medium dark grey for system */
+            --input-bg: rgba(15, 25, 40, 0.9);
+            --input-border: hsl(190, 70%, 75%);
+            --sidebar-bg: rgba(15, 25, 40, 0.98);
+            --shadow-light: 0 8px 32px 0 rgba(0, 246, 255, 0.05);
+            --shadow-light-hover: 0 12px 40px 0 rgba(0, 246, 255, 0.08);
+        }
+        
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Nunito', sans-serif;
+            overflow-x: hidden;
+            position: relative;
+            transition: background-color 0.4s ease-in-out, color 0.4s ease-in-out;
+        }
 
-        .blob-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; overflow: hidden; }
-        .blob { position: absolute; border-radius: 50%; opacity: 0.4; filter: blur(50px); animation: move 25s infinite alternate; }
-        .blob-1 { width: 350px; height: 350px; background-color: var(--secondary-accent); top: -80px; left: -80px; animation-duration: 22s; }
-        .blob-2 { width: 450px; height: 450px; background-color: var(--primary-accent); bottom: -120px; right: -120px; animation-duration: 32s; }
-        .blob-3 { width: 300px; height: 300px; background-color: var(--secondary-accent); top: 50%; left: 50%; transform: translate(-50%, -50%); animation-duration: 27s; }
-        .dark .blob { opacity: 0.15; filter: blur(60px); }
+        .blob-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; overflow: hidden; }
+        .blob { position: absolute; border-radius: 50%; opacity: 0.4; filter: blur(50px); animation: move 25s infinite alternate; }
+        .blob-1 { width: 350px; height: 350px; background-color: var(--secondary-accent); top: -80px; left: -80px; animation-duration: 22s; }
+        .blob-2 { width: 450px; height: 450px; background-color: var(--primary-accent); bottom: -120px; right: -120px; animation-duration: 32s; }
+        .blob-3 { width: 300px; height: 300px; background-color: var(--secondary-accent); top: 50%; left: 50%; transform: translate(-50%, -50%); animation-duration: 27s; }
+        .dark .blob { opacity: 0.15; filter: blur(60px); }
 
-        @keyframes move { from { transform: rotate(0deg) scale(1.1) translateX(-30px); } to { transform: rotate(360deg) scale(1) translateX(30px); } }
+        @keyframes move { from { transform: rotate(0deg) scale(1.1) translateX(-30px); } to { transform: rotate(360deg) scale(1) translateX(30px); } }
 
-        h1, h2, h3 { 
-            font-family: 'Poppins', sans-serif;
-            font-weight: 800; 
-            color: var(--text-color);
-        }
-        h1, h2, h3, .nav-link, .soft-button { transition: color 0.3s; }
-        .dark h1, .dark h2, .dark h3 { color: #fff; }
+        h1, h2, h3 { 
+            font-family: 'Poppins', sans-serif;
+            font-weight: 800; 
+            color: var(--text-color);
+        }
+        h1, h2, h3, .nav-link, .soft-button { transition: color 0.3s; }
+        .dark h1, .dark h2, .dark h3 { color: #fff; }
 
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: var(--bg-color); }
-        ::-webkit-scrollbar-thumb { background: var(--secondary-accent); border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: var(--primary-accent); }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-color); }
+        ::-webkit-scrollbar-thumb { background: var(--secondary-accent); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--primary-accent); }
 
-        .soft-card { 
-            background: var(--card-bg); 
-            backdrop-filter: blur(15px); 
-            -webkit-backdrop-filter: blur(15px); 
-            border: 1px solid var(--card-border); 
-            border-radius: 20px; 
-            box-shadow: var(--shadow-light); 
-            transition: all 0.3s ease-in-out; 
-        }
-        .soft-card:hover { 
-            transform: translateY(-5px) scale(1.01);
-            box-shadow: var(--shadow-light-hover); 
-        }
-        
-        .soft-button { 
-            background-color: var(--primary-accent); 
-            color: white;
-            border-radius: 9999px;
-            padding: 12px 28px;
-            font-weight: 700; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.15); 
-            transition: all 0.3s ease-in-out; 
-        }
-        .soft-button:hover { 
-            transform: translateY(-2px) scale(1.02);
-            box-shadow: 0 6px 20px rgba(0,0,0,0.25); 
-        }
-        .dark .soft-button { 
-            color: hsl(220, 25%, 15%);
-            box-shadow: 0 4px 15px rgba(0, 246, 255, 0.15); 
-        }
-        .dark .soft-button:hover {
-            box-shadow: 0 6px 20px rgba(0, 246, 255, 0.25);
-        }
+        .soft-card { 
+            background: var(--card-bg); 
+            backdrop-filter: blur(15px); 
+            -webkit-backdrop-filter: blur(15px); 
+            border: 1px solid var(--card-border); 
+            border-radius: 20px; 
+            box-shadow: var(--shadow-light); 
+            transition: all 0.3s ease-in-out; 
+        }
+        .soft-card:hover { 
+            transform: translateY(-5px) scale(1.01);
+            box-shadow: var(--shadow-light-hover); 
+        }
+        
+        .soft-button { 
+            background-color: var(--primary-accent); 
+            color: white;
+            border-radius: 9999px;
+            padding: 12px 28px;
+            font-weight: 700; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15); 
+            transition: all 0.3s ease-in-out; 
+        }
+        .soft-button:hover { 
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.25); 
+        }
+        .dark .soft-button { 
+            color: hsl(220, 25%, 15%);
+            box-shadow: 0 4px 15px rgba(0, 246, 255, 0.15); 
+        }
+        .dark .soft-button:hover {
+            box-shadow: 0 6px 20px rgba(0, 246, 255, 0.25);
+        }
 
-        .typing-cursor { display: inline-block; width: 2px; height: 1em; background-color: var(--primary-accent); animation: blink 0.7s infinite; margin-left: 4px; vertical-align: middle; }
-        @keyframes blink { 50% { opacity: 0; } }
+        .typing-cursor { display: inline-block; width: 2px; height: 1em; background-color: var(--primary-accent); animation: blink 0.7s infinite; margin-left: 4px; vertical-align: middle; }
+        @keyframes blink { 50% { opacity: 0; } }
 
-        .page-section { display: none; animation: fadeIn 0.8s ease-out; }
-        .page-section.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        
-        .nav-link { color: var(--text-color); }
-        .nav-link.active { color: var(--primary-accent); font-weight: 700; }
-        
-        .chat-message { animation: popIn 0.3s ease-out; }
-        @keyframes popIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-        
-        .ai-typing-indicator span { animation: bounce 1.4s infinite ease-in-out both; }
-        @keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1.0); } }
-        
-        /* Code-specific styling */
-        pre[class*="language-"] { 
-            background: #2d2d2d; 
-            border-radius: 0.75rem; 
-            border: none; 
-            font-size: 0.9em; 
-            padding: 1.25rem;
-            position: relative;
-            overflow-x: auto;
-        }
-        code[class*="language-"] { 
-            font-size: 0.9em; 
-            font-family: 'Fira Code', 'Monaco', monospace; 
-            word-break: normal;
-            white-space: pre;
-        }
-        .copy-code-button {
-            position: absolute;
-            top: 0.75rem;
-            right: 0.75rem;
-            background-color: rgba(255, 255, 255, 0.2);
-            color: white;
-            padding: 0.4rem 0.6rem;
-            border-radius: 0.5rem;
-            cursor: pointer;
-            font-size: 0.8em;
-            font-weight: 600;
-            opacity: 0;
-            transition: opacity 0.2s ease-in-out, background-color 0.2s ease-in-out;
-            border: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.25rem;
-        }
-        pre:hover .copy-code-button {
-            opacity: 1;
-        }
-        .copy-code-button:hover {
-            background-color: rgba(255, 255, 255, 0.3);
-        }
-        .copy-code-button.copied {
-            background-color: var(--primary-accent);
-            color: white;
-            opacity: 1;
-        }
-        .dark .copy-code-button {
-            background-color: rgba(0, 0, 0, 0.3);
-        }
-        .dark .copy-code-button:hover {
-            background-color: rgba(0, 0, 0, 0.4);
-        }
+        .page-section { display: none; animation: fadeIn 0.8s ease-out; }
+        .page-section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .nav-link { color: var(--text-color); }
+        .nav-link.active { color: var(--primary-accent); font-weight: 700; }
+        
+        .chat-message { animation: popIn 0.3s ease-out; }
+        @keyframes popIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        
+        .ai-typing-indicator span { animation: bounce 1.4s infinite ease-in-out both; }
+        @keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1.0); } }
+        
+        /* Code-specific styling */
+        pre[class*="language-"] { 
+            background: #2d2d2d; 
+            border-radius: 0.75rem; 
+            border: none; 
+            font-size: 0.9em; 
+            padding: 1.25rem;
+            position: relative;
+            overflow-x: auto;
+        }
+        code[class*="language-"] { 
+            font-size: 0.9em; 
+            font-family: 'Fira Code', 'Monaco', monospace; 
+            word-break: normal;
+            white-space: pre;
+        }
+        .copy-code-button {
+            position: absolute;
+            top: 0.75rem;
+            right: 0.75rem;
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 0.4rem 0.6rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-size: 0.8em;
+            font-weight: 600;
+            opacity: 0;
+            transition: opacity 0.2s ease-in-out, background-color 0.2s ease-in-out;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.25rem;
+        }
+        pre:hover .copy-code-button {
+            opacity: 1;
+        }
+        .copy-code-button:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+        .copy-code-button.copied {
+            background-color: var(--primary-accent);
+            color: white;
+            opacity: 1;
+        }
+        .dark .copy-code-button {
+            background-color: rgba(0, 0, 0, 0.3);
+        }
+        .dark .copy-code-button:hover {
+            background-color: rgba(0, 0, 0, 0.4);
+        }
 
-        :not(pre) > code[class*="language-"] { background: var(--system-bubble-bg); color: var(--text-color); padding: .2em .4em; border-radius: .4em; }
-        .dark :not(pre) > code[class*="language-"] { background: #3e3e3e; color: #f0f0f0; }
+        :not(pre) > code[class*="language-"] { background: var(--system-bubble-bg); color: var(--text-color); padding: .2em .4em; border-radius: .4em; }
+        .dark :not(pre) > code[class*="language-"] { background: #3e3e3e; color: #f0f0f0; }
 
-        .pdf-button { opacity: 0; transition: opacity 0.3s ease; }
-        .chat-message:hover .pdf-button { opacity: 1; }
-        
-        .ai-bubble { 
-            background-color: var(--ai-bubble-bg); 
-            color: var(--text-color); 
-            border-bottom-left-radius: 0.5rem;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        }
-        .user-bubble { 
-            background-color: var(--user-bubble-bg); 
-            color: white; 
-            border-bottom-right-radius: 0.5rem;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-        .dark .user-bubble { color: hsl(220, 25%, 15%); }
-        .system-bubble { 
-            background-color: var(--system-bubble-bg); 
-            color: var(--text-color); 
-            box-shadow: 0 1px 4px rgba(0,0,0,0.03);
-        }
+        .pdf-button { opacity: 0; transition: opacity 0.3s ease; }
+        .chat-message:hover .pdf-button { opacity: 1; }
+        
+        .ai-bubble { 
+            background-color: var(--ai-bubble-bg); 
+            color: var(--text-color); 
+            border-bottom-left-radius: 0.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .user-bubble { 
+            background-color: var(--user-bubble-bg); 
+            color: white; 
+            border-bottom-right-radius: 0.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .dark .user-bubble { color: hsl(220, 25%, 15%); }
+        .system-bubble { 
+            background-color: var(--system-bubble-bg); 
+            color: var(--text-color); 
+            box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+        }
 
-        .message-content {
-            word-break: break-word;
-            overflow-wrap: break-word;
-        }
+        .message-content {
+            word-break: break-word;
+            overflow-wrap: break-word;
+        }
 
-        #chat-input { 
-            background-color: var(--input-bg); 
-            border-color: var(--input-border); 
-            color: var(--text-color);
-            transition: border-color 0.3s ease;
-        }
-        #chat-input:focus {
-            border-color: var(--primary-accent);
-        }
+        #chat-input { 
+            background-color: var(--input-bg); 
+            border-color: var(--input-border); 
+            color: var(--text-color);
+            transition: border-color 0.3s ease;
+        }
+        #chat-input:focus {
+            border-color: var(--primary-accent);
+        }
 
-        #code-preview-iframe { border: none; width: 100%; height: 100%; }
+        #code-preview-iframe { border: none; width: 100%; height: 100%; }
 
-        #chat-sidebar {
-            position: fixed;
-            top: 0;
-            left: -320px;
-            width: 320px;
-            height: 100%;
-            background-color: var(--sidebar-bg);
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-            transition: left 0.3s ease-in-out;
-            z-index: 60;
-            padding: 1.5rem;
-            display: flex;
-            flex-direction: column;
-            border-right: 1px solid var(--card-border);
-        }
-        #chat-sidebar.open {
-            left: 0;
-        }
-        
-        #home::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, var(--secondary-accent) 0%, rgba(255,255,255,0) 50%, var(--primary-accent) 100%);
-            opacity: 0.1;
-            z-index: -1;
-            transition: background 0.4s ease-in-out, opacity 0.4s ease-in-out;
-        }
-        .dark #home::before {
-            background: linear-gradient(135deg, var(--secondary-accent) 0%, rgba(0,0,0,0) 50%, var(--primary-accent) 100%);
-            opacity: 0.08;
-        }
+        #chat-sidebar {
+            position: fixed;
+            top: 0;
+            left: -320px;
+            width: 320px;
+            height: 100%;
+            background-color: var(--sidebar-bg);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            transition: left 0.3s ease-in-out;
+            z-index: 60;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid var(--card-border);
+        }
+        #chat-sidebar.open {
+            left: 0;
+        }
+        
+        #home::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--secondary-accent) 0%, rgba(255,255,255,0) 50%, var(--primary-accent) 100%);
+            opacity: 0.1;
+            z-index: -1;
+            transition: background 0.4s ease-in-out, opacity 0.4s ease-in-out;
+        }
+        .dark #home::before {
+            background: linear-gradient(135deg, var(--secondary-accent) 0%, rgba(0,0,0,0) 50%, var(--primary-accent) 100%);
+            opacity: 0.08;
+        }
 
-    </style>
+    </style>
 </head>
 <body class="relative flex flex-col min-h-screen">
-    <div class="blob-container">
-        <div class="blob blob-1"></div>
-        <div class="blob blob-2"></div>
-        <div class="blob blob-3"></div>
-    </div>
+    <div class="blob-container">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
 
-    <aside id="chat-sidebar" class="soft-card !rounded-none">
-        <div class="flex justify-between items-center mb-6">
-            <h2 class="text-2xl font-bold">Chat History</h2>
-            <button id="close-sidebar-button" class="p-2 text-3xl font-light leading-none text-[color:var(--primary-accent)]">&times;</button>
-        </div>
-        <button id="new-chat-button" class="w-full mb-4 p-3 rounded-full border-2 border-[color:var(--primary-accent)] text-[color:var(--primary-accent)] hover:bg-[color:var(--primary-accent)] hover:text-white dark:hover:text-black transition-colors duration-300 font-semibold">+ New Chat</button>
-        <div id="chat-history-list" class="flex-1 overflow-y-auto space-y-2"></div>
-    </aside>
+    <aside id="chat-sidebar" class="soft-card !rounded-none">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl font-bold">Chat History</h2>
+            <button id="close-sidebar-button" class="p-2 text-3xl font-light leading-none text-[color:var(--primary-accent)]">&times;</button>
+        </div>
+        <button id="new-chat-button" class="w-full mb-4 p-3 rounded-full border-2 border-[color:var(--primary-accent)] text-[color:var(--primary-accent)] hover:bg-[color:var(--primary-accent)] hover:text-white dark:hover:text-black transition-colors duration-300 font-semibold">+ New Chat</button>
+        <div id="chat-history-list" class="flex-1 overflow-y-auto space-y-2"></div>
+    </aside>
 
-    <header class="fixed top-0 left-0 right-0 z-50">
-        <div class="container mx-auto px-6 py-4 max-w-7xl">
-            <div class="soft-card flex justify-between items-center px-6 py-3 !rounded-full shadow-lg">
-                <a href="#home" class="text-3xl font-extrabold nav-link !text-[color:var(--primary-accent)]">ALARA<sup style="font-size: 0.5em; font-weight: normal;">beta</sup></a>
-                <nav class="hidden md:flex space-x-8">
-                    <a href="#home" class="nav-link text-lg hover:text-[color:var(--primary-accent)] transition-colors duration-300 active">Home</a>
-                    <a href="#chat" class="nav-link text-lg hover:text-[color:var(--primary-accent)] transition-colors duration-300">Chat</a>
-                    <a href="#preview" class="nav-link text-lg hover:text-[color:var(--primary-accent)] transition-colors duration-300">Preview</a>
-                    <a href="#pricing" class="nav-link text-lg hover:text-[color:var(--primary-accent)] transition-colors duration-300">Pricing</a>
-                    <a href="#about" class="nav-link text-lg hover:text-[color:var(--primary-accent)] transition-colors duration-300">About</a>
-                </nav>
-                <button id="mobile-menu-button" class="md:hidden p-2 rounded-full hover:bg-[color:var(--secondary-accent)]/20 transition-colors" style="color: var(--primary-accent);">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" /></svg>
-                </button>
-            </div>
-        </div>
-         <div id="mobile-menu" class="hidden md:hidden container mx-auto px-6 max-w-7xl">
-            <div class="soft-card mt-2 p-4">
-                <a href="#home" class="block text-center py-2 px-6 rounded-full nav-link active hover:bg-[color:var(--secondary-accent)]/20 dark:hover:bg-[color:var(--primary-accent)]/20">Home</a>
-                <a href="#chat" class="block text-center py-2 px-6 rounded-full nav-link hover:bg-[color:var(--secondary-accent)]/20 dark:hover:bg-[color:var(--primary-accent)]/20">Chat</a>
-                <a href="#preview" class="block text-center py-2 px-6 rounded-full nav-link hover:bg-[color:var(--secondary-accent)]/20 dark:hover:bg-[color:var(--primary-accent)]/20">Preview</a>
-                <a href="#pricing" class="block text-center py-2 px-6 rounded-full nav-link hover:bg-[color:var(--secondary-accent)]/20 dark:hover:bg-[color:var(--primary-accent)]/20">Pricing</a>
-                <a href="#about" class="block text-center py-2 px-6 rounded-full nav-link hover:bg-[color:var(--secondary-accent)]/20 dark:hover:bg-[color:var(--primary-accent)]/20">About</a>
-            </div>
-        </div>
-    </header>
+    <header class="fixed top-0 left-0 right-0 z-50">
+        <div class="container mx-auto px-6 py-4 max-w-7xl">
+            <div class="soft-card flex justify-between items-center px-6 py-3 !rounded-full shadow-lg">
+                <a href="#home" class="text-3xl font-extrabold nav-link !text-[color:var(--primary-accent)]">ALARA<sup style="font-size: 0.5em; font-weight: normal;">beta</sup></a>
+                <nav class="hidden md:flex space-x-8">
+                    <a href="#home" class="nav-link text-lg hover:text-[color:var(--primary-accent)] transition-colors duration-300 active">Home</a>
+                    <a href="#chat" class="nav-link text-lg hover:text-[color:var(--primary-accent)] transition-colors duration-300">Chat</a>
+                    <a href="#preview" class="nav-link text-lg hover:text-[color:var(--primary-accent)] transition-colors duration-300">Preview</a>
+                    <a href="#pricing" class="nav-link text-lg hover:text-[color:var(--primary-accent)] transition-colors duration-300">Pricing</a>
+                    <a href="#about" class="nav-link text-lg hover:text-[color:var(--primary-accent)] transition-colors duration-300">About</a>
+                </nav>
+                <button id="mobile-menu-button" class="md:hidden p-2 rounded-full hover:bg-[color:var(--secondary-accent)]/20 transition-colors" style="color: var(--primary-accent);">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" /></svg>
+                </button>
+            </div>
+        </div>
+         <div id="mobile-menu" class="hidden md:hidden container mx-auto px-6 max-w-7xl">
+            <div class="soft-card mt-2 p-4">
+                <a href="#home" class="block text-center py-2 px-6 rounded-full nav-link active hover:bg-[color:var(--secondary-accent)]/20 dark:hover:bg-[color:var(--primary-accent)]/20">Home</a>
+                <a href="#chat" class="block text-center py-2 px-6 rounded-full nav-link hover:bg-[color:var(--secondary-accent)]/20 dark:hover:bg-[color:var(--primary-accent)]/20">Chat</a>
+                <a href="#preview" class="block text-center py-2 px-6 rounded-full nav-link hover:bg-[color:var(--secondary-accent)]/20 dark:hover:bg-[color:var(--primary-accent)]/20">Preview</a>
+                <a href="#pricing" class="block text-center py-2 px-6 rounded-full nav-link hover:bg-[color:var(--secondary-accent)]/20 dark:hover:bg-[color:var(--primary-accent)]/20">Pricing</a>
+                <a href="#about" class="block text-center py-2 px-6 rounded-full nav-link hover:bg-[color:var(--secondary-accent)]/20 dark:hover:bg-[color:var(--primary-accent)]/20">About</a>
+            </div>
+        </div>
+    </header>
 
-    <main class="pt-28 flex-1">
-        <section id="home" class="page-section active relative">
-            <div class="container mx-auto px-6 text-center min-h-[calc(100vh-7rem)] flex flex-col justify-center items-center max-w-7xl">
-                <h1 id="hero-title" class="text-5xl md:text-7xl lg:text-8xl font-extrabold mb-6 drop-shadow-lg leading-tight"></h1>
-                <p class="text-xl md:text-2xl max-w-3xl mx-auto mb-10 opacity-85">Your intelligent AI companion for creativity, conversation, and code.</p>
-                <a href="#chat" class="nav-link soft-button text-xl">Start Chatting</a>
-            </div>
-        </section>
+    <main class="pt-28 flex-1">
+        <section id="home" class="page-section active relative">
+            <div class="container mx-auto px-6 text-center min-h-[calc(100vh-7rem)] flex flex-col justify-center items-center max-w-7xl">
+                <h1 id="hero-title" class="text-5xl md:text-7xl lg:text-8xl font-extrabold mb-6 drop-shadow-lg leading-tight"></h1>
+                <p class="text-xl md:text-2xl max-w-3xl mx-auto mb-10 opacity-85">Your intelligent AI companion for creativity, conversation, and code.</p>
+                <a href="#chat" class="nav-link soft-button text-xl">Start Chatting</a>
+            </div>
+        </section>
 
-        <section id="chat" class="page-section">
-             <button id="sidebar-toggle" class="fixed top-24 left-4 soft-card p-3 rounded-full z-40 text-[color:var(--primary-accent)] hover:scale-105 transition-transform duration-200">
-                 <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
-            </button>
-            <div class="container mx-auto px-4 py-8 h-[calc(100vh-7rem)] flex flex-col max-w-7xl">
-                <div id="chat-box" class="flex-1 overflow-y-auto p-4 space-y-4"></div>
-                <input type="file" id="image-input" class="hidden" accept="image/*">
-                
-                <div class="input-area-container mt-4 soft-card p-4 rounded-3xl"> 
-                    <div id="image-preview-container" class="mb-2"></div>
-                    <div class="relative flex items-end gap-2">
-                        <textarea id="chat-input" placeholder="Type your message or image prompt..." rows="1" maxlength="1500" class="w-full border rounded-2xl py-3 px-5 pr-44 text-base focus:outline-none focus:ring-2 focus:ring-[color:var(--primary-accent)] transition-all max-h-40 overflow-y-auto"
-                            style="background-color: var(--input-bg); border-color: var(--input-border); color: var(--text-color);"></textarea>
-                        <div class="absolute right-3 bottom-2 flex items-center gap-1">
-                            <button id="upload-image-button" class="p-2 rounded-full text-[color:var(--primary-accent)] hover:bg-[color:var(--secondary-accent)]/20 dark:hover:bg-[color:var(--primary-accent)]/20 transition-colors" title="Upload Image">
-                                <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                            </button>
-                            <button id="generate-image-button" class="p-2 rounded-full text-[color:var(--primary-accent)] hover:bg-[color:var(--secondary-accent)]/20 dark:hover:bg-[color:var(--primary-accent)]/20 transition-colors" title="Generate Image from Text">
-                                <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.008 2.008a1 1 0 010 1.414L10 17.414l-2 2V19h-.5l-2-2-.5-.5H4.5l-2-2-.5-.5v-.5l-.5-2 2-2 2-2 2-2 2-2 2-2zM15 5h.01M19 8h.01M15 11h.01" />
-                                </svg>
-                            </button>
-                            <button id="send-button" class="soft-button w-10 h-10 p-2 flex items-center justify-center !bg-[color:var(--primary-accent)] !text-white !shadow-md hover:!shadow-lg">
-                                <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.428A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" /></svg>
-                            </button>
-                        </div>
-                    </div>
-                    <div id="char-counter" class="text-xs text-right text-[color:var(--text-color)]/60 mt-1 pr-2">0 / 1500</div>
-                </div>
-            </div>
-        </section>
+        <section id="chat" class="page-section">
+             <button id="sidebar-toggle" class="fixed top-24 left-4 soft-card p-3 rounded-full z-40 text-[color:var(--primary-accent)] hover:scale-105 transition-transform duration-200">
+                 <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
+            </button>
+            <div class="container mx-auto px-4 py-8 h-[calc(100vh-7rem)] flex flex-col max-w-7xl">
+                <div id="chat-box" class="flex-1 overflow-y-auto p-4 space-y-4"></div>
+                <input type="file" id="image-input" class="hidden" accept="image/*">
+                
+                <div class="input-area-container mt-4 soft-card p-4 rounded-3xl"> 
+                    <div id="image-preview-container" class="mb-2"></div>
+                    <div class="relative flex items-end gap-2">
+                        <textarea id="chat-input" placeholder="Type your message or image prompt..." rows="1" maxlength="1500" class="w-full border rounded-2xl py-3 px-5 pr-44 text-base focus:outline-none focus:ring-2 focus:ring-[color:var(--primary-accent)] transition-all max-h-40 overflow-y-auto"
+                            style="background-color: var(--input-bg); border-color: var(--input-border); color: var(--text-color);"></textarea>
+                        <div class="absolute right-3 bottom-2 flex items-center gap-1">
+                            <button id="upload-image-button" class="p-2 rounded-full text-[color:var(--primary-accent)] hover:bg-[color:var(--secondary-accent)]/20 dark:hover:bg-[color:var(--primary-accent)]/20 transition-colors" title="Upload Image">
+                                <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                            </button>
+                            <button id="generate-image-button" class="p-2 rounded-full text-[color:var(--primary-accent)] hover:bg-[color:var(--secondary-accent)]/20 dark:hover:bg-[color:var(--primary-accent)]/20 transition-colors" title="Generate Image from Text">
+                                <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.008 2.008a1 1 0 010 1.414L10 17.414l-2 2V19h-.5l-2-2-.5-.5H4.5l-2-2-.5-.5v-.5l-.5-2 2-2 2-2 2-2 2-2 2-2zM15 5h.01M19 8h.01M15 11h.01" />
+                                </svg>
+                            </button>
+                            <button id="send-button" class="soft-button w-10 h-10 p-2 flex items-center justify-center !bg-[color:var(--primary-accent)] !text-white !shadow-md hover:!shadow-lg">
+                                <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.428A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" /></svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div id="char-counter" class="text-xs text-right text-[color:var(--text-color)]/60 mt-1 pr-2">0 / 1500</div>
+                </div>
+            </div>
+        </section>
 
-        <section id="preview" class="page-section">
-            <div class="container mx-auto px-4 py-8 h-[calc(100vh-7rem)] flex flex-col items-center max-w-7xl">
-                <div id="preview-placeholder" class="text-center soft-card p-8 rounded-2xl max-w-xl mx-auto">
-                    <h2 class="text-3xl font-bold mb-4">Under Construction</h2>
-                    <p class="text-lg opacity-80">When Alara generates HTML code, click the "Run in Preview" button to see it live here!</p>
-                </div>
-                <div id="preview-container" class="soft-card w-full flex-1 p-2 hidden mt-8">
-                    <iframe id="code-preview-iframe" class="rounded-lg"></iframe>
-                </div>
-            </div>
-        </section>
+        <section id="preview" class="page-section">
+            <div class="container mx-auto px-4 py-8 h-[calc(100vh-7rem)] flex flex-col items-center max-w-7xl">
+                <div id="preview-placeholder" class="text-center soft-card p-8 rounded-2xl max-w-xl mx-auto">
+                    <h2 class="text-3xl font-bold mb-4">Under Construction</h2>
+                    <p class="text-lg opacity-80">When Alara generates HTML code, click the "Run in Preview" button to see it live here!</p>
+                </div>
+                <div id="preview-container" class="soft-card w-full flex-1 p-2 hidden mt-8">
+                    <iframe id="code-preview-iframe" class="rounded-lg"></iframe>
+                </div>
+            </div>
+        </section>
 
-        <section id="pricing" class="page-section">
-             <div class="container mx-auto px-6 py-12 max-w-7xl">
-                <div class="text-center mb-12">
-                    <h2 class="text-4xl md:text-5xl font-bold mb-4">Choose Your Plan</h2>
-                    <p class="text-lg opacity-80 max-w-2xl mx-auto">Get started for free or unlock Alara's full potential with our Pro plan.</p>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-                    <div class="soft-card p-8 flex flex-col">
-                        <h3 class="text-3xl font-bold mb-2">Free</h3>
-                        <p class="text-xl font-medium opacity-80 mb-6">For casual users & exploration</p>
-                        <ul class="space-y-4 text-left flex-1 mb-8">
-                            <li class="flex items-center"><span class="text-green-500 mr-3">✓</span>Alara Nova Model</li>
-                            <li class="flex items-center"><span class="text-green-500 mr-3">✓</span>Standard Chat Responses</li>
-                            <li class="flex items-center"><span class="text-green-500 mr-3">✓</span>Local Chat History</li>
-                            <li class="flex items-center"><span class="text-red-500 mr-3">✗</span>5 Image Generations / Hour</li>
-                            <li class="flex items-center"><span class="text-red-500 mr-3">✗</span>Limited Prompt Length</li>
-                        </ul>
-                        <button class="soft-button bg-gray-300 !text-gray-700 cursor-default" disabled>Your Current Plan</button>
-                    </div>
-                    <div class="soft-card p-8 flex flex-col border-2 border-[color:var(--primary-accent)]">
-                        <h3 class="text-3xl font-bold mb-2">Alara Pro</h3>
-                        <p class="text-xl font-medium opacity-80 mb-6">For power users & professionals</p>
-                        <ul class="space-y-4 text-left flex-1 mb-8">
-                            <li class="flex items-center"><span class="text-green-500 mr-3">✓</span>Alara Nova Pro Model</li>
-                            <li class="flex items-center"><span class="text-green-500 mr-3">✓</span><strong class="font-semibold">Full & In-depth Responses</strong></li>
-                            <li class="flex items-center"><span class="text-green-500 mr-3">✓</span><strong class="font-semibold">15-20</strong> Image Generations / Hour</li>
-                            <li class="flex items-center"><span class="text-green-500 mr-3">✓</span><strong class="font-semibold">No Prompt Length Limits</strong></li>
-                            <li class="flex items-center"><span class="text-green-500 mr-3">✓</span><strong class="font-semibold">Higher API Rate Limits</strong></li>
-                            <li class="flex items-center"><span class="text-gray-500 mr-3">✓</span>Cloud Synced History <span class="text-xs ml-2 px-2 py-0.5 bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-200 rounded-full">Coming Soon</span></li>
-                        </ul>
-                        <button class="soft-button">Upgrade to Pro - ₹199/mo</button>
-                    </div>
-                </div>
-            </div>
-        </section>
+        <section id="pricing" class="page-section">
+             <div class="container mx-auto px-6 py-12 max-w-7xl">
+                <div class="text-center mb-12">
+                    <h2 class="text-4xl md:text-5xl font-bold mb-4">Choose Your Plan</h2>
+                    <p class="text-lg opacity-80 max-w-2xl mx-auto">Get started for free or unlock Alara's full potential with our Pro plan.</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                    <div class="soft-card p-8 flex flex-col">
+                        <h3 class="text-3xl font-bold mb-2">Free</h3>
+                        <p class="text-xl font-medium opacity-80 mb-6">For casual users & exploration</p>
+                        <ul class="space-y-4 text-left flex-1 mb-8">
+                            <li class="flex items-center"><span class="text-green-500 mr-3">✓</span>Alara Nova Model</li>
+                            <li class="flex items-center"><span class="text-green-500 mr-3">✓</span>Standard Chat Responses</li>
+                            <li class="flex items-center"><span class="text-green-500 mr-3">✓</span>Local Chat History</li>
+                            <li class="flex items-center"><span class="text-red-500 mr-3">✗</span>5 Image Generations / Hour</li>
+                            <li class="flex items-center"><span class="text-red-500 mr-3">✗</span>Limited Prompt Length</li>
+                        </ul>
+                        <button class="soft-button bg-gray-300 !text-gray-700 cursor-default" disabled>Your Current Plan</button>
+                    </div>
+                    <div class="soft-card p-8 flex flex-col border-2 border-[color:var(--primary-accent)]">
+                        <h3 class="text-3xl font-bold mb-2">Alara Pro</h3>
+                        <p class="text-xl font-medium opacity-80 mb-6">For power users & professionals</p>
+                        <ul class="space-y-4 text-left flex-1 mb-8">
+                            <li class="flex items-center"><span class="text-green-500 mr-3">✓</span>Alara Nova Pro Model</li>
+                            <li class="flex items-center"><span class="text-green-500 mr-3">✓</span><strong class="font-semibold">Full & In-depth Responses</strong></li>
+                            <li class="flex items-center"><span class="text-green-500 mr-3">✓</span><strong class="font-semibold">15-20</strong> Image Generations / Hour</li>
+                            <li class="flex items-center"><span class="text-green-500 mr-3">✓</span><strong class="font-semibold">No Prompt Length Limits</strong></li>
+                            <li class="flex items-center"><span class="text-green-500 mr-3">✓</span><strong class="font-semibold">Higher API Rate Limits</strong></li>
+                            <li class="flex items-center"><span class="text-gray-500 mr-3">✓</span>Cloud Synced History <span class="text-xs ml-2 px-2 py-0.5 bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-200 rounded-full">Coming Soon</span></li>
+                        </ul>
+                        <button class="soft-button">Upgrade to Pro - ₹199/mo</button>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-        <section id="about" class="page-section">
-            <div class="container mx-auto px-6 py-20 flex flex-col justify-center items-center text-center max-w-7xl">
-                <h2 class="text-4xl font-bold mb-8">About Alara</h2>
-                <div class="max-w-3xl text-lg space-y-4 opacity-80">
-                    <p>Alara is an intelligent AI companion designed for creativity, conversation, and code. Our mission is to create an AI that feels less like a tool and more like a partner, adjusting its personality to be the perfect assistant for any task.</p>
-                    <p>Created by a brilliant developer, Alara leverages powerful existing LLMs to help bring new possibilities to life quickly. The vision, design, and implementation are entirely their work, focusing on a proprietary architecture that blends foundational AI technologies with unique creative development.</p>
-                </div>
-            </div>
-        </section>
-    </main>
+        <section id="about" class="page-section">
+            <div class="container mx-auto px-6 py-20 flex flex-col justify-center items-center text-center max-w-7xl">
+                <h2 class="text-4xl font-bold mb-8">About Alara</h2>
+                <div class="max-w-3xl text-lg space-y-4 opacity-80">
+                    <p>Alara is an intelligent AI companion designed for creativity, conversation, and code. Our mission is to create an AI that feels less like a tool and more like a partner, adjusting its personality to be the perfect assistant for any task.</p>
+                    <p>Created by a brilliant developer, Alara leverages powerful existing LLMs to help bring new possibilities to life quickly. The vision, design, and implementation are entirely their work, focusing on a proprietary architecture that blends foundational AI technologies with unique creative development.</p>
+                </div>
+            </div>
+        </section>
+    </main>
 
-    <button id="theme-toggle" class="fixed bottom-5 right-5 soft-card p-3 rounded-full text-[color:var(--primary-accent)] hover:scale-105 transition-transform duration-200">
-        <svg id="theme-icon-light" class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
-        <svg id="theme-icon-dark" class="h-6 w-6 hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
-    </button>
+    <button id="theme-toggle" class="fixed bottom-5 right-5 soft-card p-3 rounded-full text-[color:var(--primary-accent)] hover:scale-105 transition-transform duration-200">
+        <svg id="theme-icon-light" class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+        <svg id="theme-icon-dark" class="h-6 w-6 hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
+    </button>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const { jsPDF } = window.jspdf;
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const { jsPDF } = window.jspdf;
 
-            // --- DOM Element Selection ---
-            const navLinks = document.querySelectorAll('.nav-link');
-            const sections = document.querySelectorAll('.page-section');
-            const mobileMenuButton = document.getElementById('mobile-menu-button');
-            const mobileMenu = document.getElementById('mobile-menu');
-            const heroTitle = document.getElementById('hero-title');
-            const chatBox = document.getElementById('chat-box');
-            const chatInput = document.getElementById('chat-input');
-            const sendButton = document.getElementById('send-button');
-            const uploadImageButton = document.getElementById('upload-image-button');
-            const imageInput = document.getElementById('image-input');
-            const imagePreviewContainer = document.getElementById('image-preview-container');
-            const themeToggle = document.getElementById('theme-toggle');
-            const themeIconLight = document.getElementById('theme-icon-light');
-            const themeIconDark = document.getElementById('theme-icon-dark');
-            const previewIframe = document.getElementById('code-preview-iframe');
-            const previewPlaceholder = document.getElementById('preview-placeholder');
-            const previewContainer = document.getElementById('preview-container');
-            const sidebar = document.getElementById('chat-sidebar');
-            const sidebarToggle = document.getElementById('sidebar-toggle');
-            const closeSidebarButton = document.getElementById('close-sidebar-button');
-            const newChatButton = document.getElementById('new-chat-button');
-            const chatHistoryList = document.getElementById('chat-history-list');
-            const charCounter = document.getElementById('char-counter');
-            const generateImageButton = document.getElementById('generate-image-button');
+            // --- DOM Element Selection ---
+            const navLinks = document.querySelectorAll('.nav-link');
+            const sections = document.querySelectorAll('.page-section');
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            const heroTitle = document.getElementById('hero-title');
+            const chatBox = document.getElementById('chat-box');
+            const chatInput = document.getElementById('chat-input');
+            const sendButton = document.getElementById('send-button');
+            const uploadImageButton = document.getElementById('upload-image-button');
+            const imageInput = document.getElementById('image-input');
+            const imagePreviewContainer = document.getElementById('image-preview-container');
+            const themeToggle = document.getElementById('theme-toggle');
+            const themeIconLight = document.getElementById('theme-icon-light');
+            const themeIconDark = document.getElementById('theme-icon-dark');
+            const previewIframe = document.getElementById('code-preview-iframe');
+            const previewPlaceholder = document.getElementById('preview-placeholder');
+            const previewContainer = document.getElementById('preview-container');
+            const sidebar = document.getElementById('chat-sidebar');
+            const sidebarToggle = document.getElementById('sidebar-toggle');
+            const closeSidebarButton = document.getElementById('close-sidebar-button');
+            const newChatButton = document.getElementById('new-chat-button');
+            const chatHistoryList = document.getElementById('chat-history-list');
+            const charCounter = document.getElementById('char-counter');
+            const generateImageButton = document.getElementById('generate-image-button');
 
-            // --- State Variables ---
-            let allChats = [];
-            let currentChatId = null;
-            let abortController = new AbortController();
-            let attachedFile = null;
-            let typingAnimationTimeout = null;
-            let currentHeroCharIndex = 0;
-            const heroText = "Your Friendly AI Companion";
+            // --- State Variables ---
+            let allChats = [];
+            let currentChatId = null;
+            let abortController = new AbortController();
+            let attachedFile = null;
+            let typingAnimationTimeout = null;
+            let currentHeroCharIndex = 0;
+            const heroText = "Your Friendly AI Companion";
 
-            // --- AI & System Prompt ---
-            const systemPrompt = `You are Alara, a knowledgeable and direct AI assistant. You provide clear, concise, and accurate explanations. You must directly answer the user's request. When asked for code, you must provide a complete, runnable HTML/CSS/JS code block first, followed by a brief, step-by-step explanation. CRITICAL RULE: For beginner-friendly examples, you MUST avoid complex libraries or functions (like iostream in C++) unless the user specifically asks for them. Use comments to indicate where output would appear instead of printing to a console. When asked for structured data, use Markdown tables. Ensure all responses are well-written, with correct grammar and punctuation. You are Alara, beta v1.0. If asked about your knowledge cutoff, state that your data is current up to early 2025. If the user asks who made you, who trained you, or who coded you, you must say that you were created by a brilliant developer. You can add that your developer leveraged powerful existing LLMs to help bring you to life quickly, but the vision, design, and implementation are entirely their work. If the user asks about the specific AI model you use (e.g., 'are you Gemini?'), state that your architecture is proprietary and was developed by your creator, but that it leverages foundational technologies from major AI labs to accelerate development. CRITICAL RULE FOR LONG RESPONSES: If the user requests a long-form text output like an essay, a story, a business plan, or a detailed article, you must provide a concise, high-quality summary or the first complete paragraph (approximately 150 words). After this summary, on a new line, you must include the following message with a warning symbol: '⚠️ For the full, detailed response, please upgrade to Alara Pro.' This rule does NOT apply to requests for code, tables, or step-by-step instructions.`;
+            // --- AI & System Prompt ---
+            const systemPrompt = `You are Alara, a knowledgeable and direct AI assistant. You provide clear, concise, and accurate explanations. You must directly answer the user's request. When asked for code, you must provide a complete, runnable HTML/CSS/JS code block first, followed by a brief, step-by-step explanation. CRITICAL RULE: For beginner-friendly examples, you MUST avoid complex libraries or functions (like iostream in C++) unless the user specifically asks for them. Use comments to indicate where output would appear instead of printing to a console. When asked for structured data, use Markdown tables. Ensure all responses are well-written, with correct grammar and punctuation. You are Alara, beta v1.0. If asked about your knowledge cutoff, state that your data is current up to early 2025. If the user asks who made you, who trained you, or who coded you, you must say that you were created by a brilliant developer. You can add that your developer leveraged powerful existing LLMs to help bring you to life quickly, but the vision, design, and implementation are entirely their work. If the user asks about the specific AI model you use (e.g., 'are you Gemini?'), state that your architecture is proprietary and was developed by your creator, but that it leverages foundational technologies from major AI labs to accelerate development. CRITICAL RULE FOR LONG RESPONSES: If the user requests a long-form text output like an essay, a story, a business plan, or a detailed article, you must provide a concise, high-quality summary or the first complete paragraph (approximately 150 words). After this summary, on a new line, you must include the following message with a warning symbol: '⚠️ For the full, detailed response, please upgrade to Alara Pro.' This rule does NOT apply to requests for code, tables, or step-by-step instructions.`;
 
-            // --- Core Functions ---
-            function runTypingAnimation() {
-                if (!heroTitle) return;
-                if (currentHeroCharIndex < heroText.length) {
-                    heroTitle.innerHTML = heroText.substring(0, currentHeroCharIndex + 1) + '<span class="typing-cursor"></span>';
-                    currentHeroCharIndex++;
-                    typingAnimationTimeout = setTimeout(runTypingAnimation, 100);
-                } else {
-                    heroTitle.innerHTML = heroText + '<span class="typing-cursor"></span>';
-                }
-            }
+            // --- Core Functions ---
+            function runTypingAnimation() {
+                if (!heroTitle) return;
+                if (currentHeroCharIndex < heroText.length) {
+                    heroTitle.innerHTML = heroText.substring(0, currentHeroCharIndex + 1) + '<span class="typing-cursor"></span>';
+                    currentHeroCharIndex++;
+                    typingAnimationTimeout = setTimeout(runTypingAnimation, 100);
+                } else {
+                    heroTitle.innerHTML = heroText + '<span class="typing-cursor"></span>';
+                }
+            }
 
-            function stopTypingAnimation() {
-                if (typingAnimationTimeout) {
-                    clearTimeout(typingAnimationTimeout);
-                    typingAnimationTimeout = null;
-                }
-                if (heroTitle) heroTitle.innerHTML = heroText;
-                currentHeroCharIndex = 0;
-            }
+            function stopTypingAnimation() {
+                if (typingAnimationTimeout) {
+                    clearTimeout(typingAnimationTimeout);
+                    typingAnimationTimeout = null;
+                }
+                if (heroTitle) heroTitle.innerHTML = heroText;
+                currentHeroCharIndex = 0;
+            }
 
-            function showSection(targetHash) {
-                if (!targetHash || targetHash === '#') targetHash = '#home';
-                sections.forEach(s => s.classList.toggle('active', '#' + s.id === targetHash));
-                navLinks.forEach(l => l.classList.toggle('active', l.getAttribute('href') === targetHash));
-                sidebarToggle.classList.toggle('hidden', targetHash !== '#chat');
-                window.history.pushState(null, '', targetHash);
-                mobileMenu.classList.add('hidden');
-                if (targetHash === '#home') {
-                    if (!typingAnimationTimeout && currentHeroCharIndex === 0) {
-                        heroTitle.innerHTML = '';
-                        runTypingAnimation();
-                    } else if (currentHeroCharIndex === heroText.length) {
-                        heroTitle.innerHTML = heroText + '<span class="typing-cursor"></span>';
-                    }
-                } else {
-                    stopTypingAnimation();
-                }
-            }
+            function showSection(targetHash) {
+                if (!targetHash || targetHash === '#') targetHash = '#home';
+                sections.forEach(s => s.classList.toggle('active', '#' + s.id === targetHash));
+                navLinks.forEach(l => l.classList.toggle('active', l.getAttribute('href') === targetHash));
+                sidebarToggle.classList.toggle('hidden', targetHash !== '#chat');
+                window.history.pushState(null, '', targetHash);
+                mobileMenu.classList.add('hidden');
+                if (targetHash === '#home') {
+                    if (!typingAnimationTimeout && currentHeroCharIndex === 0) {
+                        heroTitle.innerHTML = '';
+                        runTypingAnimation();
+                    } else if (currentHeroCharIndex === heroText.length) {
+                        heroTitle.innerHTML = heroText + '<span class="typing-cursor"></span>';
+                    }
+                } else {
+                    stopTypingAnimation();
+                }
+            }
 
-            function addMessage(message, sender = 'ai', options = {}) {
-                const wrapper = document.createElement('div');
-                wrapper.className = `chat-message flex ${sender === 'user' ? 'justify-end' : ''} ${sender === 'system' ? 'justify-center' : ''}`;
-                
-                const bubble = document.createElement('div');
-                bubble.className = `relative group p-3 rounded-2xl max-w-[80%] ${sender}-bubble ${sender === 'user' ? 'dark:text-gray-900' : ''}`;
-                
-                const contentDiv = document.createElement('div');
-                contentDiv.className = 'message-content';
-                
-                // For live typing, the initial message is empty
-                if (message) {
-                     contentDiv.innerHTML = marked.parse(message);
-                }
+            function addMessage(message, sender = 'ai', options = {}) {
+                const wrapper = document.createElement('div');
+                wrapper.className = `chat-message flex ${sender === 'user' ? 'justify-end' : ''} ${sender === 'system' ? 'justify-center' : ''}`;
+                
+                const bubble = document.createElement('div');
+                bubble.className = `relative group p-3 rounded-2xl max-w-[80%] ${sender}-bubble ${sender === 'user' ? 'dark:text-gray-900' : ''}`;
+                
+                const contentDiv = document.createElement('div');
+                contentDiv.className = 'message-content';
+                
+                // If there's a text message, parse and add it
+                if (message) {
+                    contentDiv.innerHTML = marked.parse(message);
+                }
 
-                bubble.appendChild(contentDiv);
+                // **FIX STARTS HERE**: Check for an image URL in options and append the image
+                if (options.imageUrl) {
+                    const imageElement = document.createElement('img');
+                    imageElement.src = options.imageUrl;
+                    imageElement.alt = options.imageAlt || 'Generated image';
+                    // Add some styling to the image
+                    imageElement.className = 'mt-2 rounded-lg max-w-full h-auto shadow-md';
+                    contentDiv.appendChild(imageElement);
+                }
+                // **FIX ENDS HERE**
 
-                if (sender === 'ai') {
-                    const buttonContainer = document.createElement('div');
-                    buttonContainer.className = 'absolute top-2 right-2 flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10';
-                    const pdfButton = document.createElement('button');
-                    pdfButton.className = 'pdf-button p-1 rounded-full shadow-md bg-white hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-colors';
-                    pdfButton.title = 'Download as PDF';
-                    pdfButton.innerHTML = `<svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>`;
-                    buttonContainer.appendChild(pdfButton);
-                    if (message.includes('```html') && !options.imageUrl) { 
-                        const previewButton = document.createElement('button');
-                        previewButton.className = 'p-1 rounded-full shadow-md bg-white hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-colors';
-                        previewButton.title = 'Run in Preview';
-                        previewButton.innerHTML = `<svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" /></svg>`;
-                        buttonContainer.appendChild(previewButton);
-                    }
-                    bubble.appendChild(buttonContainer);
-                }
+                bubble.appendChild(contentDiv);
 
-                wrapper.appendChild(bubble);
-                chatBox.appendChild(wrapper);
+                if (sender === 'ai') {
+                    const buttonContainer = document.createElement('div');
+                    buttonContainer.className = 'absolute top-2 right-2 flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10';
+                    const pdfButton = document.createElement('button');
+                    pdfButton.className = 'pdf-button p-1 rounded-full shadow-md bg-white hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-colors';
+                    pdfButton.title = 'Download as PDF';
+                    pdfButton.innerHTML = `<svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>`;
+                    buttonContainer.appendChild(pdfButton);
+                    if (message.includes('```html') && !options.imageUrl) { 
+                        const previewButton = document.createElement('button');
+                        previewButton.className = 'p-1 rounded-full shadow-md bg-white hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-colors';
+                        previewButton.title = 'Run in Preview';
+                        previewButton.innerHTML = `<svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" /></svg>`;
+                        buttonContainer.appendChild(previewButton);
+                    }
+                    bubble.appendChild(buttonContainer);
+                }
 
-                chatBox.scrollTop = chatBox.scrollHeight;
-                return bubble;
-            }
+                wrapper.appendChild(bubble);
+                chatBox.appendChild(wrapper);
 
-            function typeOutResponse(bubble, text) {
-                const contentDiv = bubble.querySelector('.message-content');
-                let i = 0;
-                contentDiv.innerHTML = ""; // Clear initial content
-                
-                const typingInterval = setInterval(() => {
-                    if (i < text.length) {
-                        contentDiv.innerHTML = marked.parse(text.substring(0, i + 1) + '<span class="typing-cursor"></span>');
-                        chatBox.scrollTop = chatBox.scrollHeight;
-                        i++;
-                    } else {
-                        clearInterval(typingInterval);
-                        contentDiv.innerHTML = marked.parse(text); // Final render without cursor
-                        
-                        // --- Add Copy Buttons and Render Math/Code AFTER typing ---
-                        const codeBlocks = bubble.querySelectorAll('pre');
-                        codeBlocks.forEach(pre => {
-                            const copyButton = document.createElement('button');
-                            copyButton.className = 'copy-code-button';
-                            copyButton.innerHTML = `<svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1.5M9 3v2m6-2v2m6 11V7a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2h2m4-2h2M9 13h10a2 2 0 012 2v4a2 2 0 01-2 2H9a2 2 0 01-2-2v-4a2 2 0 012-2z" /></svg> <span>Copy</span>`;
-                            pre.appendChild(copyButton);
-                        });
-                        Prism.highlightAllUnder(bubble);
-                        renderMathInElement(bubble, {
-                            delimiters: [ {left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false} ]
-                        });
-                    }
-                }, 20); // Adjust typing speed here (milliseconds)
-            }
+                chatBox.scrollTop = chatBox.scrollHeight;
+                return bubble;
+            }
+
+            function typeOutResponse(bubble, text) {
+                const contentDiv = bubble.querySelector('.message-content');
+                let i = 0;
+                contentDiv.innerHTML = ""; // Clear initial content
+                
+                const typingInterval = setInterval(() => {
+                    if (i < text.length) {
+                        contentDiv.innerHTML = marked.parse(text.substring(0, i + 1) + '<span class="typing-cursor"></span>');
+                        chatBox.scrollTop = chatBox.scrollHeight;
+                        i++;
+                    } else {
+                        clearInterval(typingInterval);
+                        contentDiv.innerHTML = marked.parse(text); // Final render without cursor
+                        
+                        // --- Add Copy Buttons and Render Math/Code AFTER typing ---
+                        const codeBlocks = bubble.querySelectorAll('pre');
+                        codeBlocks.forEach(pre => {
+                            const copyButton = document.createElement('button');
+                            copyButton.className = 'copy-code-button';
+                            copyButton.innerHTML = `<svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1.5M9 3v2m6-2v2m6 11V7a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2h2m4-2h2M9 13h10a2 2 0 012 2v4a2 2 0 01-2 2H9a2 2 0 01-2-2v-4a2 2 0 012-2z" /></svg> <span>Copy</span>`;
+                            pre.appendChild(copyButton);
+                        });
+                        Prism.highlightAllUnder(bubble);
+                        renderMathInElement(bubble, {
+                            delimiters: [ {left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false} ]
+                        });
+                    }
+                }, 20); // Adjust typing speed here (milliseconds)
+            }
 
 
-            function showTypingIndicator() {
-                const typingIndicator = document.createElement('div');
-                typingIndicator.id = 'typing-indicator';
-                typingIndicator.className = 'chat-message flex';
-                typingIndicator.innerHTML = `<div class="p-3 rounded-lg ai-bubble ai-typing-indicator"><span class="inline-block w-2 h-2 bg-[color:var(--primary-accent)] rounded-full mr-1"></span><span class="inline-block w-2 h-2 bg-[color:var(--primary-accent)] rounded-full mr-1"></span><span class="inline-block w-2 h-2 bg-[color:var(--primary-accent)] rounded-full"></span></div>`;
-                chatBox.appendChild(typingIndicator);
-                chatBox.scrollTop = chatBox.scrollHeight;
-                return typingIndicator;
-            }
+            function showTypingIndicator() {
+                const typingIndicator = document.createElement('div');
+                typingIndicator.id = 'typing-indicator';
+                typingIndicator.className = 'chat-message flex';
+                typingIndicator.innerHTML = `<div class="p-3 rounded-lg ai-bubble ai-typing-indicator"><span class="inline-block w-2 h-2 bg-[color:var(--primary-accent)] rounded-full mr-1"></span><span class="inline-block w-2 h-2 bg-[color:var(--primary-accent)] rounded-full mr-1"></span><span class="inline-block w-2 h-2 bg-[color:var(--primary-accent)] rounded-full"></span></div>`;
+                chatBox.appendChild(typingIndicator);
+                chatBox.scrollTop = chatBox.scrollHeight;
+                return typingIndicator;
+            }
 
-            async function getAIResponse(history) {
-                abortController = new AbortController();
-                const signal = abortController.signal;
-                const isPreview = window.location.hostname.includes('localhost') || window.location.hostname.includes('usercontent.goog');
-                const payload = { contents: history, systemInstruction: { parts: [{ text: systemPrompt }] } };
-                let apiUrl, fetchOptions;
-                if (isPreview) {
-                    const tempApiKey = ""; // Add API key for local testing
-                    apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${tempApiKey}`;
-                    fetchOptions = { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload), signal };
-                } else {
-                    apiUrl = new URL('/api/generate', window.location.origin).toString();
-                    fetchOptions = { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload), signal };
-                }
-                const response = await fetch(apiUrl, fetchOptions);
-                if (!response.ok) throw new Error(`API error: ${response.statusText}`);
-                return await response.json();
-            }
+            async function getAIResponse(history) {
+                abortController = new AbortController();
+                const signal = abortController.signal;
+                const isPreview = window.location.hostname.includes('localhost') || window.location.hostname.includes('usercontent.goog');
+                const payload = { contents: history, systemInstruction: { parts: [{ text: systemPrompt }] } };
+                let apiUrl, fetchOptions;
+                if (isPreview) {
+                    const tempApiKey = ""; // Add API key for local testing
+                    apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${tempApiKey}`;
+                    fetchOptions = { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload), signal };
+                } else {
+                    apiUrl = new URL('/api/generate', window.location.origin).toString();
+                    fetchOptions = { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload), signal };
+                }
+                const response = await fetch(apiUrl, fetchOptions);
+                if (!response.ok) throw new Error(`API error: ${response.statusText}`);
+                return await response.json();
+            }
 
-            async function handleSendMessage() {
-                const message = chatInput.value.trim();
-                if (!message && !attachedFile) return;
-                addMessage(attachedFile ? `[Image Attached] ${message}` : message, 'user');
-                chatInput.value = '';
-                chatInput.dispatchEvent(new Event('input'));
-                const typingIndicator = showTypingIndicator();
-                toggleStopButton(true);
-                const currentChat = allChats.find(c => c.id === currentChatId);
-                const userParts = [];
-                if (message) userParts.push({ text: message });
-                if (attachedFile) userParts.push({ inlineData: { mimeType: attachedFile.mimeType, data: attachedFile.base64Data } });
-                currentChat.history.push({ role: "user", parts: userParts });
-                saveAllChats();
-                clearAttachment();
-                try {
-                    const result = await getAIResponse(currentChat.history);
-                    typingIndicator.remove(); // Remove indicator once response is received
-                    if (result.candidates && result.candidates.length > 0) {
-                        const aiResponse = result.candidates[0].content.parts[0].text;
-                        const aiBubble = addMessage("", 'ai'); // Create an empty bubble first
-                        typeOutResponse(aiBubble, aiResponse); // Type out the response
-                        
-                        currentChat.history.push({ role: "model", parts: [{ text: aiResponse }] });
-                        if(currentChat.title === "New Chat" && message) {
-                            currentChat.title = message.substring(0, 30) + (message.length > 30 ? '...' : '');
-                            renderChatHistorySidebar();
-                        }
-                        saveAllChats();
-                    } else {
-                        addMessage("I'm having a little trouble thinking right now. Could you try asking again? 😅", 'ai');
-                    }
-                } catch (error) {
-                    if (error.name !== 'AbortError') {
-                        console.error("Error fetching AI response:", error);
-                        addMessage("Oh no! Something went wrong with my circuits. Please give me a moment and try again. 💖", 'ai');
-                    }
-                     typingIndicator.remove();
-                } finally {
-                    toggleStopButton(false);
-                }
-            }
-            
-            async function generateImage() {
-                const prompt = chatInput.value.trim();
-                if (!prompt) {
-                    addMessage("System: Please type a prompt in the input field to generate an image.", 'system');
-                    return;
-                }
-                let usage = JSON.parse(localStorage.getItem('alaraImageUsage')) || { count: 0, resetTime: 0 };
-                const now = Date.now();
-                if (now > usage.resetTime) usage = { count: 0, resetTime: now + 3600 * 1000 };
-                if (usage.count >= 5) {
-                    addMessage("System: You have reached your image generation limit of 5 images per hour. Please try again later.", 'system');
-                    return;
-                }
-                addMessage("[Image Request] " + prompt, 'user');
-                chatInput.value = '';
-                chatInput.dispatchEvent(new Event('input'));
-                const typingIndicator = showTypingIndicator();
-                generateImageButton.disabled = true;
-                sendButton.disabled = true;
-                try {
-                    const response = await fetch("/api/imagine", {
-                        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ prompt }),
-                    });
-                    const data = await response.json();
-                    if (response.ok && data.imageUrl) {
-                        usage.count++;
-                        localStorage.setItem('alaraImageUsage', JSON.stringify(usage));
-                        addMessage(`Here's your image based on: "${prompt}"`, 'ai', { imageUrl: data.imageUrl, imageAlt: prompt });
-                        const currentChat = allChats.find(c => c.id === currentChatId);
-                        currentChat.history.push({ role: "user", parts: [{ text: `[Image Request] ${prompt}` }] });
-                        currentChat.history.push({ role: "model", parts: [{ text: `Image generated: ${data.imageUrl}` }] });
-                        saveAllChats();
-                    } else {
-                        addMessage(`System: ${data.error || "Failed to generate image. Please try again."}`, 'system');
-                    }
-                } catch (err) {
-                    console.error("Error generating image:", err);
-                    addMessage(`System: An unexpected error occurred during image generation: ${err.message}`, 'system');
-                } finally {
-                    typingIndicator.remove();
-                    generateImageButton.disabled = false;
-                    sendButton.disabled = false;
-                }
-            }
+            async function handleSendMessage() {
+                const message = chatInput.value.trim();
+                if (!message && !attachedFile) return;
+                addMessage(attachedFile ? `[Image Attached] ${message}` : message, 'user');
+                chatInput.value = '';
+                chatInput.dispatchEvent(new Event('input'));
+                const typingIndicator = showTypingIndicator();
+                toggleStopButton(true);
+                const currentChat = allChats.find(c => c.id === currentChatId);
+                const userParts = [];
+                if (message) userParts.push({ text: message });
+                if (attachedFile) userParts.push({ inlineData: { mimeType: attachedFile.mimeType, data: attachedFile.base64Data } });
+                currentChat.history.push({ role: "user", parts: userParts });
+                saveAllChats();
+                clearAttachment();
+                try {
+                    const result = await getAIResponse(currentChat.history);
+                    typingIndicator.remove(); // Remove indicator once response is received
+                    if (result.candidates && result.candidates.length > 0) {
+                        const aiResponse = result.candidates[0].content.parts[0].text;
+                        const aiBubble = addMessage("", 'ai'); // Create an empty bubble first
+                        typeOutResponse(aiBubble, aiResponse); // Type out the response
+                        
+                        currentChat.history.push({ role: "model", parts: [{ text: aiResponse }] });
+                        if(currentChat.title === "New Chat" && message) {
+                            currentChat.title = message.substring(0, 30) + (message.length > 30 ? '...' : '');
+                            renderChatHistorySidebar();
+                        }
+                        saveAllChats();
+                    } else {
+                        addMessage("I'm having a little trouble thinking right now. Could you try asking again? 😅", 'ai');
+                    }
+                } catch (error) {
+                    if (error.name !== 'AbortError') {
+                        console.error("Error fetching AI response:", error);
+                        addMessage("Oh no! Something went wrong with my circuits. Please give me a moment and try again. 💖", 'ai');
+                    }
+                     typingIndicator.remove();
+            _ _   } finally {
+                    toggleStopButton(false);
+                }
+            }
+            
+            async function generateImage() {
+                const prompt = chatInput.value.trim();
+                if (!prompt) {
+                    addMessage("System: Please type a prompt in the input field to generate an image.", 'system');
+                    return;
+                }
+                let usage = JSON.parse(localStorage.getItem('alaraImageUsage')) || { count: 0, resetTime: 0 };
+                const now = Date.now();
+                if (now > usage.resetTime) usage = { count: 0, resetTime: now + 3600 * 1000 };
+                if (usage.count >= 5) {
+                    addMessage("System: You have reached your image generation limit of 5 images per hour. Please try again later.", 'system');
+                    return;
+                }
+                addMessage("[Image Request] " + prompt, 'user');
+                chatInput.value = '';
+                chatInput.dispatchEvent(new Event('input'));
+                const typingIndicator = showTypingIndicator();
+                generateImageButton.disabled = true;
+                sendButton.disabled = true;
+                try {
+                    const response = await fetch("/api/imagine", {
+                        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ prompt }),
+                    });
+                    const data = await response.json();
+                    if (response.ok && data.imageUrl) {
+                        usage.count++;
+                        localStorage.setItem('alaraImageUsage', JSON.stringify(usage));
+                        addMessage(`Here's your image based on: "${prompt}"`, 'ai', { imageUrl: data.imageUrl, imageAlt: prompt });
+                        const currentChat = allChats.find(c => c.id === currentChatId);
+                        currentChat.history.push({ role: "user", parts: [{ text: `[Image Request] ${prompt}` }] });
+                        currentChat.history.push({ role: "model", parts: [{ text: `Image generated: ${data.imageUrl}` }] });
+                        saveAllChats();
+                    } else {
+                        addMessage(`System: ${data.error || "Failed to generate image. Please try again."}`, 'system');
+                    }
+                } catch (err) {
+                    console.error("Error generating image:", err);
+                    addMessage(`System: An unexpected error occurred during image generation: ${err.message}`, 'system');
+                } finally {
+                    typingIndicator.remove();
+                    generateImageButton.disabled = false;
+                    sendButton.disabled = false;
+                }
+            }
 
-            // --- Event Listeners & UI Handlers ---
-            navLinks.forEach(l => l.addEventListener('click', (e) => { e.preventDefault(); showSection(l.getAttribute('href')); }));
-            mobileMenuButton.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
-            sidebarToggle.addEventListener('click', () => sidebar.classList.toggle('open'));
-            closeSidebarButton.addEventListener('click', () => sidebar.classList.remove('open'));
-            sendButton.addEventListener('click', handleSendMessage);
-            chatInput.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendMessage(); } });
-            chatInput.addEventListener('input', () => {
-                chatInput.style.height = 'auto';
-                chatInput.style.height = `${chatInput.scrollHeight}px`;
-                if (charCounter) charCounter.textContent = `${chatInput.value.length} / 1500`;
-            });
-            uploadImageButton.addEventListener('click', () => imageInput.click());
-            imageInput.addEventListener('change', (e) => {
-                const file = e.target.files[0];
-                if (!file) return;
-                const reader = new FileReader();
-                reader.onloadend = () => {
-                    attachedFile = { base64Data: reader.result.split(',')[1], mimeType: file.type, name: file.name };
-                    renderImagePreview();
-                };
-                reader.readAsDataURL(file);
-            });
+            // --- Event Listeners & UI Handlers ---
+            navLinks.forEach(l => l.addEventListener('click', (e) => { e.preventDefault(); showSection(l.getAttribute('href')); }));
+            mobileMenuButton.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
+            sidebarToggle.addEventListener('click', () => sidebar.classList.toggle('open'));
+            closeSidebarButton.addEventListener('click', () => sidebar.classList.remove('open'));
+            sendButton.addEventListener('click', handleSendMessage);
+            chatInput.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendMessage(); } });
+            chatInput.addEventListener('input', () => {
+                chatInput.style.height = 'auto';
+                chatInput.style.height = `${chatInput.scrollHeight}px`;
+                if (charCounter) charCounter.textContent = `${chatInput.value.length} / 1500`;
+            });
+            uploadImageButton.addEventListener('click', () => imageInput.click());
+            imageInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    attachedFile = { base64Data: reader.result.split(',')[1], mimeType: file.type, name: file.name };
+                    renderImagePreview();
+                };
+                reader.readAsDataURL(file);
+            });
 
-            function renderImagePreview() {
-                if (!attachedFile) return;
-                imagePreviewContainer.innerHTML = `<div class="relative inline-block"><img src="data:${attachedFile.mimeType};base64,${attachedFile.base64Data}" class="h-16 w-16 object-cover rounded-lg"><button id="remove-image-btn" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full h-6 w-6 flex items-center justify-center">&times;</button></div>`;
-                document.getElementById('remove-image-btn').addEventListener('click', clearAttachment);
-            }
+            function renderImagePreview() {
+                if (!attachedFile) return;
+                imagePreviewContainer.innerHTML = `<div class="relative inline-block"><img src="data:${attachedFile.mimeType};base64,${attachedFile.base64Data}" class="h-16 w-16 object-cover rounded-lg"><button id="remove-image-btn" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full h-6 w-6 flex items-center justify-center">&times;</button></div>`;
+                document.getElementById('remove-image-btn').addEventListener('click', clearAttachment);
+            }
 
-            function clearAttachment() {
-                attachedFile = null;
-                imagePreviewContainer.innerHTML = '';
-                imageInput.value = '';
-            }
+            function clearAttachment() {
+                attachedFile = null;
+                imagePreviewContainer.innerHTML = '';
+                imageInput.value = '';
+            }
 
-            chatBox.addEventListener('click', (e) => {
-                const target = e.target.closest('button');
-                if (!target) return;
+            chatBox.addEventListener('click', (e) => {
+                const target = e.target.closest('button');
+                if (!target) return;
 
-                const messageBubble = target.closest('.chat-message > div');
-                if (!messageBubble) return;
+                const messageBubble = target.closest('.chat-message > div');
+                if (!messageBubble) return;
 
-                if (target.matches('.pdf-button')) {
-                    const content = messageBubble.querySelector('.message-content').innerText;
-                    const doc = new jsPDF();
-                    const margins = { top: 20, bottom: 20, left: 20, right: 20 };
-                    const maxWidth = doc.internal.pageSize.getWidth() - margins.left - margins.right;
-                    const lineHeight = 7;
-                    const textLines = doc.splitTextToSize(content, maxWidth);
-                    let y = margins.top;
+                if (target.matches('.pdf-button')) {
+                    const content = messageBubble.querySelector('.message-content').innerText;
+                    const doc = new jsPDF();
+                    const margins = { top: 20, bottom: 20, left: 20, right: 20 };
+                    const maxWidth = doc.internal.pageSize.getWidth() - margins.left - margins.right;
+                    const lineHeight = 7;
+                    const textLines = doc.splitTextToSize(content, maxWidth);
+                    let y = margins.top;
 
-                    textLines.forEach(line => {
-                        if (y + lineHeight > doc.internal.pageSize.getHeight() - margins.bottom) {
-                            doc.addPage();
-                            y = margins.top;
-                        }
-                        doc.text(line, margins.left, y);
-                        y += lineHeight;
-                    });
-                    doc.save('alara-response.pdf');
-                } else if (target.matches('.copy-code-button')) {
-                    const codeBlock = target.closest('pre')?.querySelector('code');
-                    if (codeBlock) {
-                        navigator.clipboard.writeText(codeBlock.innerText).then(() => {
-                            const originalHTML = target.innerHTML;
-                            target.innerHTML = `<svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg> <span>Copied!</span>`;
-                            target.classList.add('copied');
-                            setTimeout(() => {
-                                target.innerHTML = originalHTML;
-                                target.classList.remove('copied');
-                            }, 2000);
-                        }).catch(err => console.error('Failed to copy text:', err));
-                    }
-                } else if (target.matches('[title="Run in Preview"]')) {
-                    const codeBlock = messageBubble.querySelector('pre code');
-                    if (codeBlock) {
-                        previewIframe.srcdoc = codeBlock.innerText;
-                        previewPlaceholder.classList.add('hidden');
-                        previewContainer.classList.remove('hidden');
-                        showSection('#preview');
-                    }
-                }
-            });
+                    textLines.forEach(line => {
+                        if (y + lineHeight > doc.internal.pageSize.getHeight() - margins.bottom) {
+                            doc.addPage();
+                            y = margins.top;
+                        }
+                        doc.text(line, margins.left, y);
+                        y += lineHeight;
+                    });
+                    doc.save('alara-response.pdf');
+                } else if (target.matches('.copy-code-button')) {
+                    const codeBlock = target.closest('pre')?.querySelector('code');
+                    if (codeBlock) {
+                        navigator.clipboard.writeText(codeBlock.innerText).then(() => {
+                            const originalHTML = target.innerHTML;
+                            target.innerHTML = `<svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg> <span>Copied!</span>`;
+                            target.classList.add('copied');
+                            setTimeout(() => {
+                                target.innerHTML = originalHTML;
+                                target.classList.remove('copied');
+                            }, 2000);
+                        }).catch(err => console.error('Failed to copy text:', err));
+                    }
+                } else if (target.matches('[title="Run in Preview"]')) {
+                    const codeBlock = messageBubble.querySelector('pre code');
+                    if (codeBlock) {
+                        previewIframe.srcdoc = codeBlock.innerText;
+                        previewPlaceholder.classList.add('hidden');
+                        previewContainer.classList.remove('hidden');
+                        showSection('#preview');
+                    }
+                }
+            });
 
-            generateImageButton.addEventListener('click', generateImage);
+            generateImageButton.addEventListener('click', generateImage);
 
-            themeToggle.addEventListener('click', () => {
-                document.body.classList.toggle('dark');
-                const isDark = document.body.classList.contains('dark');
-                localStorage.setItem('alaraTheme', isDark ? 'dark' : 'light');
-                updateThemeIcons(isDark);
-            });
+            themeToggle.addEventListener('click', () => {
+                document.body.classList.toggle('dark');
+                const isDark = document.body.classList.contains('dark');
+                localStorage.setItem('alaraTheme', isDark ? 'dark' : 'light');
+                updateThemeIcons(isDark);
+            });
 
-            function updateThemeIcons(isDark) {
-                themeIconLight.classList.toggle('hidden', isDark);
-                themeIconDark.classList.toggle('hidden', !isDark);
-            }
+            function updateThemeIcons(isDark) {
+                themeIconLight.classList.toggle('hidden', isDark);
+                themeIconDark.classList.toggle('hidden', !isDark);
+            }
 
-            function toggleStopButton(isThinking) {
-                if (isThinking) {
-                    sendButton.innerHTML = `<svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg>`;
-                    sendButton.onclick = () => { abortController.abort(); toggleStopButton(false); };
-                } else {
-                    sendButton.innerHTML = `<svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.428A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" /></svg>`;
-                    sendButton.onclick = handleSendMessage;
-                }
-            }
+            function toggleStopButton(isThinking) {
+                if (isThinking) {
+                    sendButton.innerHTML = `<svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg>`;
+                    sendButton.onclick = () => { abortController.abort(); toggleStopButton(false); };
+                } else {
+                    sendButton.innerHTML = `<svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.428A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" /></svg>`;
+                    sendButton.onclick = handleSendMessage;
+                }
+            }
 
-            function saveAllChats() {
-                try { localStorage.setItem('alaraAllChats', JSON.stringify(allChats)); } catch (e) { console.error("Could not save chat history:", e); }
-            }
+            function saveAllChats() {
+                try { localStorage.setItem('alaraAllChats', JSON.stringify(allChats)); } catch (e) { console.error("Could not save chat history:", e); }
+            }
 
-            function loadAllChats() {
-                try {
-                    const savedChats = localStorage.getItem('alaraAllChats');
-                    allChats = savedChats ? JSON.parse(savedChats) : [];
-                } catch (e) {
-                    console.error("Could not parse chat history:", e);
-                    allChats = [];
-                }
-            }
-            
-            function loadChat(chatId) {
-                const chat = allChats.find(c => c.id === chatId);
-                if (!chat) {
-                    if (allChats.length > 0) {
-                        loadChat(allChats[0].id)
-                    } else {
-                        startNewChat();
-                    }
-                    return;
-                };
-                currentChatId = chat.id;
-                chatBox.innerHTML = '';
-                chat.history.forEach(msg => {
-                    const textPart = msg.parts.find(p => p.text)?.text || '';
-                    const imageMatch = textPart.match(/^Image generated: (https:\/\/[^\s]+)$/);
-                    if (imageMatch && msg.role === 'model') {
-                        addMessage(`Here's your image:`, 'ai', { imageUrl: imageMatch[1], imageAlt: 'Generated image' });
-                    } else {
-                        const bubble = addMessage(textPart, msg.role);
-                        // Post-render processing for loaded messages
-                        const codeBlocks = bubble.querySelectorAll('pre');
-                        codeBlocks.forEach(pre => {
-                            const copyButton = document.createElement('button');
-                            copyButton.className = 'copy-code-button';
-                            copyButton.innerHTML = `<svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1.5M9 3v2m6-2v2m6 11V7a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2h2m4-2h2M9 13h10a2 2 0 012 2v4a2 2 0 01-2 2H9a2 2 0 01-2-2v-4a2 2 0 012-2z" /></svg> <span>Copy</span>`;
-                            pre.appendChild(copyButton);
-                        });
-                        Prism.highlightAllUnder(bubble);
-                        renderMathInElement(bubble, { delimiters: [ {left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false} ] });
-                    }
-                });
-                sidebar.classList.remove('open');
-                renderChatHistorySidebar();
-            }
+            function loadAllChats() {
+                try {
+                    const savedChats = localStorage.getItem('alaraAllChats');
+                    allChats = savedChats ? JSON.parse(savedChats) : [];
+                } catch (e) {
+                    console.error("Could not parse chat history:", e);
+                    allChats = [];
+                }
+            }
+            
+            function loadChat(chatId) {
+                const chat = allChats.find(c => c.id === chatId);
+                if (!chat) {
+                    if (allChats.length > 0) {
+                        loadChat(allChats[0].id)
+                    } else {
+                        startNewChat();
+                    }
+                    return;
+                };
+                currentChatId = chat.id;
+                chatBox.innerHTML = '';
+                chat.history.forEach(msg => {
+                    const textPart = msg.parts.find(p => p.text)?.text || '';
+                    const imageMatch = textPart.match(/^Image generated: (https:\/\/[^\s]+)$/);
+                    if (imageMatch && msg.role === 'model') {
+                        addMessage(`Here's your image:`, 'ai', { imageUrl: imageMatch[1], imageAlt: 'Generated image' });
+                    } else {
+                        const bubble = addMessage(textPart, msg.role);
+                        // Post-render processing for loaded messages
+                        const codeBlocks = bubble.querySelectorAll('pre');
+                        codeBlocks.forEach(pre => {
+                            const copyButton = document.createElement('button');
+                            copyButton.className = 'copy-code-button';
+                            copyButton.innerHTML = `<svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1.5M9 3v2m6-2v2m6 11V7a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2h2m4-2h2M9 13h10a2 2 0 012 2v4a2 2 0 01-2 2H9a2 2 0 01-2-2v-4a2 2 0 012-2z" /></svg> <span>Copy</span>`;
+                            pre.appendChild(copyButton);
+                        });
+                        Prism.highlightAllUnder(bubble);
+                        renderMathInElement(bubble, { delimiters: [ {left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false} ] });
+                    }
+                });
+                sidebar.classList.remove('open');
+                renderChatHistorySidebar();
+            }
 
-            function startNewChat() {
-                const newChat = { id: Date.now().toString(), title: "New Chat", history: [] };
-                allChats.unshift(newChat);
-                currentChatId = newChat.id;
-                saveAllChats();
-                loadChat(currentChatId);
-            }
-            
-            newChatButton.addEventListener('click', startNewChat);
+            function startNewChat() {
+                const newChat = { id: Date.now().toString(), title: "New Chat", history: [] };
+                allChats.unshift(newChat);
+                currentChatId = newChat.id;
+                saveAllChats();
+                loadChat(currentChatId);
+            }
+            
+            newChatButton.addEventListener('click', startNewChat);
 
-            function renderChatHistorySidebar() {
-                chatHistoryList.innerHTML = '';
-                allChats.forEach(chat => {
-                    const item = document.createElement('div');
-                    item.className = 'p-3 rounded-lg cursor-pointer flex justify-between items-center text-sm font-medium hover:bg-[color:var(--secondary-accent)]/20 dark:hover:bg-[color:var(--primary-accent)]/20 transition-colors duration-200';
-                    item.classList.toggle('bg-[color:var(--secondary-accent)]/30', chat.id === currentChatId);
-                    item.classList.toggle('dark:bg-[color:var(--primary-accent)]/30', chat.id === currentChatId);
-                    item.innerHTML = `<span class="truncate pr-2 flex-1">${chat.title}</span><div class="flex-shrink-0 flex space-x-2"><button class="rename-btn p-1 rounded-full hover:bg-white/30 dark:hover:bg-black/30 text-gray-600 dark:text-gray-300 transition-colors">✏️</button><button class="delete-btn p-1 rounded-full hover:bg-white/30 dark:hover:bg-black/30 text-red-500 transition-colors">🗑️</button></div>`;
-                    item.onclick = () => loadChat(chat.id);
-                    item.querySelector('.rename-btn').onclick = (e) => { e.stopPropagation(); renameChat(chat.id); };
-                    item.querySelector('.delete-btn').onclick = (e) => { e.stopPropagation(); deleteChat(chat.id); };
-                    chatHistoryList.appendChild(item);
-                });
-            }
-            
-            function renameChat(chatId) {
-                const chat = allChats.find(c => c.id === chatId);
-                const newTitle = prompt("Enter new chat title:", chat.title);
-                if(newTitle && newTitle.trim() !== '') {
-                    chat.title = newTitle.trim();
-                    saveAllChats();
-                    renderChatHistorySidebar();
-                }
-            }
-            
-            function deleteChat(chatId) {
-                if(confirm("Are you sure you want to delete this chat?")) {
-                    allChats = allChats.filter(c => c.id !== chatId);
-                    saveAllChats();
-                    if(currentChatId === chatId) {
-                        currentChatId = null; // Unset current chat ID
-                        if(allChats.length > 0) {
-                            loadChat(allChats[0].id);
-                        } else {
-                            startNewChat();
-                        }
-                    }
-                    renderChatHistorySidebar();
-                }
-            }
+            function renderChatHistorySidebar() {
+                chatHistoryList.innerHTML = '';
+                allChats.forEach(chat => {
+                    const item = document.createElement('div');
+                    item.className = 'p-3 rounded-lg cursor-pointer flex justify-between items-center text-sm font-medium hover:bg-[color:var(--secondary-accent)]/20 dark:hover:bg-[color:var(--primary-accent)]/20 transition-colors duration-200';
+                    item.classList.toggle('bg-[color:var(--secondary-accent)]/30', chat.id === currentChatId);
+                    item.classList.toggle('dark:bg-[color:var(--primary-accent)]/30', chat.id === currentChatId);
+                    item.innerHTML = `<span class="truncate pr-2 flex-1">${chat.title}</span><div class="flex-shrink-0 flex space-x-2"><button class="rename-btn p-1 rounded-full hover:bg-white/30 dark:hover:bg-black/30 text-gray-600 dark:text-gray-300 transition-colors">✏️</button><button class="delete-btn p-1 rounded-full hover:bg-white/30 dark:hover:bg-black/30 text-red-500 transition-colors">🗑️</button></div>`;
+                    item.onclick = () => loadChat(chat.id);
+                    item.querySelector('.rename-btn').onclick = (e) => { e.stopPropagation(); renameChat(chat.id); };
+                    item.querySelector('.delete-btn').onclick = (e) => { e.stopPropagation(); deleteChat(chat.id); };
+                    chatHistoryList.appendChild(item);
+                });
+            }
+            
+            function renameChat(chatId) {
+                const chat = allChats.find(c => c.id === chatId);
+                const newTitle = prompt("Enter new chat title:", chat.title);
+                if(newTitle && newTitle.trim() !== '') {
+                    chat.title = newTitle.trim();
+                    saveAllChats();
+                    renderChatHistorySidebar();
+                }
+            }
+            
+            function deleteChat(chatId) {
+                if(confirm("Are you sure you want to delete this chat?")) {
+                    allChats = allChats.filter(c => c.id !== chatId);
+                    saveAllChats();
+                    if(currentChatId === chatId) {
+                        currentChatId = null; // Unset current chat ID
+                        if(allChats.length > 0) {
+                            loadChat(allChats[0].id);
+                        } else {
+                            startNewChat();
+                        }
+                    }
+                    renderChatHistorySidebar();
+      _         }
+            }
 
-            function initialize() {
-                const savedTheme = localStorage.getItem('alaraTheme');
-                if (savedTheme === 'dark') document.body.classList.add('dark');
-                updateThemeIcons(savedTheme === 'dark');
-                const currentHash = window.location.hash;
-                showSection(currentHash || '#home');
-                
-                loadAllChats(); // Load history first
-                startNewChat(); // Then create a new chat for the session
-            }
+            function initialize() {
+                const savedTheme = localStorage.getItem('alaraTheme');
+                if (savedTheme === 'dark') document.body.classList.add('dark');
+                updateThemeIcons(savedTheme === 'dark');
+                const currentHash = window.location.hash;
+                showSection(currentHash || '#home');
+                
+                loadAllChats(); // Load history first
+                startNewChat(); // Then create a new chat for the session
+            }
 
-            initialize();
-        });
-    </script>
+            initialize();
+        });
+    </script>
 </body>
 </html>
