@@ -24,7 +24,7 @@ export default async function handler(req, res) {
     // Construct the image URL directly: https://image.pollinations.ai/prompt/{encoded prompt}
     // Do not fetch or parse JSON from Pollinations. Just build the URL string.
     const encodedPrompt = encodeURIComponent(prompt);
-    const imageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?nologo=true`;
+    const imageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}`;
 
     // 5. Respond with JSON like { imageUrl: "https://image.pollinations.ai/prompt/...." }
     res.status(200).json({ imageUrl });
