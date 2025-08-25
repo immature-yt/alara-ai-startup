@@ -1,50 +1,59 @@
-// This is a Vercel serverless function that acts as a secure proxy.
-// It receives the chat history from the user's browser,
-// securely adds the secret API key, and then calls the Gemini API.
+import jwt from 'jsonwebtoken';
+import cookie from 'cookie';
 
 export default async function handler(request, response) {
-  // Vercel automatically makes environment variables available here.
-  const apiKey = process.env.GEMINI_API_KEY;
-  const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+    // 1. Check for the user's session cookie
+    const cookies = cookie.parse(request.headers.cookie || '');
+    const token = cookies.alara_session;
+    let userPlan = 'free'; // Default to free plan
 
-  if (request.method !== 'POST') {
-    return response.status(405).json({ error: 'Method not allowed' });
-  }
-
-  try {
-    // FIXED: This robustly handles potential inconsistencies from mobile browsers.
-    // It checks if the body is already a string and parses it, ensuring the
-    // payload sent to the Gemini API is always a correctly formatted JSON object.
-    let requestPayload = request.body;
-    if (typeof requestPayload === 'string') {
+    // 2. If a token exists, verify it to get the user's plan
+    if (token) {
         try {
-            requestPayload = JSON.parse(requestPayload);
-        } catch (e) {
-            console.error("Failed to parse request body string:", e);
-            return response.status(400).json({ error: "Invalid JSON in request body." });
+            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+            userPlan = decoded.plan || 'free';
+        } catch (error) {
+            // Invalid token, user remains on the free plan
+            console.warn("Invalid JWT token received:", error.message);
         }
     }
 
-    const geminiResponse = await fetch(apiUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(requestPayload),
-    });
+    // 3. Select the AI model based on your available API key.
+    const model = 'gemini-2.5-flash-preview-05-20'; // Sticking to your specified model.
 
-    const data = await geminiResponse.json();
+    console.log(`User plan: '${userPlan}', using model: '${model}'`);
 
-    if (!geminiResponse.ok) {
-        console.error('Gemini API Error:', data);
-        return response.status(geminiResponse.status).json({ error: 'Failed to fetch response from Gemini API' });
+    // 4. Call the Gemini API with the selected model
+    const apiKey = process.env.GEMINI_API_KEY;
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+
+    if (request.method !== 'POST') {
+        return response.status(405).json({ error: 'Method not allowed' });
     }
 
-    // Send the successful response back to the user's browser.
-    return response.status(200).json(data);
+    try {
+        let requestPayload = request.body;
+        if (typeof requestPayload === 'string') {
+            requestPayload = JSON.parse(requestPayload);
+        }
 
-  } catch (error) {
-    console.error('Internal Server Error:', error);
-    return response.status(500).json({ error: 'Internal server error' });
-  }
+        const geminiResponse = await fetch(apiUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(requestPayload),
+        });
+
+        const data = await geminiResponse.json();
+
+        if (!geminiResponse.ok) {
+            console.error('Gemini API Error:', data);
+            return response.status(geminiResponse.status).json({ error: 'Failed to fetch response from Gemini API' });
+        }
+
+        return response.status(200).json(data);
+
+    } catch (error) {
+        console.error('Internal Server Error:', error);
+        return response.status(500).json({ error: 'Internal server error' });
+    }
 }
