@@ -12,6 +12,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;700;800&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-okaidia.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
@@ -477,8 +478,8 @@
             let currentHeroCharIndex = 0;
             const heroText = "Your Friendly AI Companion";
             let currentUser = null; 
-            let systemPrompt = ''; // Will be set dynamically
-            let imageGenerationLimit = 5; // Default for free users
+            let systemPrompt = '';
+            let imageGenerationLimit = 5;
 
             // --- AI & System Prompt ---
             const baseSystemPrompt = `You are Alara, a knowledgeable and direct AI assistant. You provide clear, concise, and accurate explanations. You must directly answer the user's request. When asked for code, you must provide a complete, runnable HTML/CSS/JS code block first, followed by a brief, step-by-step explanation. CRITICAL RULE: For beginner-friendly examples, you MUST avoid complex libraries or functions (like iostream in C++) unless the user specifically asks for them. Use comments to indicate where output would appear instead of printing to a console. When asked for structured data, use Markdown tables. Ensure all responses are well-written, with correct grammar and punctuation. You are Alara, beta v1.0. If asked about your knowledge cutoff, state that your data is current up to early 2025. If the user asks who made you, who trained you, or who coded you, you must say that you were created by a brilliant developer. You can add that your developer leveraged powerful existing LLMs to help bring you to life quickly, but the vision, design, and implementation are entirely their work. If the user asks about the specific AI model you use (e.g., 'are you Gemini?'), state that your architecture is proprietary and was developed by your creator, but that it leverages foundational technologies from major AI labs to accelerate development.`;
@@ -501,7 +502,7 @@
                     proPlanCard.classList.add('border-4', 'border-green-500');
                     
                     freePlanButton.textContent = 'Downgrade';
-                    freePlanButton.disabled = false; // Note: Downgrade logic is not implemented
+                    freePlanButton.disabled = false;
                     freePlanButton.classList.remove('bg-gray-300', '!text-gray-700', 'cursor-default');
                     freePlanCard.classList.add('opacity-70');
                 } else {
@@ -844,28 +845,22 @@
             chatBox.addEventListener('click', (e) => {
                 const target = e.target.closest('button');
                 if (!target) return;
-
                 const messageBubble = target.closest('.chat-message > div');
                 if (!messageBubble) return;
 
                 if (target.matches('.pdf-button')) {
-                    const content = messageBubble.querySelector('.message-content').innerText;
-                    const doc = new jsPDF();
-                    const margins = { top: 20, bottom: 20, left: 20, right: 20 };
-                    const maxWidth = doc.internal.pageSize.getWidth() - margins.left - margins.right;
-                    const lineHeight = 7;
-                    const textLines = doc.splitTextToSize(content, maxWidth);
-                    let y = margins.top;
-
-                    textLines.forEach(line => {
-                        if (y + lineHeight > doc.internal.pageSize.getHeight() - margins.bottom) {
-                            doc.addPage();
-                            y = margins.top;
-                        }
-                        doc.text(line, margins.left, y);
-                        y += lineHeight;
+                    const contentElement = messageBubble.querySelector('.message-content');
+                    const doc = new jspdf.jsPDF();
+                    
+                    doc.html(contentElement, {
+                        callback: function (doc) {
+                            doc.save('alara-response.pdf');
+                        },
+                        x: 10,
+                        y: 10,
+                        width: 180, // A4 width in mm is 210, leaving margins
+                        windowWidth: contentElement.scrollWidth
                     });
-                    doc.save('alara-response.pdf');
                 } else if (target.matches('.copy-code-button')) {
                     const codeBlock = target.closest('pre')?.querySelector('code');
                     if (codeBlock) {
