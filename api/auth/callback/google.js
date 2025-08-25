@@ -1,41 +1,23 @@
 import { OAuth2Client } from 'google-auth-library';
 import jwt from 'jsonwebtoken';
 import cookie from 'cookie';
-// You'll need a way to connect to your database.
-// This is a placeholder for your actual database client setup.
-// Example for Vercel Postgres: import { sql } from '@vercel/postgres';
+import { sql } from '@vercel/postgres';
 
-async function db_getOrCreateUser({ google_id, email, name }) {
-    // This is placeholder logic. Replace with your actual database calls.
-    console.log("DATABASE: Looking for user with google_id:", google_id);
-    
-    // 1. Check if user exists
-    // const { rows } = await sql`SELECT * FROM users WHERE google_id = ${google_id};`;
-    // if (rows.length > 0) {
-    //     console.log("DATABASE: User found.");
-    //     return rows[0];
-    // }
+async function getOrCreateUser({ google_id, email, name }) {
+    // Check if user exists
+    const { rows } = await sql`SELECT * FROM users WHERE google_id = ${google_id};`;
+    if (rows.length > 0) {
+        return rows[0]; // User found, return them
+    }
 
-    // 2. If not, create user
-    // console.log("DATABASE: Creating new user.");
-    // const { rows: newRows } = await sql`
-    //     INSERT INTO users (google_id, email, name)
-    //     VALUES (${google_id}, ${email}, ${name})
-    //     RETURNING *;
-    // `;
-    // return newRows[0];
-
-    // --- TEMPORARY MOCK DATA (Remove when DB is connected) ---
-    return {
-        id: 1,
-        google_id: google_id,
-        email: email,
-        name: name,
-        plan: 'free',
-        role: 'user'
-    };
+    // If not, create a new user
+    const { rows: newRows } = await sql`
+        INSERT INTO users (google_id, email, name)
+        VALUES (${google_id}, ${email}, ${name})
+        RETURNING *;
+    `;
+    return newRows[0]; // Return the newly created user
 }
-
 
 export default async function handler(req, res) {
     const redirectURI = `${process.env.APP_BASE_URL}/api/auth/callback/google`;
@@ -47,6 +29,10 @@ export default async function handler(req, res) {
 
     try {
         const { code } = req.query;
+        if (!code) {
+             throw new Error("Authorization code not found.");
+        }
+        
         const { tokens } = await oAuth2Client.getToken(code);
         oAuth2Client.setCredentials(tokens);
         
@@ -63,7 +49,7 @@ export default async function handler(req, res) {
             name: payload.name,
         };
         
-        const user = await db_getOrCreateUser(userProfile);
+        const user = await getOrCreateUser(userProfile);
 
         const token = jwt.sign(
             { userId: user.id, email: user.email, role: user.role, plan: user.plan },
@@ -82,7 +68,7 @@ export default async function handler(req, res) {
         res.redirect(302, '/#chat');
 
     } catch (error) {
-        console.error('Authentication error:', error);
+        console.error('Authentication callback error:', error);
         res.redirect(302, '/#home?error=auth_failed');
     }
 }
