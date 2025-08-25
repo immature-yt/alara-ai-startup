@@ -783,6 +783,7 @@
                      typingIndicator.remove();
                 } finally {
                     toggleStopButton(false);
+                    chatInput.focus(); // **MOBILE BUG FIX**
                 }
             }
             
