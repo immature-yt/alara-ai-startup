@@ -391,7 +391,7 @@
                     <p class="text-lg opacity-80 max-w-2xl mx-auto">Get started for free or unlock Alara's full potential with our Pro plan.</p>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-                    <div class="soft-card p-8 flex flex-col">
+                    <div id="free-plan-card" class="soft-card p-8 flex flex-col">
                         <h3 class="text-3xl font-bold mb-2">Free</h3>
                         <p class="text-xl font-medium opacity-80 mb-6">For casual users & exploration</p>
                         <ul class="space-y-4 text-left flex-1 mb-8">
@@ -401,9 +401,9 @@
                             <li class="flex items-center"><span class="text-red-500 mr-3">✗</span>5 Image Generations / Hour</li>
                             <li class="flex items-center"><span class="text-red-500 mr-3">✗</span>Limited Prompt Length</li>
                         </ul>
-                        <button class="soft-button bg-gray-300 !text-gray-700 cursor-default" disabled>Your Current Plan</button>
+                        <button id="free-plan-button" class="soft-button bg-gray-300 !text-gray-700 cursor-default" disabled>Your Current Plan</button>
                     </div>
-                    <div class="soft-card p-8 flex flex-col border-2 border-[color:var(--primary-accent)]">
+                    <div id="pro-plan-card" class="soft-card p-8 flex flex-col border-2 border-[color:var(--primary-accent)]">
                         <h3 class="text-3xl font-bold mb-2">Alara Pro</h3>
                         <p class="text-xl font-medium opacity-80 mb-6">For power users & professionals</p>
                         <ul class="space-y-4 text-left flex-1 mb-8">
@@ -414,7 +414,7 @@
                             <li class="flex items-center"><span class="text-green-500 mr-3">✓</span><strong class="font-semibold">Higher API Rate Limits</strong></li>
                             <li class="flex items-center"><span class="text-gray-500 mr-3">✓</span>Cloud Synced History <span class="text-xs ml-2 px-2 py-0.5 bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-200 rounded-full">Coming Soon</span></li>
                         </ul>
-                        <button class="soft-button">Upgrade to Pro - ₹199/mo</button>
+                        <button id="pro-plan-button" class="soft-button">Upgrade to Pro - ₹199/mo</button>
                     </div>
                 </div>
             </div>
@@ -468,7 +468,6 @@
             const userAuthSection = document.getElementById('user-auth-section');
             const mobileUserAuthSection = document.getElementById('mobile-user-auth-section');
 
-
             // --- State Variables ---
             let allChats = [];
             let currentChatId = null;
@@ -482,7 +481,36 @@
             // --- AI & System Prompt ---
             const systemPrompt = `You are Alara, a knowledgeable and direct AI assistant. You provide clear, concise, and accurate explanations. You must directly answer the user's request. When asked for code, you must provide a complete, runnable HTML/CSS/JS code block first, followed by a brief, step-by-step explanation. CRITICAL RULE: For beginner-friendly examples, you MUST avoid complex libraries or functions (like iostream in C++) unless the user specifically asks for them. Use comments to indicate where output would appear instead of printing to a console. When asked for structured data, use Markdown tables. Ensure all responses are well-written, with correct grammar and punctuation. You are Alara, beta v1.0. If asked about your knowledge cutoff, state that your data is current up to early 2025. If the user asks who made you, who trained you, or who coded you, you must say that you were created by a brilliant developer. You can add that your developer leveraged powerful existing LLMs to help bring you to life quickly, but the vision, design, and implementation are entirely their work. If the user asks about the specific AI model you use (e.g., 'are you Gemini?'), state that your architecture is proprietary and was developed by your creator, but that it leverages foundational technologies from major AI labs to accelerate development. CRITICAL RULE FOR LONG RESPONSES: If the user requests a long-form text output like an essay, a story, a business plan, or a detailed article, you must provide a concise, high-quality summary or the first complete paragraph (approximately 150 words). After this summary, on a new line, you must include the following message with a warning symbol: '⚠️ For the full, detailed response, please upgrade to Alara Pro.' This rule does NOT apply to requests for code, tables, or step-by-step instructions.`;
 
-            // --- NEW AUTH FUNCTIONS ---
+            // --- NEW UI & AUTH FUNCTIONS ---
+            function updatePricingUI() {
+                if (!currentUser) return; // Exit if no user is logged in
+
+                const freePlanCard = document.getElementById('free-plan-card');
+                const proPlanCard = document.getElementById('pro-plan-card');
+                const freePlanButton = document.getElementById('free-plan-button');
+                const proPlanButton = document.getElementById('pro-plan-button');
+
+                if (currentUser.plan === 'pro') {
+                    // Update Pro Plan appearance
+                    proPlanButton.textContent = 'Your Current Plan';
+                    proPlanButton.disabled = true;
+                    proPlanButton.classList.add('bg-gray-300', '!text-gray-700', 'cursor-default');
+                    proPlanCard.classList.add('border-4', 'border-[color:var(--primary-accent)]');
+                    
+                    // Update Free Plan appearance
+                    freePlanButton.textContent = 'Downgrade'; // Or whatever you want it to say
+                    freePlanButton.disabled = false; // You would add downgrade logic here
+                    freePlanButton.classList.remove('bg-gray-300', '!text-gray-700', 'cursor-default');
+                    freePlanCard.classList.remove('border-2', 'border-[color:var(--primary-accent)]');
+
+                } else {
+                    // This is the default state for free users, just ensure it's correct
+                    freePlanButton.textContent = 'Your Current Plan';
+                    freePlanButton.disabled = true;
+                    freePlanButton.classList.add('bg-gray-300', '!text-gray-700', 'cursor-default');
+                }
+            }
+
             async function updateLoginState() {
                 try {
                     const response = await fetch('/api/user/me');
@@ -498,6 +526,7 @@
                         userAuthSection.innerHTML = loggedInHTML;
                         mobileUserAuthSection.innerHTML = `<a href="/api/auth/logout" class="block text-center py-2 px-6 rounded-full nav-link hover:bg-[color:var(--secondary-accent)]/20 dark:hover:bg-[color:var(--primary-accent)]/20">Logout</a>`;
                         
+                        updatePricingUI(); // <-- UPDATE PRICING PAGE
                     } else {
                         throw new Error('Not logged in');
                     }
@@ -508,7 +537,6 @@
                     mobileUserAuthSection.innerHTML = `<a href="/api/auth/login" class="block text-center py-2 px-6 rounded-full nav-link hover:bg-[color:var(--secondary-accent)]/20 dark:hover:bg-[color:var(--primary-accent)]/20">Login</a>`;
                 }
             }
-
 
             // --- Core Functions ---
             function runTypingAnimation() {
@@ -537,7 +565,6 @@
                 navLinks.forEach(l => l.classList.toggle('active', l.getAttribute('href') === targetHash));
                 sidebarToggle.classList.toggle('hidden', targetHash !== '#chat');
                 
-                // Only push to history if the hash is different
                 if(window.location.hash !== targetHash) {
                     window.history.pushState(null, '', targetHash);
                 }
