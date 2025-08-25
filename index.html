@@ -241,6 +241,10 @@
         #chat-input:focus {
             border-color: var(--primary-accent);
         }
+        #chat-input:disabled {
+            cursor: not-allowed;
+            background-color: var(--system-bubble-bg);
+        }
 
         #code-preview-iframe { border: none; width: 100%; height: 100%; }
 
@@ -515,17 +519,39 @@
                 }
             }
 
-            function initializeSystemPrompt() {
+            function initializeFeatures() {
                 if (currentUser && currentUser.plan === 'pro') {
+                    // --- PRO USER FEATURES ---
                     systemPrompt = baseSystemPrompt;
                     imageGenerationLimit = 20;
                     chatInput.removeAttribute('maxlength');
                     charCounter.textContent = 'Unlimited';
+                    chatInput.disabled = false;
+                    sendButton.disabled = false;
+                    uploadImageButton.disabled = false;
+                    generateImageButton.disabled = false;
+                    chatInput.placeholder = "Type your message or image prompt...";
                 } else {
+                    // --- FREE / LOGGED-OUT USER FEATURES ---
                     systemPrompt = baseSystemPrompt + proUpgradeMessage;
                     imageGenerationLimit = 5;
                     chatInput.setAttribute('maxlength', '1500');
-                    charCounter.textContent = `${chatInput.value.length} / 1500`;
+                    charCounter.textContent = `0 / 1500`;
+                    
+                    // --- LOGIN COMPULSORY LOGIC ---
+                    if (!currentUser) {
+                        chatInput.disabled = true;
+                        sendButton.disabled = true;
+                        uploadImageButton.disabled = true;
+                        generateImageButton.disabled = true;
+                        chatInput.placeholder = "Please log in to start your chat with Alara...";
+                    } else {
+                         chatInput.disabled = false;
+                        sendButton.disabled = false;
+                        uploadImageButton.disabled = false;
+                        generateImageButton.disabled = false;
+                        chatInput.placeholder = "Type your message or image prompt...";
+                    }
                 }
             }
 
@@ -554,7 +580,7 @@
                         userAuthSection.innerHTML = loggedOutHTML;
                         mobileUserAuthSection.innerHTML = `<a href="/api/auth/login" class="block text-center py-2 px-6 rounded-full nav-link hover:bg-[color:var(--secondary-accent)]/20 dark:hover:bg-[color:var(--primary-accent)]/20">Login</a>`;
                     }
-                    initializeSystemPrompt(); 
+                    initializeFeatures(); 
                     updatePricingUI();       
                 }
             }
@@ -715,6 +741,10 @@
             }
 
             async function handleSendMessage() {
+                if (!currentUser) {
+                    addMessage("Please log in to send a message.", 'system');
+                    return;
+                }
                 const message = chatInput.value.trim();
                 if (!message && !attachedFile) return;
                 addMessage(attachedFile ? `[Image Attached] ${message}` : message, 'user');
@@ -757,6 +787,10 @@
             }
             
             async function generateImage() {
+                if (!currentUser) {
+                    addMessage("Please log in to generate an image.", 'system');
+                    return;
+                }
                 const prompt = chatInput.value.trim();
                 if (!prompt) {
                     addMessage("System: Please type a prompt in the input field to generate an image.", 'system');
@@ -858,7 +892,7 @@
                         },
                         x: 10,
                         y: 10,
-                        width: 180, // A4 width in mm is 210, leaving margins
+                        width: 180,
                         windowWidth: contentElement.scrollWidth
                     });
                 } else if (target.matches('.copy-code-button')) {
