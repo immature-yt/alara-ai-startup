@@ -521,7 +521,6 @@
 
             function initializeFeatures() {
                 if (currentUser && currentUser.plan === 'pro') {
-                    // --- PRO USER FEATURES ---
                     systemPrompt = baseSystemPrompt;
                     imageGenerationLimit = 20;
                     chatInput.removeAttribute('maxlength');
@@ -532,13 +531,11 @@
                     generateImageButton.disabled = false;
                     chatInput.placeholder = "Type your message or image prompt...";
                 } else {
-                    // --- FREE / LOGGED-OUT USER FEATURES ---
                     systemPrompt = baseSystemPrompt + proUpgradeMessage;
                     imageGenerationLimit = 5;
                     chatInput.setAttribute('maxlength', '1500');
                     charCounter.textContent = `0 / 1500`;
                     
-                    // --- LOGIN COMPULSORY LOGIC ---
                     if (!currentUser) {
                         chatInput.disabled = true;
                         sendButton.disabled = true;
@@ -783,7 +780,7 @@
                      typingIndicator.remove();
                 } finally {
                     toggleStopButton(false);
-                    chatInput.focus(); // **MOBILE BUG FIX**
+                    chatInput.focus();
                 }
             }
             
@@ -838,18 +835,27 @@
             }
 
             // --- Event Listeners & UI Handlers ---
+            sendButton.addEventListener('mousedown', (e) => {
+                e.preventDefault();
+                handleSendMessage();
+            });
+            chatInput.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendMessage(); } });
+
+            // The rest of the event listeners...
             navLinks.forEach(l => l.addEventListener('click', (e) => { e.preventDefault(); showSection(l.getAttribute('href')); }));
             mobileMenuButton.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
             sidebarToggle.addEventListener('click', () => sidebar.classList.toggle('open'));
             closeSidebarButton.addEventListener('click', () => sidebar.classList.remove('open'));
-            sendButton.addEventListener('click', handleSendMessage);
-            chatInput.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendMessage(); } });
+            
             chatInput.addEventListener('input', () => {
                 chatInput.style.height = 'auto';
                 chatInput.style.height = `${chatInput.scrollHeight}px`;
                  if (currentUser && currentUser.plan === 'pro') {
                     charCounter.textContent = 'Unlimited';
-                } else {
+                } else if (!currentUser) {
+                    charCounter.textContent = '';
+                }
+                else {
                     charCounter.textContent = `${chatInput.value.length} / 1500`;
                 }
             });
