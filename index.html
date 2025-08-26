@@ -356,7 +356,7 @@
                 <div class="input-area-container mt-4 soft-card p-4 rounded-3xl"> 
                     <div id="image-preview-container" class="mb-2"></div>
                     <div class="relative flex items-end gap-2">
-                        <textarea id="chat-input" placeholder="Type your message or image prompt..." rows="1" maxlength="1500" class="w-full border rounded-2xl py-3 px-5 pr-44 text-base focus:outline-none focus:ring-2 focus:ring-[color:var(--primary-accent)] transition-all max-h-40 overflow-y-auto"
+                        <textarea id="chat-input" placeholder="Type your message or image prompt..." rows="1" maxlength="5000" class="w-full border rounded-2xl py-3 px-5 pr-44 text-base focus:outline-none focus:ring-2 focus:ring-[color:var(--primary-accent)] transition-all max-h-40 overflow-y-auto"
                             style="background-color: var(--input-bg); border-color: var(--input-border); color: var(--text-color);"></textarea>
                         <div class="absolute right-3 bottom-2 flex items-center gap-1">
                             <button id="upload-image-button" class="p-2 rounded-full text-[color:var(--primary-accent)] hover:bg-[color:var(--secondary-accent)]/20 dark:hover:bg-[color:var(--primary-accent)]/20 transition-colors" title="Upload Image">
@@ -372,7 +372,7 @@
                             </button>
                         </div>
                     </div>
-                    <div id="char-counter" class="text-xs text-right text-[color:var(--text-color)]/60 mt-1 pr-2">0 / 1500</div>
+                    <div id="char-counter" class="text-xs text-right text-[color:var(--text-color)]/60 mt-1 pr-2">0 / 5000</div>
                 </div>
             </div>
         </section>
@@ -533,8 +533,8 @@
                 } else {
                     systemPrompt = baseSystemPrompt + proUpgradeMessage;
                     imageGenerationLimit = 5;
-                    chatInput.setAttribute('maxlength', '1500');
-                    charCounter.textContent = `0 / 1500`;
+                    chatInput.setAttribute('maxlength', '5000');
+                    charCounter.textContent = `0 / 5000`;
                     
                     if (!currentUser) {
                         chatInput.disabled = true;
@@ -856,7 +856,7 @@
                     charCounter.textContent = '';
                 }
                 else {
-                    charCounter.textContent = `${chatInput.value.length} / 1500`;
+                    charCounter.textContent = `${chatInput.value.length} / 5000`;
                 }
             });
             uploadImageButton.addEventListener('click', () => imageInput.click());
@@ -1072,3 +1072,4 @@
     </script>
 </body>
 </html>
+
