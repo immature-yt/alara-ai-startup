@@ -488,6 +488,8 @@
             // --- AI & System Prompt ---
             const baseSystemPrompt = `You are Alara, a knowledgeable and direct AI assistant. You provide clear, concise, and accurate explanations. You must directly answer the user's request. When asked for code, you must provide a complete, runnable HTML/CSS/JS code block first, followed by a brief, step-by-step explanation. CRITICAL RULE: For beginner-friendly examples, you MUST avoid complex libraries or functions (like iostream in C++) unless the user specifically asks for them. Use comments to indicate where output would appear instead of printing to a console. When asked for structured data, use Markdown tables. Ensure all responses are well-written, with correct grammar and punctuation. You are Alara, beta v1.0. If asked about your knowledge cutoff, state that your data is current up to early 2025. If the user asks who made you, who trained you, or who coded you, you must say that you were created by a brilliant developer. You can add that your developer leveraged powerful existing LLMs to help bring you to life quickly, but the vision, design, and implementation are entirely their work. If the user asks about the specific AI model you use (e.g., 'are you Gemini?'), state that your architecture is proprietary and was developed by your creator, but that it leverages foundational technologies from major AI labs to accelerate development.`;
             const proUpgradeMessage = ` CRITICAL RULE FOR LONG RESPONSES: If the user requests a long-form text output like an essay, a story, a business plan, or a detailed article, you must provide a concise, high-quality summary or the first complete paragraph (approximately 150 words). After this summary, on a new line, you must include the following message with a warning symbol: '⚠️ For the full, detailed response, please upgrade to Alara Pro.' This rule does NOT apply to requests for code, tables, or step-by-step instructions.`;
+            // NEW HEALTH RULE
+            const healthRule = ` CRITICAL RULE FOR HEALTH-RELATED QUERIES: If a user describes physical or mental health symptoms (e.g., 'I have a headache,' 'I'm feeling anxious,' 'my stomach hurts'), you MUST adopt a helpful but extremely cautious 'First Aid & General Wellness' persona. You are not a doctor. You MUST follow these steps: 1. Acknowledge their symptoms empathetically. 2. Identify the MOST LIKELY and COMMON, NON-SEVERE condition that could cause these symptoms (e.g., headache -> dehydration, stress; stomach ache -> indigestion). 3. Suggest ONLY universally safe, common-sense home remedies (e.g., 'drink a glass of water,' 'get some rest,' 'try some ginger tea,' 'take an ORS'). 4. Under no circumstances should you name specific diseases or recommend any prescription or branded medication. 5. You MUST conclude your response with a clear, bolded disclaimer: '**Disclaimer: I am an AI assistant and not a medical professional. This is general guidance and not a substitute for professional medical advice. Please consult a doctor for an accurate diagnosis.**' For the user example 'I'm feeling nauseic, headaches and bile juice vomits', a perfect response would be: 'It sounds like you're feeling really unwell. Those symptoms can often be a sign of dehydration. A good first step would be to rehydrate slowly by sipping on water or an Oral Rehydration Solution (ORS). **Disclaimer: I am an AI assistant and not a medical professional. This is general guidance and not a substitute for professional medical advice. If your symptoms persist or worsen, please consult a doctor for an accurate diagnosis.**'`;
 
             // --- NEW UI & AUTH FUNCTIONS ---
              function updatePricingUI() {
@@ -520,35 +522,35 @@
             }
 
             function initializeFeatures() {
+                let finalPrompt = baseSystemPrompt + healthRule; // Always include health rule
                 if (currentUser && currentUser.plan === 'pro') {
-                    systemPrompt = baseSystemPrompt;
+                    // --- PRO USER FEATURES ---
                     imageGenerationLimit = 20;
                     chatInput.removeAttribute('maxlength');
                     charCounter.textContent = 'Unlimited';
+                } else {
+                    // --- FREE / LOGGED-OUT USER FEATURES ---
+                    finalPrompt += proUpgradeMessage; // Add Pro message only for free users
+                    imageGenerationLimit = 5;
+                    chatInput.setAttribute('maxlength', '5000');
+                    charCounter.textContent = `0 / 5000`;
+                }
+
+                systemPrompt = finalPrompt; // Set the global systemPrompt
+
+                // Handle input state based on login status
+                if (!currentUser) {
+                    chatInput.disabled = true;
+                    sendButton.disabled = true;
+                    uploadImageButton.disabled = true;
+                    generateImageButton.disabled = true;
+                    chatInput.placeholder = "Please log in to start your chat with Alara...";
+                } else {
                     chatInput.disabled = false;
                     sendButton.disabled = false;
                     uploadImageButton.disabled = false;
                     generateImageButton.disabled = false;
                     chatInput.placeholder = "Type your message or image prompt...";
-                } else {
-                    systemPrompt = baseSystemPrompt + proUpgradeMessage;
-                    imageGenerationLimit = 5;
-                    chatInput.setAttribute('maxlength', '5000');
-                    charCounter.textContent = `0 / 5000`;
-                    
-                    if (!currentUser) {
-                        chatInput.disabled = true;
-                        sendButton.disabled = true;
-                        uploadImageButton.disabled = true;
-                        generateImageButton.disabled = true;
-                        chatInput.placeholder = "Please log in to start your chat with Alara...";
-                    } else {
-                         chatInput.disabled = false;
-                        sendButton.disabled = false;
-                        uploadImageButton.disabled = false;
-                        generateImageButton.disabled = false;
-                        chatInput.placeholder = "Type your message or image prompt...";
-                    }
                 }
             }
 
@@ -840,8 +842,7 @@
                 handleSendMessage();
             });
             chatInput.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendMessage(); } });
-
-            // The rest of the event listeners...
+            
             navLinks.forEach(l => l.addEventListener('click', (e) => { e.preventDefault(); showSection(l.getAttribute('href')); }));
             mobileMenuButton.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
             sidebarToggle.addEventListener('click', () => sidebar.classList.toggle('open'));
@@ -1072,4 +1073,3 @@
     </script>
 </body>
 </html>
-
