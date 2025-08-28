@@ -316,7 +316,7 @@
                     <div id="user-auth-section" class="pl-4">
                         <a href="/api/auth/login" class="soft-button !px-6 !py-2 !text-base">Login</a>
                     </div>
-                </nav>
+                    </nav>
                 <button id="mobile-menu-button" class="md:hidden p-2 rounded-full hover:bg-[color:var(--secondary-accent)]/20 transition-colors" style="color: var(--primary-accent);">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" /></svg>
                 </button>
@@ -329,7 +329,7 @@
                 <a href="#preview" class="block text-center py-2 px-6 rounded-full nav-link hover:bg-[color:var(--secondary-accent)]/20 dark:hover:bg-[color:var(--primary-accent)]/20">Preview</a>
                 <a href="#pricing" class="block text-center py-2 px-6 rounded-full nav-link hover:bg-[color:var(--secondary-accent)]/20 dark:hover:bg-[color:var(--primary-accent)]/20">Pricing</a>
                 <a href="#about" class="block text-center py-2 px-6 rounded-full nav-link hover:bg-[color:var(--secondary-accent)]/20 dark:hover:bg-[color:var(--primary-accent)]/20">About</a>
-                <div id="mobile-user-auth-section" class="mt-4 pt-4 border-t border-[color:var(--card-border)]">
+                 <div id="mobile-user-auth-section" class="mt-4 pt-4 border-t border-[color:var(--card-border)]">
                      <a href="/api/auth/login" class="block text-center py-2 px-6 rounded-full nav-link hover:bg-[color:var(--secondary-accent)]/20 dark:hover:bg-[color:var(--primary-accent)]/20">Login</a>
                 </div>
             </div>
@@ -345,17 +345,11 @@
             </div>
         </section>
 
-        <section id="chat" class="page-section flex flex-col">
-            <div class="container mx-auto px-4 py-8 flex-1 flex flex-col max-w-7xl">
-                <div id="login-cta" class="hidden h-full flex-col justify-center items-center text-center p-8">
-                    <h2 class="text-3xl font-bold mb-4">Welcome to Alara</h2>
-                    <p class="text-lg opacity-80 mb-8 max-w-md mx-auto">Please log in with your Google account to begin your conversation.</p>
-                    <a href="/api/auth/login" class="soft-button text-xl flex items-center gap-3">
-                        <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24s8.955,20,20,20s20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"></path><path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"></path><path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z"></path><path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.574l6.19,5.238C39.99,36.566,44,30.85,44,24C44,22.659,43.862,21.35,43.611,20.083z"></path></svg>
-                        Login with Google
-                    </a>
-                </div>
-                
+        <section id="chat" class="page-section">
+             <button id="sidebar-toggle" class="fixed top-24 left-4 soft-card p-3 rounded-full z-40 text-[color:var(--primary-accent)] hover:scale-105 transition-transform duration-200">
+                 <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
+            </button>
+            <div class="container mx-auto px-4 py-8 h-[calc(100vh-7rem)] flex flex-col max-w-7xl">
                 <div id="chat-box" class="flex-1 overflow-y-auto p-4 space-y-4"></div>
                 <input type="file" id="image-input" class="hidden" accept="image/*">
                 
@@ -374,7 +368,8 @@
                                 </svg>
                             </button>
                             <button id="send-button" class="soft-button w-10 h-10 p-2 flex items-center justify-center !bg-[color:var(--primary-accent)] !text-white !shadow-md hover:!shadow-lg">
-                                </button>
+                                <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.428A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" /></svg>
+                            </button>
                         </div>
                     </div>
                     <div id="char-counter" class="text-xs text-right text-[color:var(--text-color)]/60 mt-1 pr-2">0 / 5000</div>
@@ -477,7 +472,6 @@
             const generateImageButton = document.getElementById('generate-image-button');
             const userAuthSection = document.getElementById('user-auth-section');
             const mobileUserAuthSection = document.getElementById('mobile-user-auth-section');
-            const loginCta = document.getElementById('login-cta');
 
             // --- State Variables ---
             let allChats = [];
@@ -490,11 +484,11 @@
             let currentUser = null; 
             let systemPrompt = '';
             let imageGenerationLimit = 5;
-            let isAwaitingResponse = false; // NEW state for send button
 
             // --- AI & System Prompt ---
             const baseSystemPrompt = `You are Alara, a knowledgeable and direct AI assistant. You provide clear, concise, and accurate explanations. You must directly answer the user's request. When asked for code, you must provide a complete, runnable HTML/CSS/JS code block first, followed by a brief, step-by-step explanation. CRITICAL RULE: For beginner-friendly examples, you MUST avoid complex libraries or functions (like iostream in C++) unless the user specifically asks for them. Use comments to indicate where output would appear instead of printing to a console. When asked for structured data, use Markdown tables. Ensure all responses are well-written, with correct grammar and punctuation. You are Alara, beta v1.0. If asked about your knowledge cutoff, state that your data is current up to early 2025. If the user asks who made you, who trained you, or who coded you, you must say that you were created by a brilliant developer. You can add that your developer leveraged powerful existing LLMs to help bring you to life quickly, but the vision, design, and implementation are entirely their work. If the user asks about the specific AI model you use (e.g., 'are you Gemini?'), state that your architecture is proprietary and was developed by your creator, but that it leverages foundational technologies from major AI labs to accelerate development.`;
             const proUpgradeMessage = ` CRITICAL RULE FOR LONG RESPONSES: If the user requests a long-form text output like an essay, a story, a business plan, or a detailed article, you must provide a concise, high-quality summary or the first complete paragraph (approximately 150 words). After this summary, on a new line, you must include the following message with a warning symbol: '⚠️ For the full, detailed response, please upgrade to Alara Pro.' This rule does NOT apply to requests for code, tables, or step-by-step instructions.`;
+            // NEW HEALTH RULE
             const healthRule = ` CRITICAL RULE FOR HEALTH-RELATED QUERIES: If a user describes physical or mental health symptoms (e.g., 'I have a headache,' 'I'm feeling anxious,' 'my stomach hurts'), you MUST adopt a helpful but extremely cautious 'First Aid & General Wellness' persona. You are not a doctor. You MUST follow these steps: 1. Acknowledge their symptoms empathetically. 2. Identify the MOST LIKELY and COMMON, NON-SEVERE condition that could cause these symptoms (e.g., headache -> dehydration, stress; stomach ache -> indigestion). 3. Suggest ONLY universally safe, common-sense home remedies (e.g., 'drink a glass of water,' 'get some rest,' 'try some ginger tea,' 'take an ORS'). 4. Under no circumstances should you name specific diseases or recommend any prescription or branded medication. 5. You MUST conclude your response with a clear, bolded disclaimer: '**Disclaimer: I am an AI assistant and not a medical professional. This is general guidance and not a substitute for professional medical advice. Please consult a doctor for an accurate diagnosis.**' For the user example 'I'm feeling nauseic, headaches and bile juice vomits', a perfect response would be: 'It sounds like you're feeling really unwell. Those symptoms can often be a sign of dehydration. A good first step would be to rehydrate slowly by sipping on water or an Oral Rehydration Solution (ORS). **Disclaimer: I am an AI assistant and not a medical professional. This is general guidance and not a substitute for professional medical advice. If your symptoms persist or worsen, please consult a doctor for an accurate diagnosis.**'`;
 
             // --- NEW UI & AUTH FUNCTIONS ---
@@ -528,38 +522,35 @@
             }
 
             function initializeFeatures() {
-                let finalPrompt = baseSystemPrompt + healthRule;
+                let finalPrompt = baseSystemPrompt + healthRule; // Always include health rule
                 if (currentUser && currentUser.plan === 'pro') {
+                    // --- PRO USER FEATURES ---
                     imageGenerationLimit = 20;
                     chatInput.removeAttribute('maxlength');
                     charCounter.textContent = 'Unlimited';
                 } else {
-                    finalPrompt += proUpgradeMessage;
+                    // --- FREE / LOGGED-OUT USER FEATURES ---
+                    finalPrompt += proUpgradeMessage; // Add Pro message only for free users
                     imageGenerationLimit = 5;
                     chatInput.setAttribute('maxlength', '5000');
                     charCounter.textContent = `0 / 5000`;
                 }
 
-                systemPrompt = finalPrompt;
+                systemPrompt = finalPrompt; // Set the global systemPrompt
 
+                // Handle input state based on login status
                 if (!currentUser) {
                     chatInput.disabled = true;
                     sendButton.disabled = true;
                     uploadImageButton.disabled = true;
                     generateImageButton.disabled = true;
                     chatInput.placeholder = "Please log in to start your chat with Alara...";
-                    loginCta.classList.remove('hidden');
-                    loginCta.classList.add('flex');
-                    chatBox.classList.add('hidden');
                 } else {
                     chatInput.disabled = false;
                     sendButton.disabled = false;
                     uploadImageButton.disabled = false;
                     generateImageButton.disabled = false;
                     chatInput.placeholder = "Type your message or image prompt...";
-                    loginCta.classList.add('hidden');
-                    loginCta.classList.remove('flex');
-                    chatBox.classList.remove('hidden');
                 }
             }
 
@@ -759,8 +750,7 @@
                 chatInput.value = '';
                 chatInput.dispatchEvent(new Event('input'));
                 const typingIndicator = showTypingIndicator();
-                isAwaitingResponse = true;
-                updateSendButtonUI(true);
+                toggleStopButton(true);
                 const currentChat = allChats.find(c => c.id === currentChatId);
                 const userParts = [];
                 if (message) userParts.push({ text: message });
@@ -791,8 +781,7 @@
                     }
                      typingIndicator.remove();
                 } finally {
-                    isAwaitingResponse = false;
-                    updateSendButtonUI(false);
+                    toggleStopButton(false);
                     chatInput.focus();
                 }
             }
@@ -847,22 +836,10 @@
                 }
             }
 
-            function updateSendButtonUI(isThinking) {
-                 if (isThinking) {
-                    sendButton.innerHTML = `<svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg>`;
-                } else {
-                    sendButton.innerHTML = `<svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.428A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" /></svg>`;
-                }
-            }
-
             // --- Event Listeners & UI Handlers ---
-            sendButton.addEventListener('click', (e) => {
+            sendButton.addEventListener('mousedown', (e) => {
                 e.preventDefault();
-                if (isAwaitingResponse) {
-                    abortController.abort();
-                } else {
-                    handleSendMessage();
-                }
+                handleSendMessage();
             });
             chatInput.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendMessage(); } });
             
@@ -962,6 +939,16 @@
             function updateThemeIcons(isDark) {
                 themeIconLight.classList.toggle('hidden', isDark);
                 themeIconDark.classList.toggle('hidden', !isDark);
+            }
+
+            function toggleStopButton(isThinking) {
+                if (isThinking) {
+                    sendButton.innerHTML = `<svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg>`;
+                    sendButton.onclick = () => { abortController.abort(); toggleStopButton(false); };
+                } else {
+                    sendButton.innerHTML = `<svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.428A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" /></svg>`;
+                    sendButton.onclick = handleSendMessage;
+                }
             }
 
             function saveAllChats() {
@@ -1086,3 +1073,4 @@
     </script>
 </body>
 </html>
+
