@@ -233,6 +233,13 @@
             font-size: 0.975rem;
             line-height: 1.6;
         }
+        
+        .message-content img {
+            max-height: 60vh;
+            margin-top: 0.5rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
 
         #chat-input { 
             background-color: var(--input-bg); 
@@ -286,8 +293,10 @@
             background: linear-gradient(135deg, var(--secondary-accent) 0%, rgba(0,0,0,0) 50%, var(--primary-accent) 100%);
             opacity: 0.08;
         }
+
         .pdf-render-scale {
-             font-size: 1.2em !important;
+            font-size: 1.2em !important;
+            line-height: 1.5 !important;
         }
 
     </style>
@@ -352,7 +361,6 @@
 
         <section id="chat" class="page-section flex flex-col">
             <div class="container mx-auto px-4 py-8 flex-1 flex flex-col max-w-7xl">
-                
                 <div id="login-cta" class="hidden h-full flex-col justify-center items-center text-center p-8">
                     <h2 class="text-3xl font-bold mb-4">Welcome to Alara</h2>
                     <p class="text-lg opacity-80 mb-8 max-w-md mx-auto">Please log in with your Google account to begin your conversation.</p>
@@ -825,7 +833,7 @@
                 chatInput.dispatchEvent(new Event('input'));
                 const typingIndicator = showTypingIndicator();
                 isAwaitingResponse = true;
-                updateSendButtonUI(true); // Also show stop icon for image generation
+                updateSendButtonUI(true);
                 generateImageButton.disabled = true;
                 
                 try {
@@ -868,7 +876,6 @@
                 e.preventDefault();
                 if (isAwaitingResponse) {
                     abortController.abort();
-                    // The 'finally' block in handleSendMessage will reset the UI
                 } else {
                     handleSendMessage();
                 }
@@ -931,19 +938,17 @@
 
                 if (target.matches('.pdf-button')) {
                     const contentElement = messageBubble.querySelector('.message-content');
-                    // Temporarily add a class to scale up content for better PDF quality
                     contentElement.classList.add('pdf-render-scale');
 
                     const doc = new jspdf.jsPDF();
                     
                     doc.html(contentElement, {
                         callback: function (doc) {
-                            // Remove the class after rendering is complete
                             contentElement.classList.remove('pdf-render-scale');
                             doc.save('alara-response.pdf');
                         },
-                        x: 15,
-                        y: 15,
+                        margin: [15, 15, 15, 15],
+                        autoPaging: 'text',
                         width: 180,
                         windowWidth: 750
                     });
