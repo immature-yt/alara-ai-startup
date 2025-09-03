@@ -330,7 +330,6 @@
                     <div id="user-auth-section" class="pl-4">
                         <a href="/api/auth/login" class="soft-button !px-6 !py-2 !text-base">Login</a>
                     </div>
-                    <!-- FIX: Added sidebar-toggle button for desktop view -->
                     <button id="sidebar-toggle" class="p-2 rounded-full text-[color:var(--primary-accent)] hover:bg-[color:var(--secondary-accent)]/20 transition-colors" title="Open Chat History">
                         <svg class="h-7 w-7" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
@@ -381,7 +380,7 @@
                 <div id="chat-box" class="flex-1 overflow-y-auto p-4 space-y-4"></div>
                 <input type="file" id="image-input" class="hidden" accept="image/*">
                 
-                <div class="input-area-container mt-4 soft-card p-4 rounded-3xl flex-shrink-0"> <!-- FIX: Added flex-shrink-0 -->
+                <div class="input-area-container mt-4 soft-card p-4 rounded-3xl flex-shrink-0">
                     <div id="image-preview-container" class="mb-2"></div>
                     <div class="relative flex items-end gap-2">
                         <textarea id="chat-input" placeholder="Type your message or image prompt..." rows="1" maxlength="5000" class="w-full border rounded-2xl py-3 px-5 pr-44 text-base focus:outline-none focus:ring-2 focus:ring-[color:var(--primary-accent)] transition-all max-h-40 overflow-y-auto"
@@ -396,7 +395,6 @@
                                 </svg>
                             </button>
                             <button id="send-button" class="soft-button w-10 h-10 p-2 flex items-center justify-center !bg-[color:var(--primary-accent)] !text-white !shadow-md hover:!shadow-lg">
-                                <!-- FIX: Initial send icon. This will be updated by JS -->
                                 <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.428A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" /></svg>
                             </button>
                         </div>
@@ -419,7 +417,8 @@
             </div>
         </section>
 
-        <section id="pricing" class="page-section">
+        <!-- FIX: Added h-[calc(100vh-7rem)] to ensure full height -->
+        <section id="pricing" class="page-section h-[calc(100vh-7rem)]">
              <div class="container mx-auto px-6 py-12 max-w-7xl">
                 <div class="text-center mb-12">
                     <h2 class="text-4xl md:text-5xl font-bold mb-4">Choose Your Plan</h2>
@@ -455,7 +454,8 @@
             </div>
         </section>
 
-        <section id="about" class="page-section">
+        <!-- FIX: Added h-[calc(100vh-7rem)] and flex utilities for vertical centering -->
+        <section id="about" class="page-section h-[calc(100vh-7rem)] flex flex-col justify-center">
             <div class="container mx-auto px-6 py-20 flex flex-col justify-center items-center text-center max-w-7xl">
                 <h2 class="text-4xl font-bold mb-8">About Alara</h2>
                 <div class="max-w-3xl text-lg space-y-4 opacity-80">
@@ -494,7 +494,6 @@
             const previewPlaceholder = document.getElementById('preview-placeholder');
             const previewContainer = document.getElementById('preview-container');
             const sidebar = document.getElementById('chat-sidebar');
-            // FIX: sidebarToggle now correctly references the new button
             const sidebarToggle = document.getElementById('sidebar-toggle'); 
             const closeSidebarButton = document.getElementById('close-sidebar-button');
             const newChatButton = document.getElementById('new-chat-button');
@@ -563,7 +562,6 @@
                     finalPrompt += proUpgradeMessage;
                     imageGenerationLimit = 5;
                     chatInput.setAttribute('maxlength', '5000');
-                    // FIX: Ensure charCounter is updated correctly here based on existing input
                     charCounter.textContent = `${chatInput.value.length} / 5000`; 
                 }
 
@@ -578,7 +576,7 @@
                     loginCta.classList.remove('hidden');
                     loginCta.classList.add('flex');
                     chatBox.classList.add('hidden');
-                    charCounter.textContent = ''; // FIX: Clear char counter if not logged in
+                    charCounter.textContent = ''; 
                 } else {
                     chatInput.disabled = false;
                     sendButton.disabled = false;
@@ -645,25 +643,25 @@
 
             function showSection(targetHash) {
                 if (!targetHash || targetHash === '#') targetHash = '#home';
-                sections.forEach(s => s.classList.remove('active')); // Remove active from all first
+
+                sections.forEach(s => s.classList.remove('active')); 
                 navLinks.forEach(l => l.classList.remove('active'));
 
                 const targetSection = document.querySelector(targetHash);
                 if (targetSection) {
-                    targetSection.classList.add('active'); // Activate target section
+                    targetSection.classList.add('active'); 
                     const correspondingNavLink = document.querySelector(`a[href="${targetHash}"]`);
                     if (correspondingNavLink) correspondingNavLink.classList.add('active');
 
                     // FIX: Scroll to the active section with offset for fixed header
-                    // Add a small delay to ensure rendering, then scroll
                     setTimeout(() => {
                         const header = document.querySelector('header');
                         const headerHeight = header ? header.offsetHeight : 0; 
                         window.scrollTo({
-                            top: targetSection.offsetTop - headerHeight - 20, // Offset by header height + a little extra padding
+                            top: targetSection.offsetTop - headerHeight - 20, 
                             behavior: 'smooth'
                         });
-                    }, 50); // Small delay to ensure the section is fully rendered and takes its height
+                    }, 50); 
                 }
 
                 if(window.location.hash !== targetHash) {
@@ -717,7 +715,7 @@
                     buttonContainer.appendChild(pdfButton);
                     if (message.includes('```html') && !options.imageUrl) { 
                         const previewButton = document.createElement('button');
-                        previewButton.className = 'p-1 rounded-full shadow-md bg-white hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-colors';
+                        previewButton.className = 'p-1 rounded-full shadow-md bg-white hover:bg-gray-200 dark:hover:bg-gray-800 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-colors';
                         previewButton.title = 'Run in Preview';
                         previewButton.innerHTML = `<svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" /></svg>`;
                         buttonContainer.appendChild(previewButton);
@@ -728,7 +726,6 @@
                 wrapper.appendChild(bubble);
                 chatBox.appendChild(wrapper);
 
-                // FIX: Ensure scroll to bottom after new message is added
                 chatBox.scrollTop = chatBox.scrollHeight;
                 return bubble;
             }
@@ -903,7 +900,6 @@
 
             function updateSendButtonUI(isThinking) {
                  if (isThinking) {
-                    // FIX: Correct SVG path for a stop icon
                     sendButton.innerHTML = `<svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>`;
                 } else {
                     sendButton.innerHTML = `<svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.428A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" /></svg>`;
@@ -930,7 +926,6 @@
             
             navLinks.forEach(l => l.addEventListener('click', (e) => { e.preventDefault(); showSection(l.getAttribute('href')); }));
             mobileMenuButton.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
-            // FIX: Ensure sidebarToggle exists before adding listener
             if (sidebarToggle) {
                 sidebarToggle.addEventListener('click', () => sidebar.classList.toggle('open'));
             }
@@ -939,7 +934,6 @@
             chatInput.addEventListener('input', () => {
                 chatInput.style.height = 'auto';
                 chatInput.style.height = `${chatInput.scrollHeight}px`;
-                // FIX: Consolidated charCounter logic
                 if (!currentUser) {
                     charCounter.textContent = '';
                 } else if (currentUser.plan === 'pro') {
@@ -1139,7 +1133,7 @@
                 const currentHash = window.location.hash;
                 showSection(currentHash || '#home');
                 
-                await updateLoginState(); // Ensures currentUser is set before other initializations
+                await updateLoginState(); 
                 
                 loadAllChats();
                 if (allChats.length === 0) {
@@ -1148,7 +1142,6 @@
                     loadChat(allChats[0].id);
                 }
 
-                // Initial UI update for send button
                 updateSendButtonUI(false); 
             }
 
