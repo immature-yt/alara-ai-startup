@@ -311,7 +311,7 @@
     <aside id="chat-sidebar" class="soft-card !rounded-none">
         <div class="flex justify-between items-center mb-6">
             <h2 class="text-2xl font-bold">Chat History</h2>
-            <button id="close-sidebar-button" class="p-2 text-3xl font-light leading-none text-[color:var(--primary-accent)]">&times;</button>
+            <button id="close-sidebar-button" class="p-2 text-3xl font-light leading-none text-[color:var(--primary-accent)]" aria-label="Close chat history">&times;</button>
         </div>
         <button id="new-chat-button" class="w-full mb-4 p-3 rounded-full border-2 border-[color:var(--primary-accent)] text-[color:var(--primary-accent)] hover:bg-[color:var(--primary-accent)] hover:text-white dark:hover:text-black transition-colors duration-300 font-semibold">+ New Chat</button>
         <div id="chat-history-list" class="flex-1 overflow-y-auto space-y-2"></div>
@@ -320,7 +320,7 @@
     <header class="fixed top-0 left-0 right-0 z-50">
         <div class="container mx-auto px-6 py-4 max-w-7xl">
             <div class="soft-card flex justify-between items-center px-6 py-3 !rounded-full shadow-lg">
-                <a href="#home" class="text-3xl font-extrabold nav-link !text-[color:var(--primary-accent)]">ALARA<sup style="font-size: 0.5em; font-weight: normal;">beta</sup></a>
+                <a href="#home" class="text-3xl font-extrabold nav-link !text-[color:var(--primary-accent)]">ALARA<sup class="text-[0.5em] font-normal">beta</sup></a>
                 <nav class="hidden md:flex items-center space-x-8">
                     <a href="#home" class="nav-link text-lg hover:text-[color:var(--primary-accent)] transition-colors duration-300 active">Home</a>
                     <a href="#chat" class="nav-link text-lg hover:text-[color:var(--primary-accent)] transition-colors duration-300">Chat</a>
@@ -330,13 +330,13 @@
                     <div id="user-auth-section" class="pl-4">
                         <a href="/api/auth/login" class="soft-button !px-6 !py-2 !text-base">Login</a>
                     </div>
-                    <button id="sidebar-toggle" class="p-2 rounded-full text-[color:var(--primary-accent)] hover:bg-[color:var(--secondary-accent)]/20 transition-colors" title="Open Chat History">
+                    <button id="sidebar-toggle" class="p-2 rounded-full text-[color:var(--primary-accent)] hover:bg-[color:var(--secondary-accent)]/20 transition-colors" aria-label="Open Chat History">
                         <svg class="h-7 w-7" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
                         </svg>
                     </button>
                 </nav>
-                <button id="mobile-menu-button" class="md:hidden p-2 rounded-full hover:bg-[color:var(--secondary-accent)]/20 transition-colors" style="color: var(--primary-accent);">
+                <button id="mobile-menu-button" class="md:hidden p-2 rounded-full hover:bg-[color:var(--secondary-accent)]/20 transition-colors text-[color:var(--primary-accent)]" aria-label="Open menu">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" /></svg>
                 </button>
             </div>
@@ -356,23 +356,21 @@
     </header>
 
     <main class="pt-28 flex-1">
-        <!-- FIX: Changed min-h to h for consistent section height and sticky input -->
         <section id="home" class="page-section active relative h-[calc(100vh-7rem)]">
-            <div class="container mx-auto px-6 text-center min-h-[calc(100vh-7rem)] flex flex-col justify-center items-center max-w-7xl">
+            <div class="container mx-auto px-6 text-center h-full flex flex-col justify-center items-center max-w-7xl">
                 <h1 id="hero-title" class="text-5xl md:text-7xl lg:text-8xl font-extrabold mb-6 drop-shadow-lg leading-tight"></h1>
                 <p class="text-xl md:text-2xl max-w-3xl mx-auto mb-10 opacity-85">Your intelligent AI companion for creativity, conversation, and code.</p>
                 <a href="#chat" class="nav-link soft-button text-xl">Start Chatting</a>
             </div>
         </section>
 
-        <!-- FIX: Changed min-h to h for consistent section height and sticky input -->
         <section id="chat" class="page-section flex flex-col h-[calc(100vh-7rem)]">
             <div class="container mx-auto px-4 py-8 flex-1 flex flex-col max-w-7xl">
                 <div id="login-cta" class="hidden h-full flex-col justify-center items-center text-center p-8">
                     <h2 class="text-3xl font-bold mb-4">Welcome to Alara</h2>
                     <p class="text-lg opacity-80 mb-8 max-w-md mx-auto">Please log in with your Google account to begin your conversation.</p>
                     <a href="/api/auth/login" class="soft-button text-xl flex items-center gap-3">
-                        <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24s8.955,20,20,20s20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"></path><path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"></path><path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z"></path><path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.574l6.19,5.238C39.99,36.566,44,30.85,44,24C44,22.659,43.862,21.35,43.611,20.083z"></path></svg>
+                        <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" role="img" aria-labelledby="google-login-title"><title id="google-login-title">Google Login Icon</title><path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24s8.955,20,20,20s20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"></path><path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"></path><path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z"></path><path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.574l6.19,5.238C39.99,36.566,44,30.85,44,24C44,22.659,43.862,21.35,43.611,20.083z"></path></svg>
                         Login with Google
                     </a>
                 </div>
@@ -386,15 +384,15 @@
                         <textarea id="chat-input" placeholder="Type your message or image prompt..." rows="1" maxlength="5000" class="w-full border rounded-2xl py-3 px-5 pr-44 text-base focus:outline-none focus:ring-2 focus:ring-[color:var(--primary-accent)] transition-all max-h-40 overflow-y-auto"
                             style="background-color: var(--input-bg); border-color: var(--input-border); color: var(--text-color);"></textarea>
                         <div class="absolute right-3 bottom-2 flex items-center gap-1">
-                            <button id="upload-image-button" class="p-2 rounded-full text-[color:var(--primary-accent)] hover:bg-[color:var(--secondary-accent)]/20 dark:hover:bg-[color:var(--primary-accent)]/20 transition-colors" title="Upload Image">
+                            <button id="upload-image-button" class="p-2 rounded-full text-[color:var(--primary-accent)] hover:bg-[color:var(--secondary-accent)]/20 dark:hover:bg-[color:var(--primary-accent)]/20 transition-colors" aria-label="Upload Image">
                                 <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
                             </button>
-                            <button id="generate-image-button" class="p-2 rounded-full text-[color:var(--primary-accent)] hover:bg-[color:var(--secondary-accent)]/20 dark:hover:bg-[color:var(--primary-accent)]/20 transition-colors" title="Generate Image from Text">
+                            <button id="generate-image-button" class="p-2 rounded-full text-[color:var(--primary-accent)] hover:bg-[color:var(--secondary-accent)]/20 dark:hover:bg-[color:var(--primary-accent)]/20 transition-colors" aria-label="Generate Image from Text">
                                 <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.008 2.008a1 1 0 010 1.414L10 17.414l-2 2V19h-.5l-2-2-.5-.5H4.5l-2-2-.5-.5v-.5l-.5-2 2-2 2-2 2-2 2-2 2-2zM15 5h.01M19 8h.01M15 11h.01" />
                                 </svg>
                             </button>
-                            <button id="send-button" class="soft-button w-10 h-10 p-2 flex items-center justify-center !bg-[color:var(--primary-accent)] !text-white !shadow-md hover:!shadow-lg">
+                            <button id="send-button" class="soft-button w-10 h-10 p-2 flex items-center justify-center !bg-[color:var(--primary-accent)] !text-white !shadow-md hover:!shadow-lg" aria-label="Send message">
                                 <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.428A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" /></svg>
                             </button>
                         </div>
@@ -404,20 +402,18 @@
             </div>
         </section>
 
-        <!-- FIX: Changed min-h to h for consistent section height and sticky input -->
         <section id="preview" class="page-section h-[calc(100vh-7rem)]">
-            <div class="container mx-auto px-4 py-8 h-[calc(100vh-7rem)] flex flex-col items-center max-w-7xl">
+            <div class="container mx-auto px-4 py-8 h-full flex flex-col items-center max-w-7xl">
                 <div id="preview-placeholder" class="text-center soft-card p-8 rounded-2xl max-w-xl mx-auto">
-                    <h2 class="text-3xl font-bold mb-4">Under Construction</h2>
+                    <h2 class="text-3xl font-bold mb-4">Code Preview</h2>
                     <p class="text-lg opacity-80">When Alara generates HTML code, click the "Run in Preview" button to see it live here!</p>
                 </div>
-                <div id="preview-container" class="soft-card w-full flex-1 p-2 hidden mt-8">
+                <div id="preview-container" class="soft-card w-full flex-1 p-2 hidden">
                     <iframe id="code-preview-iframe" class="rounded-lg"></iframe>
                 </div>
             </div>
         </section>
 
-        <!-- FIX: Added h-[calc(100vh-7rem)] to ensure full height -->
         <section id="pricing" class="page-section h-[calc(100vh-7rem)]">
              <div class="container mx-auto px-6 py-12 max-w-7xl">
                 <div class="text-center mb-12">
@@ -425,7 +421,7 @@
                     <p class="text-lg opacity-80 max-w-2xl mx-auto">Get started for free or unlock Alara's full potential with our Pro plan.</p>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-                    <div id="free-plan-card" class="soft-card p-8 flex flex-col">
+                    <div id="free-plan-card" class="soft-card p-8 flex flex-col border-2 border-transparent">
                         <h3 class="text-3xl font-bold mb-2">Free</h3>
                         <p class="text-xl font-medium opacity-80 mb-6">For casual users & exploration</p>
                         <ul class="space-y-4 text-left flex-1 mb-8">
@@ -437,7 +433,7 @@
                         </ul>
                         <button id="free-plan-button" class="soft-button bg-gray-300 !text-gray-700 cursor-default" disabled>Your Current Plan</button>
                     </div>
-                    <div id="pro-plan-card" class="soft-card p-8 flex flex-col">
+                    <div id="pro-plan-card" class="soft-card p-8 flex flex-col border-2 border-transparent">
                         <h3 class="text-3xl font-bold mb-2">Alara Pro</h3>
                         <p class="text-xl font-medium opacity-80 mb-6">For power users & professionals</p>
                         <ul class="space-y-4 text-left flex-1 mb-8">
@@ -454,7 +450,6 @@
             </div>
         </section>
 
-        <!-- FIX: Added h-[calc(100vh-7rem)] and flex utilities for vertical centering -->
         <section id="about" class="page-section h-[calc(100vh-7rem)] flex flex-col justify-center">
             <div class="container mx-auto px-6 py-20 flex flex-col justify-center items-center text-center max-w-7xl">
                 <h2 class="text-4xl font-bold mb-8">About Alara</h2>
@@ -466,7 +461,7 @@
         </section>
     </main>
 
-    <button id="theme-toggle" class="fixed bottom-5 right-5 soft-card p-3 rounded-full text-[color:var(--primary-accent)] hover:scale-105 transition-transform duration-200">
+    <button id="theme-toggle" class="fixed bottom-5 right-5 soft-card p-3 rounded-full text-[color:var(--primary-accent)] hover:scale-105 transition-transform duration-200" aria-label="Toggle light/dark theme">
         <svg id="theme-icon-light" class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
         <svg id="theme-icon-dark" class="h-6 w-6 hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
     </button>
@@ -522,102 +517,102 @@
             const proUpgradeMessage = ` CRITICAL RULE FOR LONG RESPONSES: If the user requests a long-form text output like an essay, a story, a business plan, or a detailed article, you must provide a concise, high-quality summary or the first complete paragraph (approximately 150 words). After this summary, on a new line, you must include the following message with a warning symbol: '⚠️ For the full, detailed response, please upgrade to Alara Pro.' This rule does NOT apply to requests for code, tables, or step-by-step instructions.`;
             const healthRule = ` CRITICAL RULE FOR HEALTH-RELATED QUERIES: If a user describes physical or mental health symptoms (e.g., 'I have a headache,' 'I'm feeling anxious,' 'my stomach hurts'), you MUST adopt a helpful but extremely cautious 'First Aid & General Wellness' persona. You are not a doctor. You MUST follow these steps: 1. Acknowledge their symptoms empathetically. 2. Identify the MOST LIKELY and COMMON, NON-SEVERE condition that could cause these symptoms (e.g., headache -> dehydration, stress; stomach ache -> indigestion). 3. Suggest ONLY universally safe, common-sense home remedies (e.g., 'drink a glass of water,' 'get some rest,' 'try some ginger tea,' 'take an ORS'). 4. Under no circumstances should you name specific diseases or recommend any prescription or branded medication. 5. You MUST conclude your response with a clear, bolded disclaimer: '**Disclaimer: I am an AI assistant and not a medical professional. This is general guidance and not a substitute for professional medical advice. Please consult a doctor for an accurate diagnosis.**' For the user example 'I'm feeling nauseic, headaches and bile juice vomits', a perfect response would be: 'It sounds like you're feeling really unwell. Those symptoms can often be a sign of dehydration. A good first step would be to rehydrate slowly by sipping on water or an Oral Rehydration Solution (ORS). **Disclaimer: I am an AI assistant and not a medical professional. This is general guidance and not a substitute for professional medical advice. If your symptoms persist or worsen, please consult a doctor for an accurate diagnosis.**'`;
 
-            // --- NEW UI & AUTH FUNCTIONS ---
+            // --- UI & AUTH FUNCTIONS ---
              function updatePricingUI() {
-                if (!currentUser) return; 
+                 if (!currentUser) return; 
 
-                const freePlanCard = document.getElementById('free-plan-card');
-                const proPlanCard = document.getElementById('pro-plan-card');
-                const freePlanButton = document.getElementById('free-plan-button');
-                const proPlanButton = document.getElementById('pro-plan-button');
+                 const freePlanCard = document.getElementById('free-plan-card');
+                 const proPlanCard = document.getElementById('pro-plan-card');
+                 const freePlanButton = document.getElementById('free-plan-button');
+                 const proPlanButton = document.getElementById('pro-plan-button');
 
-                if (currentUser.plan === 'pro') {
-                    proPlanButton.textContent = 'Your Current Plan';
-                    proPlanButton.disabled = true;
-                    proPlanButton.classList.add('bg-gray-300', '!text-gray-700', 'cursor-default');
-                    proPlanCard.classList.remove('border-2', 'border-[color:var(--primary-accent)]');
-                    proPlanCard.classList.add('border-4', 'border-green-500');
-                    
-                    freePlanButton.textContent = 'Downgrade';
-                    freePlanButton.disabled = false;
-                    freePlanButton.classList.remove('bg-gray-300', '!text-gray-700', 'cursor-default');
-                    freePlanCard.classList.add('opacity-70');
-                } else {
-                    freePlanButton.textContent = 'Your Current Plan';
-                    freePlanButton.disabled = true;
-                    freePlanButton.classList.add('bg-gray-300', '!text-gray-700', 'cursor-default');
-                    proPlanCard.classList.add('border-2', 'border-[color:var(--primary-accent)]');
-                    proPlanCard.classList.remove('border-4', 'border-green-500');
-                    freePlanCard.classList.remove('opacity-70');
-                }
-            }
+                 if (currentUser.plan === 'pro') {
+                     proPlanButton.textContent = 'Your Current Plan';
+                     proPlanButton.disabled = true;
+                     proPlanButton.classList.add('bg-gray-300', '!text-gray-700', 'cursor-default');
+                     proPlanCard.classList.remove('border-2', 'border-[color:var(--primary-accent)]');
+                     proPlanCard.classList.add('border-4', 'border-green-500');
+                     
+                     freePlanButton.textContent = 'Downgrade';
+                     freePlanButton.disabled = false;
+                     freePlanButton.classList.remove('bg-gray-300', '!text-gray-700', 'cursor-default');
+                     freePlanCard.classList.add('opacity-70');
+                 } else {
+                     freePlanButton.textContent = 'Your Current Plan';
+                     freePlanButton.disabled = true;
+                     freePlanButton.classList.add('bg-gray-300', '!text-gray-700', 'cursor-default');
+                     proPlanCard.classList.add('border-2', 'border-[color:var(--primary-accent)]');
+                     proPlanCard.classList.remove('border-4', 'border-green-500');
+                     freePlanCard.classList.remove('opacity-70');
+                 }
+             }
 
-            function initializeFeatures() {
-                let finalPrompt = baseSystemPrompt + healthRule;
-                if (currentUser && currentUser.plan === 'pro') {
-                    imageGenerationLimit = 20;
-                    chatInput.removeAttribute('maxlength');
-                    charCounter.textContent = 'Unlimited';
-                } else {
-                    finalPrompt += proUpgradeMessage;
-                    imageGenerationLimit = 5;
-                    chatInput.setAttribute('maxlength', '5000');
-                    charCounter.textContent = `${chatInput.value.length} / 5000`; 
-                }
+             function initializeFeatures() {
+                 let finalPrompt = baseSystemPrompt + healthRule;
+                 if (currentUser && currentUser.plan === 'pro') {
+                     imageGenerationLimit = 20;
+                     chatInput.removeAttribute('maxlength');
+                     charCounter.textContent = 'Unlimited';
+                 } else {
+                     finalPrompt += proUpgradeMessage;
+                     imageGenerationLimit = 5;
+                     chatInput.setAttribute('maxlength', '5000');
+                     charCounter.textContent = `${chatInput.value.length} / 5000`; 
+                 }
 
-                systemPrompt = finalPrompt;
+                 systemPrompt = finalPrompt;
 
-                if (!currentUser) {
-                    chatInput.disabled = true;
-                    sendButton.disabled = true;
-                    uploadImageButton.disabled = true;
-                    generateImageButton.disabled = true;
-                    chatInput.placeholder = "Please log in to start your chat with Alara...";
-                    loginCta.classList.remove('hidden');
-                    loginCta.classList.add('flex');
-                    chatBox.classList.add('hidden');
-                    charCounter.textContent = ''; 
-                } else {
-                    chatInput.disabled = false;
-                    sendButton.disabled = false;
-                    uploadImageButton.disabled = false;
-                    generateImageButton.disabled = false;
-                    chatInput.placeholder = "Type your message or image prompt...";
-                    loginCta.classList.add('hidden');
-                    loginCta.classList.remove('flex');
-                    chatBox.classList.remove('hidden');
-                }
-            }
+                 if (!currentUser) {
+                     chatInput.disabled = true;
+                     sendButton.disabled = true;
+                     uploadImageButton.disabled = true;
+                     generateImageButton.disabled = true;
+                     chatInput.placeholder = "Please log in to start your chat with Alara...";
+                     loginCta.classList.remove('hidden');
+                     loginCta.classList.add('flex');
+                     chatBox.classList.add('hidden');
+                     charCounter.textContent = ''; 
+                 } else {
+                     chatInput.disabled = false;
+                     sendButton.disabled = false;
+                     uploadImageButton.disabled = false;
+                     generateImageButton.disabled = false;
+                     chatInput.placeholder = "Type your message or image prompt...";
+                     loginCta.classList.add('hidden');
+                     loginCta.classList.remove('flex');
+                     chatBox.classList.remove('hidden');
+                 }
+             }
 
-            async function updateLoginState() {
-                try {
-                    const response = await fetch('/api/user/me');
-                    if (response.ok) {
-                        const { user } = await response.json();
-                        currentUser = user;
-                        const loggedInHTML = `
-                            <div class="flex items-center gap-4">
-                                <span class="font-semibold text-sm truncate">Hi, ${user.name.split(' ')[0]}</span>
-                                <a href="/api/auth/logout" class="soft-button !px-4 !py-1.5 !text-sm">Logout</a>
-                            </div>
-                        `;
-                        userAuthSection.innerHTML = loggedInHTML;
-                        mobileUserAuthSection.innerHTML = `<a href="/api/auth/logout" class="block text-center py-2 px-6 rounded-full nav-link hover:bg-[color:var(--secondary-accent)]/20 dark:hover:bg-[color:var(--primary-accent)]/20">Logout</a>`;
-                    } else {
-                         currentUser = null;
-                    }
-                } catch (error) {
-                    currentUser = null;
-                } finally {
-                    const loggedOutHTML = `<a href="/api/auth/login" class="soft-button !px-6 !py-2 !text-base">Login</a>`;
-                    if (!currentUser) {
-                        userAuthSection.innerHTML = loggedOutHTML;
-                        mobileUserAuthSection.innerHTML = `<a href="/api/auth/login" class="block text-center py-2 px-6 rounded-full nav-link hover:bg-[color:var(--secondary-accent)]/20 dark:hover:bg-[color:var(--primary-accent)]/20">Login</a>`;
-                    }
-                    initializeFeatures(); 
-                    updatePricingUI();       
-                }
-            }
+             async function updateLoginState() {
+                 try {
+                     const response = await fetch('/api/user/me');
+                     if (response.ok) {
+                         const { user } = await response.json();
+                         currentUser = user;
+                         const loggedInHTML = `
+                             <div class="flex items-center gap-4">
+                                 <span class="font-semibold text-sm truncate">Hi, ${user.name.split(' ')[0]}</span>
+                                 <a href="/api/auth/logout" class="soft-button !px-4 !py-1.5 !text-sm">Logout</a>
+                             </div>
+                         `;
+                         userAuthSection.innerHTML = loggedInHTML;
+                         mobileUserAuthSection.innerHTML = `<a href="/api/auth/logout" class="block text-center py-2 px-6 rounded-full nav-link hover:bg-[color:var(--secondary-accent)]/20 dark:hover:bg-[color:var(--primary-accent)]/20">Logout</a>`;
+                     } else {
+                          currentUser = null;
+                     }
+                 } catch (error) {
+                     currentUser = null;
+                 } finally {
+                     const loggedOutHTML = `<a href="/api/auth/login" class="soft-button !px-6 !py-2 !text-base">Login</a>`;
+                     if (!currentUser) {
+                         userAuthSection.innerHTML = loggedOutHTML;
+                         mobileUserAuthSection.innerHTML = `<a href="/api/auth/login" class="block text-center py-2 px-6 rounded-full nav-link hover:bg-[color:var(--secondary-accent)]/20 dark:hover:bg-[color:var(--primary-accent)]/20">Login</a>`;
+                     }
+                     initializeFeatures(); 
+                     updatePricingUI();        
+                 }
+             }
 
             // --- Core Functions ---
             function runTypingAnimation() {
@@ -625,7 +620,6 @@
                 if (currentHeroCharIndex < heroText.length) {
                     heroTitle.innerHTML = heroText.substring(0, currentHeroCharIndex + 1) + '<span class="typing-cursor"></span>';
                     currentHeroCharIndex++;
-                    // FIX: Increased hero title typing speed
                     typingAnimationTimeout = setTimeout(runTypingAnimation, 50); 
                 } else {
                     heroTitle.innerHTML = heroText + '<span class="typing-cursor"></span>';
@@ -650,10 +644,8 @@
                 const targetSection = document.querySelector(targetHash);
                 if (targetSection) {
                     targetSection.classList.add('active'); 
-                    const correspondingNavLink = document.querySelector(`a[href="${targetHash}"]`);
-                    if (correspondingNavLink) correspondingNavLink.classList.add('active');
+                    document.querySelectorAll(`a[href="${targetHash}"]`).forEach(link => link.classList.add('active'));
 
-                    // FIX: Scroll to the active section with offset for fixed header
                     setTimeout(() => {
                         const header = document.querySelector('header');
                         const headerHeight = header ? header.offsetHeight : 0; 
@@ -681,12 +673,30 @@
                 }
             }
 
+            function postProcessMessageBubble(bubble) {
+                const codeBlocks = bubble.querySelectorAll('pre');
+                codeBlocks.forEach(pre => {
+                    if (pre.querySelector('.copy-code-button')) return;
+
+                    const copyButton = document.createElement('button');
+                    copyButton.className = 'copy-code-button';
+                    copyButton.innerHTML = `<svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg> <span>Copy</span>`;
+                    pre.appendChild(copyButton);
+                });
+                
+                Prism.highlightAllUnder(bubble);
+                
+                renderMathInElement(bubble, {
+                    delimiters: [ {left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false} ]
+                });
+            }
+
             function addMessage(message, sender = 'ai', options = {}) {
                 const wrapper = document.createElement('div');
                 wrapper.className = `chat-message flex ${sender === 'user' ? 'justify-end' : ''} ${sender === 'system' ? 'justify-center' : ''}`;
                 
                 const bubble = document.createElement('div');
-                bubble.className = `relative group p-3 rounded-2xl max-w-[80%] ${sender}-bubble ${sender === 'user' ? 'dark:text-gray-900' : ''}`;
+                bubble.className = `relative group p-3 rounded-2xl max-w-[80%] ${sender}-bubble`;
                 
                 const contentDiv = document.createElement('div');
                 contentDiv.className = 'message-content';
@@ -705,17 +715,19 @@
 
                 bubble.appendChild(contentDiv);
 
-                if (sender === 'ai') {
+                if (sender === 'ai' && message) {
                     const buttonContainer = document.createElement('div');
                     buttonContainer.className = 'absolute top-2 right-2 flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10';
+                    
                     const pdfButton = document.createElement('button');
-                    pdfButton.className = 'pdf-button p-1 rounded-full shadow-md bg-white hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-colors';
+                    pdfButton.className = 'pdf-button p-1.5 rounded-full shadow-md bg-white/80 hover:bg-gray-200 dark:bg-gray-800/80 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-colors';
                     pdfButton.title = 'Download as PDF';
                     pdfButton.innerHTML = `<svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>`;
                     buttonContainer.appendChild(pdfButton);
+                    
                     if (message.includes('```html') && !options.imageUrl) { 
                         const previewButton = document.createElement('button');
-                        previewButton.className = 'p-1 rounded-full shadow-md bg-white hover:bg-gray-200 dark:hover:bg-gray-800 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-colors';
+                        previewButton.className = 'p-1.5 rounded-full shadow-md bg-white/80 hover:bg-gray-200 dark:bg-gray-800/80 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-colors';
                         previewButton.title = 'Run in Preview';
                         previewButton.innerHTML = `<svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" /></svg>`;
                         buttonContainer.appendChild(previewButton);
@@ -735,30 +747,16 @@
                 let i = 0;
                 contentDiv.innerHTML = "";
                 
-                // FIX: Increased typing animation speed
                 const typingIntervalSpeed = 5; // ms
                 const typingInterval = setInterval(() => {
                     if (i < text.length) {
                         contentDiv.innerHTML = marked.parse(text.substring(0, i + 1) + '<span class="typing-cursor"></span>');
-                        // FIX: Auto-scroll during typing animation
                         chatBox.scrollTop = chatBox.scrollHeight;
                         i++;
                     } else {
                         clearInterval(typingInterval);
                         contentDiv.innerHTML = marked.parse(text);
-                        
-                        const codeBlocks = bubble.querySelectorAll('pre');
-                        codeBlocks.forEach(pre => {
-                            const copyButton = document.createElement('button');
-                            copyButton.className = 'copy-code-button';
-                            copyButton.innerHTML = `<svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1.5M9 3v2m6-2v2m6 11V7a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2h2m4-2h2M9 13h10a2 2 0 012 2v4a2 2 0 01-2 2H9a2 2 0 01-2-2v-4a2 2 0 012-2z" /></svg> <span>Copy</span>`;
-                            pre.appendChild(copyButton);
-                        });
-                        Prism.highlightAllUnder(bubble);
-                        renderMathInElement(bubble, {
-                            delimiters: [ {left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false} ]
-                        });
-                        // FIX: Final scroll to bottom after full response and rendering
+                        postProcessMessageBubble(bubble);
                         chatBox.scrollTop = chatBox.scrollHeight;
                     }
                 }, typingIntervalSpeed);
@@ -768,7 +766,7 @@
                 const typingIndicator = document.createElement('div');
                 typingIndicator.id = 'typing-indicator';
                 typingIndicator.className = 'chat-message flex';
-                typingIndicator.innerHTML = `<div class="p-3 rounded-lg ai-bubble ai-typing-indicator"><span class="inline-block w-2 h-2 bg-[color:var(--primary-accent)] rounded-full mr-1"></span><span class="inline-block w-2 h-2 bg-[color:var(--primary-accent)] rounded-full mr-1"></span><span class="inline-block w-2 h-2 bg-[color:var(--primary-accent)] rounded-full"></span></div>`;
+                typingIndicator.innerHTML = `<div class="p-3 rounded-lg ai-bubble ai-typing-indicator"><span class="inline-block w-2 h-2 bg-[color:var(--primary-accent)] rounded-full mr-1" style="animation-delay: 0s;"></span><span class="inline-block w-2 h-2 bg-[color:var(--primary-accent)] rounded-full mr-1" style="animation-delay: 0.2s;"></span><span class="inline-block w-2 h-2 bg-[color:var(--primary-accent)] rounded-full" style="animation-delay: 0.4s;"></span></div>`;
                 chatBox.appendChild(typingIndicator);
                 chatBox.scrollTop = chatBox.scrollHeight;
                 return typingIndicator;
@@ -791,7 +789,7 @@
                     body: JSON.stringify(payload), 
                     signal 
                 };
-               
+                
                 const response = await fetch(apiUrl, fetchOptions);
                 if (!response.ok) throw new Error(`API error: ${response.statusText}`);
                 return await response.json();
@@ -901,8 +899,10 @@
             function updateSendButtonUI(isThinking) {
                  if (isThinking) {
                     sendButton.innerHTML = `<svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>`;
+                    sendButton.setAttribute('aria-label', 'Stop generating');
                 } else {
                     sendButton.innerHTML = `<svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.428A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" /></svg>`;
+                    sendButton.setAttribute('aria-label', 'Send message');
                 }
             }
 
@@ -956,7 +956,7 @@
 
             function renderImagePreview() {
                 if (!attachedFile) return;
-                imagePreviewContainer.innerHTML = `<div class="relative inline-block"><img src="data:${attachedFile.mimeType};base64,${attachedFile.base64Data}" class="h-16 w-16 object-cover rounded-lg"><button id="remove-image-btn" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full h-6 w-6 flex items-center justify-center">&times;</button></div>`;
+                imagePreviewContainer.innerHTML = `<div class="relative inline-block"><img src="data:${attachedFile.mimeType};base64,${attachedFile.base64Data}" class="h-16 w-16 object-cover rounded-lg"><button id="remove-image-btn" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full h-6 w-6 flex items-center justify-center" aria-label="Remove image">&times;</button></div>`;
                 document.getElementById('remove-image-btn').addEventListener('click', clearAttachment);
             }
 
@@ -972,7 +972,7 @@
                 const messageBubble = target.closest('.chat-message > div');
                 if (!messageBubble) return;
 
-                if (target.matches('.pdf-button')) {
+                if (target.matches('.pdf-button, .pdf-button *')) {
                     const contentElement = messageBubble.querySelector('.message-content');
                     contentElement.classList.add('pdf-render-scale');
 
@@ -988,20 +988,20 @@
                         width: 180,
                         windowWidth: 750
                     });
-                } else if (target.matches('.copy-code-button')) {
+                } else if (target.matches('.copy-code-button, .copy-code-button *')) {
                     const codeBlock = target.closest('pre')?.querySelector('code');
                     if (codeBlock) {
                         navigator.clipboard.writeText(codeBlock.innerText).then(() => {
-                            const originalHTML = target.innerHTML;
-                            target.innerHTML = `<svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg> <span>Copied!</span>`;
-                            target.classList.add('copied');
+                            const originalHTML = target.closest('.copy-code-button').innerHTML;
+                            target.closest('.copy-code-button').innerHTML = `<svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg> <span>Copied!</span>`;
+                            target.closest('.copy-code-button').classList.add('copied');
                             setTimeout(() => {
-                                target.innerHTML = originalHTML;
-                                target.classList.remove('copied');
+                                target.closest('.copy-code-button').innerHTML = originalHTML;
+                                target.closest('.copy-code-button').classList.remove('copied');
                             }, 2000);
                         }).catch(err => console.error('Failed to copy text:', err));
                     }
-                } else if (target.matches('[title="Run in Preview"]')) {
+                } else if (target.matches('[title="Run in Preview"], [title="Run in Preview"] *')) {
                     const codeBlock = messageBubble.querySelector('pre code');
                     if (codeBlock) {
                         previewIframe.srcdoc = codeBlock.innerText;
@@ -1058,16 +1058,10 @@
                     if (imageMatch && msg.role === 'model') {
                         addMessage(`Here's your image:`, 'ai', { imageUrl: imageMatch[1], imageAlt: 'Generated image' });
                     } else {
-                        const bubble = addMessage(textPart, msg.role);
-                        const codeBlocks = bubble.querySelectorAll('pre');
-                        codeBlocks.forEach(pre => {
-                            const copyButton = document.createElement('button');
-                            copyButton.className = 'copy-code-button';
-                            copyButton.innerHTML = `<svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1.5M9 3v2m6-2v2m6 11V7a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2h2m4-2h2M9 13h10a2 2 0 012 2v4a2 2 0 01-2 2H9a2 2 0 01-2-2v-4a2 2 0 012-2z" /></svg> <span>Copy</span>`;
-                            pre.appendChild(copyButton);
-                        });
-                        Prism.highlightAllUnder(bubble);
-                        renderMathInElement(bubble, { delimiters: [ {left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false} ] });
+                        const bubble = addMessage(textPart, msg.role === 'model' ? 'ai' : 'user');
+                        if (msg.role === 'model') {
+                            postProcessMessageBubble(bubble);
+                        }
                     }
                 });
                 sidebar.classList.remove('open');
@@ -1086,13 +1080,26 @@
 
             function renderChatHistorySidebar() {
                 chatHistoryList.innerHTML = '';
+                const renameSVG = `<svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5L15.232 5.232z" /></svg>`;
+                const deleteSVG = `<svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>`;
+                
                 allChats.forEach(chat => {
                     const item = document.createElement('div');
                     item.className = 'p-3 rounded-lg cursor-pointer flex justify-between items-center text-sm font-medium hover:bg-[color:var(--secondary-accent)]/20 dark:hover:bg-[color:var(--primary-accent)]/20 transition-colors duration-200';
                     item.classList.toggle('bg-[color:var(--secondary-accent)]/30', chat.id === currentChatId);
                     item.classList.toggle('dark:bg-[color:var(--primary-accent)]/30', chat.id === currentChatId);
-                    item.innerHTML = `<span class="truncate pr-2 flex-1">${chat.title}</span><div class="flex-shrink-0 flex space-x-2"><button class="rename-btn p-1 rounded-full hover:bg-white/30 dark:hover:bg-black/30 text-gray-600 dark:text-gray-300 transition-colors">✏️</button><button class="delete-btn p-1 rounded-full hover:bg-white/30 dark:hover:bg-black/30 text-red-500 transition-colors">🗑️</button></div>`;
-                    item.onclick = () => loadChat(chat.id);
+                    item.innerHTML = `
+                        <span class="truncate pr-2 flex-1">${chat.title}</span>
+                        <div class="flex-shrink-0 flex items-center space-x-1">
+                            <button class="rename-btn p-1.5 rounded-full hover:bg-gray-500/10 text-gray-600 dark:text-gray-300 transition-colors" aria-label="Rename chat">${renameSVG}</button>
+                            <button class="delete-btn p-1.5 rounded-full hover:bg-red-500/10 text-red-500 transition-colors" aria-label="Delete chat">${deleteSVG}</button>
+                        </div>
+                    `;
+                    item.onclick = (e) => {
+                        if (!e.target.closest('button')) {
+                            loadChat(chat.id);
+                        }
+                    };
                     item.querySelector('.rename-btn').onclick = (e) => { e.stopPropagation(); renameChat(chat.id); };
                     item.querySelector('.delete-btn').onclick = (e) => { e.stopPropagation(); deleteChat(chat.id); };
                     chatHistoryList.appendChild(item);
