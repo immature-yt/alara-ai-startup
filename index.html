@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="en"> <!-- Removed scroll-smooth from html, scroll-snap handles smoothness -->
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -67,6 +67,11 @@
             --shadow-light-hover: 0 12px 40px 0 rgba(0, 246, 255, 0.08);
         }
         
+        /* Global Reset and Scroll Snap Setup */
+        html {
+            height: 100%; /* Ensure html takes full height */
+            scroll-behavior: smooth; /* Keep smooth scrolling for programmatic scrolls */
+        }
         body {
             background-color: var(--bg-color);
             color: var(--text-color);
@@ -74,6 +79,23 @@
             overflow-x: hidden;
             position: relative;
             transition: background-color 0.4s ease-in-out, color 0.4s ease-in-out;
+            
+            height: 100%; /* Make body fill html height */
+            overflow-y: scroll; /* Enable vertical scrolling */
+            scroll-snap-type: y mandatory; /* Mandatory scroll snapping */
+            scroll-padding-top: 7rem; /* Offset for the fixed header height (pt-28 = 7rem) */
+        }
+        main {
+            /* Remove pt-28 from main, handled by scroll-padding-top on body */
+            display: flex; /* Main becomes a flex container */
+            flex-direction: column; /* Stack sections vertically */
+            flex: 1; /* Allow main to take available vertical space */
+            min-height: calc(100% - 7rem); /* Ensure main takes at least viewport height minus header */
+            background-color: var(--bg-color); /* Ensure main area is opaque */
+        }
+        .header-spacer { /* Add an empty div for this or modify main's style */
+            height: 7rem; /* This matches the fixed header's height */
+            flex-shrink: 0; /* Prevent it from shrinking */
         }
 
         .blob-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; overflow: hidden; }
@@ -136,25 +158,27 @@
         .typing-cursor { display: inline-block; width: 2px; height: 1em; background-color: var(--primary-accent); animation: blink 0.7s infinite; margin-left: 4px; vertical-align: middle; }
         @keyframes blink { 50% { opacity: 0; } }
 
-        /* Modified page-section styling */
+        /* Page Section Styling for Scroll Snap */
         .page-section { 
-            display: none; 
-            animation: fadeIn 0.8s ease-out; 
-            width: 100%; 
-            min-height: calc(100vh - 7rem); /* Ensures it always takes up at least this much space below the header */
-            background-color: var(--bg-color); /* Explicitly set opaque background for sections */
-            box-sizing: border-box; /* Include padding in height/width */
-            padding-top: 2rem; /* Add some general top padding for content */
-            padding-bottom: 2rem; /* Add some general bottom padding for content */
-            /* Removed overflow-y: auto; here to ensure scrolling applies to body, for better overall scroll experience */
+            height: calc(100vh - 7rem); /* Each section fills the viewport area below the header */
+            scroll-snap-align: start; /* Snap to the top of the section */
+            background-color: var(--bg-color); /* Ensure opaque background */
+            box-sizing: border-box; 
+            padding-top: 2rem; /* Initial padding for content */
+            padding-bottom: 2rem;
+            flex-shrink: 0; /* Important for flex containers: prevents sections from shrinking */
+            display: flex;
+            flex-direction: column;
+            justify-content: center; /* Default vertical centering */
+            align-items: center; /* Default horizontal centering */
+            width: 100%; /* Ensure full width */
+            overflow-y: auto; /* Allow internal scrolling if section content overflows its height */
         }
-        .page-section.active { 
-            display: block; 
+        /* Specific section overrides */
+        #chat {
+            justify-content: flex-start; /* Chat content should align to the top */
         }
-        /* Ensure main also has an opaque background */
-        main {
-            background-color: var(--bg-color);
-        }
+        /* The .page-section.active styling is no longer needed as all sections are continuously displayed */
         
         .nav-link { color: var(--text-color); }
         .nav-link.active { color: var(--primary-accent); font-weight: 700; }
@@ -315,7 +339,7 @@
 
     </style>
 </head>
-<body class="relative flex flex-col min-h-screen">
+<body class="relative flex flex-col">
     <div class="blob-container">
         <div class="blob blob-1"></div>
         <div class="blob blob-2"></div>
@@ -336,7 +360,7 @@
             <div class="soft-card flex justify-between items-center px-6 py-3 !rounded-full shadow-lg">
                 <a href="#home" class="text-3xl font-extrabold nav-link !text-[color:var(--primary-accent)]">ALARA<sup class="text-[0.5em] font-normal">beta</sup></a>
                 <nav class="hidden md:flex items-center space-x-8">
-                    <a href="#home" class="nav-link text-lg hover:text-[color:var(--primary-accent)] transition-colors duration-300 active">Home</a>
+                    <a href="#home" class="nav-link text-lg hover:text-[color:var(--primary-accent)] transition-colors duration-300">Home</a>
                     <a href="#chat" class="nav-link text-lg hover:text-[color:var(--primary-accent)] transition-colors duration-300">Chat</a>
                     <a href="#pricing" class="nav-link text-lg hover:text-[color:var(--primary-accent)] transition-colors duration-300">Pricing</a>
                     <a href="#about" class="nav-link text-lg hover:text-[color:var(--primary-accent)] transition-colors duration-300">About</a>
@@ -356,7 +380,7 @@
         </div>
          <div id="mobile-menu" class="hidden md:hidden container mx-auto px-6 max-w-7xl">
             <div class="soft-card mt-2 p-4">
-                <a href="#home" class="block text-center py-2 px-6 rounded-full nav-link active hover:bg-[color:var(--secondary-accent)]/20 dark:hover:bg-[color:var(--primary-accent)]/20">Home</a>
+                <a href="#home" class="block text-center py-2 px-6 rounded-full nav-link hover:bg-[color:var(--secondary-accent)]/20 dark:hover:bg-[color:var(--primary-accent)]/20">Home</a>
                 <a href="#chat" class="block text-center py-2 px-6 rounded-full nav-link hover:bg-[color:var(--secondary-accent)]/20 dark:hover:bg-[color:var(--primary-accent)]/20">Chat</a>
                 <a href="#pricing" class="block text-center py-2 px-6 rounded-full nav-link hover:bg-[color:var(--secondary-accent)]/20 dark:hover:bg-[color:var(--primary-accent)]/20">Pricing</a>
                 <a href="#about" class="block text-center py-2 px-6 rounded-full nav-link hover:bg-[color:var(--secondary-accent)]/20 dark:hover:bg-[color:var(--primary-accent)]/20">About</a>
@@ -367,8 +391,9 @@
         </div>
     </header>
 
-    <main class="pt-28 flex-1">
-        <section id="home" class="page-section active relative">
+    <div class="header-spacer"></div> <!-- Spacer to push main content down -->
+    <main>
+        <section id="home" class="page-section relative">
             <div class="container mx-auto px-6 text-center h-full flex flex-col justify-center items-center max-w-7xl">
                 <h1 id="hero-title" class="text-5xl md:text-7xl lg:text-8xl font-extrabold mb-6 drop-shadow-lg leading-tight"></h1>
                 <p class="text-xl md:text-2xl max-w-3xl mx-auto mb-10 opacity-85">Your intelligent AI companion for creativity, conversation, and code.</p>
@@ -376,7 +401,7 @@
             </div>
         </section>
 
-        <section id="chat" class="page-section flex flex-col">
+        <section id="chat" class="page-section">
             <div class="container mx-auto px-4 py-8 flex-1 flex flex-col max-w-7xl">
                 <div id="login-cta" class="hidden h-full flex-col justify-center items-center text-center p-8">
                     <h2 class="text-3xl font-bold mb-4">Welcome to Alara</h2>
@@ -414,7 +439,7 @@
             </div>
         </section>
 
-        <section id="pricing" class="page-section flex flex-col justify-center">
+        <section id="pricing" class="page-section">
              <div class="container mx-auto px-6 py-12 max-w-7xl">
                 <div class="text-center mb-12">
                     <h2 class="text-4xl md:text-5xl font-bold mb-4">Choose Your Plan</h2>
@@ -450,7 +475,7 @@
             </div>
         </section>
 
-        <section id="about" class="page-section flex flex-col justify-center">
+        <section id="about" class="page-section">
             <div class="container mx-auto px-6 py-20 flex flex-col justify-center items-center text-center max-w-7xl">
                 <h2 class="text-4xl font-bold mb-8">About Alara</h2>
                 <div class="max-w-3xl text-lg space-y-4 opacity-80">
@@ -614,12 +639,15 @@
             // --- Core Functions ---
             function runTypingAnimation() {
                 if (!heroTitle) return;
-                if (currentHeroCharIndex < heroText.length) {
-                    heroTitle.innerHTML = heroText.substring(0, currentHeroCharIndex + 1) + '<span class="typing-cursor"></span>';
-                    currentHeroCharIndex++;
-                    typingAnimationTimeout = setTimeout(runTypingAnimation, 50); 
-                } else {
-                    heroTitle.innerHTML = heroText + '<span class="typing-cursor"></span>';
+                const currentHash = window.location.hash || '#home';
+                if (currentHash === '#home') { // Only run animation if home is the current section
+                    if (currentHeroCharIndex < heroText.length) {
+                        heroTitle.innerHTML = heroText.substring(0, currentHeroCharIndex + 1) + '<span class="typing-cursor"></span>';
+                        currentHeroCharIndex++;
+                        typingAnimationTimeout = setTimeout(runTypingAnimation, 50); 
+                    } else {
+                        heroTitle.innerHTML = heroText + '<span class="typing-cursor"></span>';
+                    }
                 }
             }
 
@@ -632,23 +660,20 @@
                 currentHeroCharIndex = 0;
             }
 
+            // Modified showSection for Scroll Snap
             function showSection(targetHash) {
                 if (!targetHash || targetHash === '#') targetHash = '#home';
 
-                sections.forEach(s => s.classList.remove('active'));
+                // Update active navigation link styles
                 navLinks.forEach(l => l.classList.remove('active'));
+                document.querySelectorAll(`a[href="${targetHash}"]`).forEach(link => link.classList.add('active'));
 
                 const targetSection = document.querySelector(targetHash);
                 if (targetSection) {
-                    targetSection.classList.add('active');
-                    document.querySelectorAll(`a[href="${targetHash}"]`).forEach(link => link.classList.add('active'));
-
-                    // Re-introduced scrolling behavior
-                    const rootFontSize = parseFloat(getComputedStyle(document.documentElement).fontSize);
-                    const headerOffset = 7 * rootFontSize; // This matches the pt-28 on main
-
+                    const headerOffset = 7 * parseFloat(getComputedStyle(document.documentElement).fontSize); // 7rem
+                    // Scroll directly to the target section. scroll-snap-type and scroll-padding-top handle the rest.
                     window.scrollTo({
-                        top: targetSection.offsetTop - headerOffset,
+                        top: targetSection.offsetTop - headerOffset, // Account for fixed header
                         behavior: 'smooth'
                     });
                 }
@@ -658,12 +683,12 @@
                 }
 
                 mobileMenu.classList.add('hidden');
+                
+                // Control hero title animation based on current section
                 if (targetHash === '#home') {
                     if (!typingAnimationTimeout && currentHeroCharIndex === 0) {
-                        heroTitle.innerHTML = '';
+                        heroTitle.innerHTML = ''; // Reset before starting animation
                         runTypingAnimation();
-                    } else if (currentHeroCharIndex === heroText.length) {
-                        heroTitle.innerHTML = heroText + '<span class="typing-cursor"></span>';
                     }
                 } else {
                     stopTypingAnimation();
@@ -728,7 +753,11 @@
                 wrapper.appendChild(bubble);
                 chatBox.appendChild(wrapper);
 
-                chatBox.scrollTop = chatBox.scrollHeight;
+                // Auto-scroll chat box only if it's the active section
+                const currentHash = window.location.hash || '#home';
+                if (currentHash === '#chat') {
+                    chatBox.scrollTop = chatBox.scrollHeight;
+                }
                 return bubble;
             }
 
@@ -741,13 +770,19 @@
                 const typingInterval = setInterval(() => {
                     if (i < text.length) {
                         contentDiv.innerHTML = marked.parse(text.substring(0, i + 1) + '<span class="typing-cursor"></span>');
-                        chatBox.scrollTop = chatBox.scrollHeight;
+                        const currentHash = window.location.hash || '#home';
+                        if (currentHash === '#chat') { // Only scroll if chat is the active section
+                            chatBox.scrollTop = chatBox.scrollHeight;
+                        }
                         i++;
                     } else {
                         clearInterval(typingInterval);
                         contentDiv.innerHTML = marked.parse(text);
                         postProcessMessageBubble(bubble);
-                        chatBox.scrollTop = chatBox.scrollHeight;
+                        const currentHash = window.location.hash || '#home';
+                        if (currentHash === '#chat') { // Only scroll if chat is the active section
+                            chatBox.scrollTop = chatBox.scrollHeight;
+                        }
                     }
                 }, typingIntervalSpeed);
             }
@@ -758,7 +793,10 @@
                 typingIndicator.className = 'chat-message flex';
                 typingIndicator.innerHTML = `<div class="p-3 rounded-lg ai-bubble ai-typing-indicator"><span class="inline-block w-2 h-2 bg-[color:var(--primary-accent)] rounded-full mr-1" style="animation-delay: 0s;"></span><span class="inline-block w-2 h-2 bg-[color:var(--primary-accent)] rounded-full mr-1" style="animation-delay: 0.2s;"></span><span class="inline-block w-2 h-2 bg-[color:var(--primary-accent)] rounded-full" style="animation-delay: 0.4s;"></span></div>`;
                 chatBox.appendChild(typingIndicator);
-                chatBox.scrollTop = chatBox.scrollHeight;
+                const currentHash = window.location.hash || '#home';
+                if (currentHash === '#chat') { // Only scroll if chat is the active section
+                    chatBox.scrollTop = chatBox.scrollHeight;
+                }
                 return typingIndicator;
             }
 
@@ -1114,13 +1152,46 @@
                 }
             }
 
+            // Function to update active nav link based on scroll position
+            function updateActiveNavLink() {
+                const headerOffset = 7 * parseFloat(getComputedStyle(document.documentElement).fontSize);
+                let activeSectionId = '#home'; // Default to home
+
+                sections.forEach(section => {
+                    const rect = section.getBoundingClientRect();
+                    // Check if the section's top is visible below the header
+                    // Give a small tolerance (e.g., +5px) for perfect snapping
+                    if (rect.top <= headerOffset + 5 && rect.bottom > headerOffset + 5) {
+                        activeSectionId = '#' + section.id;
+                    }
+                });
+
+                navLinks.forEach(l => {
+                    l.classList.remove('active');
+                    if (l.getAttribute('href') === activeSectionId) {
+                        l.classList.add('active');
+                    }
+                });
+
+                // Manage typing animation on scroll
+                if (activeSectionId === '#home') {
+                    if (!typingAnimationTimeout && currentHeroCharIndex === 0) {
+                        heroTitle.innerHTML = '';
+                        runTypingAnimation();
+                    }
+                } else {
+                    stopTypingAnimation();
+                }
+            }
+
             async function initialize() {
                 const savedTheme = localStorage.getItem('alaraTheme');
                 if (savedTheme === 'dark') document.body.classList.add('dark');
                 updateThemeIcons(savedTheme === 'dark');
                 
-                const currentHash = window.location.hash;
-                showSection(currentHash || '#home');
+                // On initial load, set active nav link and scroll to the correct section
+                const initialHash = window.location.hash || '#home';
+                showSection(initialHash); 
                 
                 await updateLoginState(); 
                 
@@ -1132,6 +1203,13 @@
                 }
 
                 updateSendButtonUI(false); 
+
+                // Add an event listener for scroll to update active nav link
+                let scrollTimeout;
+                window.addEventListener('scroll', () => {
+                    clearTimeout(scrollTimeout);
+                    scrollTimeout = setTimeout(updateActiveNavLink, 50); // Debounce
+                });
             }
 
             initialize();
