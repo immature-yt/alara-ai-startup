@@ -74,11 +74,6 @@
             overflow-x: hidden;
             position: relative;
             transition: background-color 0.4s ease-in-out, color 0.4s ease-in-out;
-            
-            /* Scroll Snap Container */
-            height: 100vh;
-            overflow-y: scroll;
-            scroll-snap-type: y mandatory;
         }
 
         .blob-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; overflow: hidden; }
@@ -141,32 +136,24 @@
         .typing-cursor { display: inline-block; width: 2px; height: 1em; background-color: var(--primary-accent); animation: blink 0.7s infinite; margin-left: 4px; vertical-align: middle; }
         @keyframes blink { 50% { opacity: 0; } }
 
-        /* Modified page-section styling for Scroll Snap */
+        /* Modified page-section styling */
         .page-section { 
-            height: calc(100vh - 7rem); /* Ensures it always takes up the exact viewport height minus header */
-            scroll-snap-align: start; /* Snap to the start of this section */
+            display: none; 
+            animation: fadeIn 0.8s ease-out; 
+            width: 100%; 
+            min-height: calc(100vh - 7rem); /* Ensures it always takes up at least this much space below the header */
             background-color: var(--bg-color); /* Explicitly set opaque background for sections */
             box-sizing: border-box; /* Include padding in height/width */
             padding-top: 2rem; /* Add some general top padding for content */
             padding-bottom: 2rem; /* Add some general bottom padding for content */
-            flex-shrink: 0; /* Important for flex containers to prevent shrinking */
-            display: flex; /* Make it a flex container for centering, if desired, like for home */
-            flex-direction: column; /* Stack content vertically */
-            justify-content: center; /* Center content vertically by default */
-            align-items: center; /* Center content horizontally by default */
+            /* Removed overflow-y: auto; here to ensure scrolling applies to body, for better overall scroll experience */
         }
-        /* Override specific sections for their intended layout */
-        #chat {
-            justify-content: flex-start; /* Chat content should start at the top */
+        .page-section.active { 
+            display: block; 
         }
-        /* No more .page-section.active as all sections are continuously rendered for scroll-snap */
-        
+        /* Ensure main also has an opaque background */
         main {
-            background-color: var(--bg-color); /* Ensures main area also has opaque background */
-            display: flex; /* Make main a flex container */
-            flex-direction: column; /* Stack sections vertically */
-            flex: 1; /* Allow main to grow and shrink */
-            padding-top: 0; /* Remove padding-top from main as header offset is handled by section height */
+            background-color: var(--bg-color);
         }
         
         .nav-link { color: var(--text-color); }
@@ -380,8 +367,8 @@
         </div>
     </header>
 
-    <main class="flex-1">
-        <section id="home" class="page-section relative">
+    <main class="pt-28 flex-1">
+        <section id="home" class="page-section active relative">
             <div class="container mx-auto px-6 text-center h-full flex flex-col justify-center items-center max-w-7xl">
                 <h1 id="hero-title" class="text-5xl md:text-7xl lg:text-8xl font-extrabold mb-6 drop-shadow-lg leading-tight"></h1>
                 <p class="text-xl md:text-2xl max-w-3xl mx-auto mb-10 opacity-85">Your intelligent AI companion for creativity, conversation, and code.</p>
@@ -389,7 +376,7 @@
             </div>
         </section>
 
-        <section id="chat" class="page-section">
+        <section id="chat" class="page-section flex flex-col">
             <div class="container mx-auto px-4 py-8 flex-1 flex flex-col max-w-7xl">
                 <div id="login-cta" class="hidden h-full flex-col justify-center items-center text-center p-8">
                     <h2 class="text-3xl font-bold mb-4">Welcome to Alara</h2>
@@ -427,7 +414,7 @@
             </div>
         </section>
 
-        <section id="pricing" class="page-section">
+        <section id="pricing" class="page-section flex flex-col justify-center">
              <div class="container mx-auto px-6 py-12 max-w-7xl">
                 <div class="text-center mb-12">
                     <h2 class="text-4xl md:text-5xl font-bold mb-4">Choose Your Plan</h2>
@@ -463,7 +450,7 @@
             </div>
         </section>
 
-        <section id="about" class="page-section">
+        <section id="about" class="page-section flex flex-col justify-center">
             <div class="container mx-auto px-6 py-20 flex flex-col justify-center items-center text-center max-w-7xl">
                 <h2 class="text-4xl font-bold mb-8">About Alara</h2>
                 <div class="max-w-3xl text-lg space-y-4 opacity-80">
@@ -627,15 +614,12 @@
             // --- Core Functions ---
             function runTypingAnimation() {
                 if (!heroTitle) return;
-                // Only run animation if home is the current section (first section or explicitly navigated to)
-                if (window.location.hash === '#home' || window.location.hash === '') {
-                    if (currentHeroCharIndex < heroText.length) {
-                        heroTitle.innerHTML = heroText.substring(0, currentHeroCharIndex + 1) + '<span class="typing-cursor"></span>';
-                        currentHeroCharIndex++;
-                        typingAnimationTimeout = setTimeout(runTypingAnimation, 50); 
-                    } else {
-                        heroTitle.innerHTML = heroText + '<span class="typing-cursor"></span>';
-                    }
+                if (currentHeroCharIndex < heroText.length) {
+                    heroTitle.innerHTML = heroText.substring(0, currentHeroCharIndex + 1) + '<span class="typing-cursor"></span>';
+                    currentHeroCharIndex++;
+                    typingAnimationTimeout = setTimeout(runTypingAnimation, 50); 
+                } else {
+                    heroTitle.innerHTML = heroText + '<span class="typing-cursor"></span>';
                 }
             }
 
@@ -648,21 +632,21 @@
                 currentHeroCharIndex = 0;
             }
 
-            // Modified showSection for Scroll Snap
             function showSection(targetHash) {
                 if (!targetHash || targetHash === '#') targetHash = '#home';
 
-                // Update active navigation link styles
+                sections.forEach(s => s.classList.remove('active'));
                 navLinks.forEach(l => l.classList.remove('active'));
-                document.querySelectorAll(`a[href="${targetHash}"]`).forEach(link => link.classList.add('active'));
 
-                // Calculate the offset for scrolling
                 const targetSection = document.querySelector(targetHash);
                 if (targetSection) {
-                    const rootFontSize = parseFloat(getComputedStyle(document.documentElement).fontSize);
-                    const headerOffset = 7 * rootFontSize; // This matches the header's height
+                    targetSection.classList.add('active');
+                    document.querySelectorAll(`a[href="${targetHash}"]`).forEach(link => link.classList.add('active'));
 
-                    // Scroll to the target section, browser's scroll-snap will then take over
+                    // Re-introduced scrolling behavior
+                    const rootFontSize = parseFloat(getComputedStyle(document.documentElement).fontSize);
+                    const headerOffset = 7 * rootFontSize; // This matches the pt-28 on main
+
                     window.scrollTo({
                         top: targetSection.offsetTop - headerOffset,
                         behavior: 'smooth'
@@ -674,12 +658,12 @@
                 }
 
                 mobileMenu.classList.add('hidden');
-                
-                // Control hero title animation based on current section
                 if (targetHash === '#home') {
                     if (!typingAnimationTimeout && currentHeroCharIndex === 0) {
-                        heroTitle.innerHTML = ''; // Reset before starting animation
+                        heroTitle.innerHTML = '';
                         runTypingAnimation();
+                    } else if (currentHeroCharIndex === heroText.length) {
+                        heroTitle.innerHTML = heroText + '<span class="typing-cursor"></span>';
                     }
                 } else {
                     stopTypingAnimation();
@@ -1136,8 +1120,7 @@
                 updateThemeIcons(savedTheme === 'dark');
                 
                 const currentHash = window.location.hash;
-                // Use scroll-snap to navigate to the correct section on load
-                showSection(currentHash || '#home'); 
+                showSection(currentHash || '#home');
                 
                 await updateLoginState(); 
                 
@@ -1149,45 +1132,6 @@
                 }
 
                 updateSendButtonUI(false); 
-
-                // Add an event listener for scroll to update active nav link
-                let scrollTimeout;
-                window.addEventListener('scroll', () => {
-                    clearTimeout(scrollTimeout);
-                    scrollTimeout = setTimeout(() => {
-                        const headerOffset = 7 * parseFloat(getComputedStyle(document.documentElement).fontSize);
-                        let activeSectionId = '#home'; // Default to home
-
-                        sections.forEach(section => {
-                            const rect = section.getBoundingClientRect();
-                            // Check if the section's top is within the viewport, considering the header
-                            if (rect.top <= headerOffset + 1 && rect.bottom > headerOffset + 1) {
-                                activeSectionId = '#' + section.id;
-                            }
-                        });
-
-                        navLinks.forEach(l => {
-                            l.classList.remove('active');
-                            if (l.getAttribute('href') === activeSectionId) {
-                                l.classList.add('active');
-                            }
-                        });
-
-                        // Manage typing animation on scroll
-                        if (activeSectionId === '#home') {
-                             if (!typingAnimationTimeout && currentHeroCharIndex === 0) {
-                                // Only reset if it's not currently animating and is at the start
-                                heroTitle.innerHTML = '';
-                                runTypingAnimation();
-                            }
-                        } else {
-                            stopTypingAnimation();
-                        }
-
-                    }, 100); // Debounce to prevent rapid updates while scrolling
-                });
-                // Trigger initial scroll check to set active nav link and animation
-                window.dispatchEvent(new Event('scroll'));
             }
 
             initialize();
