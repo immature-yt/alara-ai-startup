@@ -91,15 +91,7 @@
         .dark #home:before{background:linear-gradient(135deg,var(--secondary-accent) 0,rgba(0,0,0,0) 50%,var(--primary-accent));opacity:.08}
         .pdf-render-scale{font-size:1.2em!important;line-height:1.5!important}
     </style>
-    
-    <style>
-        /* Manually added styles that were not part of the original Tailwind config */
-        .page-section#chat {
-             height: calc(100vh - 7rem); /* Fallback for browsers that don't support dvh */
-             height: calc(100dvh - 7rem); /* Dynamic viewport height */
-        }
-    </style>
-</head>
+    </head>
 <body class="relative flex flex-col min-h-screen">
     <div class="blob-container">
         <div class="blob blob-1"></div>
@@ -160,7 +152,7 @@
              <button id="sidebar-toggle" class="fixed top-24 left-4 soft-card p-3 rounded-full z-40 text-[color:var(--primary-accent)] hover:scale-105 transition-transform duration-200">
                  <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
             </button>
-            <div class="container mx-auto px-4 py-8 flex-1 flex flex-col max-w-7xl">
+            <div class="container mx-auto px-4 py-8 h-[calc(100vh-7rem)] flex flex-col max-w-7xl">
                 <div id="login-cta" class="hidden h-full flex-col justify-center items-center text-center p-8">
                     <h2 class="text-3xl font-bold mb-4">Welcome to Alara</h2>
                     <p class="text-lg opacity-80 mb-8 max-w-md mx-auto">Please log in with your Google account to begin your conversation.</p>
@@ -419,25 +411,29 @@
             }
 
             function showSection(targetHash) {
-                if (!targetHash || targetHash === '#') targetHash = '#home';
-
-                document.querySelectorAll('.page-section').forEach(s => s.style.display = 'none');
-                document.querySelector(targetHash).style.display = 'flex';
-
+                const targetId = targetHash || '#home';
+                document.querySelectorAll('.page-section').forEach(section => {
+                    section.style.display = 'none';
+                });
+                const targetSection = document.querySelector(targetId);
+                if(targetSection) {
+                    targetSection.style.display = 'flex'; // Changed from block to flex
+                }
+                
                 navLinks.forEach(l => {
                     l.classList.remove('active');
-                    if (l.getAttribute('href') === targetHash) {
+                    if (l.getAttribute('href') === targetId) {
                         l.classList.add('active');
                     }
                 });
 
-                if (window.location.hash !== targetHash) {
-                    window.history.pushState(null, '', targetHash);
+                if (window.location.hash !== targetId) {
+                    window.history.pushState(null, '', targetId);
                 }
                 
                 mobileMenu.classList.add('hidden');
                 
-                if (targetHash === '#home') {
+                if (targetId === '#home') {
                     if (!typingAnimationTimeout && currentHeroCharIndex === 0) {
                         heroTitle.innerHTML = '';
                         runTypingAnimation();
@@ -446,7 +442,7 @@
                     stopTypingAnimation();
                 }
             }
-            
+
             function postProcessMessageBubble(bubble) {
                 const codeBlocks = bubble.querySelectorAll('pre');
                 codeBlocks.forEach(pre => {
@@ -893,8 +889,8 @@
             }
             
             function updateActiveNavLinkOnScroll() {
-                 const headerOffset = 120; // 7rem is roughly 112px, add some buffer
-                 let currentSectionId = sections[0].id; // Default to first section
+                 const headerOffset = 120;
+                 let currentSectionId = sections[0].id;
 
                 sections.forEach(section => {
                     const sectionTop = section.offsetTop;
@@ -925,12 +921,7 @@
                 if (savedTheme === 'dark') document.body.classList.add('dark');
                 updateThemeIcons(savedTheme === 'dark');
                 
-                const initialHash = window.location.hash || '#home';
-                const targetSection = document.querySelector(initialHash);
-                if (targetSection) {
-                   setTimeout(() => targetSection.scrollIntoView(), 0);
-                }
-                updateActiveNavLinkOnScroll();
+                showSection(window.location.hash || '#home');
                 
                 await updateLoginState(); 
                 
@@ -943,8 +934,7 @@
                 
                 updateSendButtonUI(false);
                 
-                window.addEventListener('scroll', updateActiveNavLinkOnScroll);
-                // Initial check in case the page loads at a scrolled position
+                window.addEventListener('scroll', updateActiveNavLinkOnScroll, { passive: true });
                 setTimeout(updateActiveNavLinkOnScroll, 100);
             }
 
