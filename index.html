@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en"> <!-- Removed scroll-smooth from html, scroll-snap handles smoothness -->
+<html lang="en" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -67,11 +67,6 @@
             --shadow-light-hover: 0 12px 40px 0 rgba(0, 246, 255, 0.08);
         }
         
-        /* Global Reset and Scroll Snap Setup */
-        html {
-            height: 100%; /* Ensure html takes full height */
-            scroll-behavior: smooth; /* Keep smooth scrolling for programmatic scrolls */
-        }
         body {
             background-color: var(--bg-color);
             color: var(--text-color);
@@ -79,23 +74,6 @@
             overflow-x: hidden;
             position: relative;
             transition: background-color 0.4s ease-in-out, color 0.4s ease-in-out;
-            
-            height: 100%; /* Make body fill html height */
-            overflow-y: scroll; /* Enable vertical scrolling */
-            scroll-snap-type: y mandatory; /* Mandatory scroll snapping */
-            scroll-padding-top: 7rem; /* Offset for the fixed header height (pt-28 = 7rem) */
-        }
-        main {
-            /* Remove pt-28 from main, handled by scroll-padding-top on body */
-            display: flex; /* Main becomes a flex container */
-            flex-direction: column; /* Stack sections vertically */
-            flex: 1; /* Allow main to take available vertical space */
-            min-height: calc(100% - 7rem); /* Ensure main takes at least viewport height minus header */
-            background-color: var(--bg-color); /* Ensure main area is opaque */
-        }
-        .header-spacer { /* Add an empty div for this or modify main's style */
-            height: 7rem; /* This matches the fixed header's height */
-            flex-shrink: 0; /* Prevent it from shrinking */
         }
 
         .blob-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; overflow: hidden; }
@@ -158,27 +136,9 @@
         .typing-cursor { display: inline-block; width: 2px; height: 1em; background-color: var(--primary-accent); animation: blink 0.7s infinite; margin-left: 4px; vertical-align: middle; }
         @keyframes blink { 50% { opacity: 0; } }
 
-        /* Page Section Styling for Scroll Snap */
-        .page-section { 
-            height: calc(100vh - 7rem); /* Each section fills the viewport area below the header */
-            scroll-snap-align: start; /* Snap to the top of the section */
-            background-color: var(--bg-color); /* Ensure opaque background */
-            box-sizing: border-box; 
-            padding-top: 2rem; /* Initial padding for content */
-            padding-bottom: 2rem;
-            flex-shrink: 0; /* Important for flex containers: prevents sections from shrinking */
-            display: flex;
-            flex-direction: column;
-            justify-content: center; /* Default vertical centering */
-            align-items: center; /* Default horizontal centering */
-            width: 100%; /* Ensure full width */
-            overflow-y: auto; /* Allow internal scrolling if section content overflows its height */
-        }
-        /* Specific section overrides */
-        #chat {
-            justify-content: flex-start; /* Chat content should align to the top */
-        }
-        /* The .page-section.active styling is no longer needed as all sections are continuously displayed */
+        .page-section { display: none; animation: fadeIn 0.8s ease-out; }
+        .page-section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         
         .nav-link { color: var(--text-color); }
         .nav-link.active { color: var(--primary-accent); font-weight: 700; }
@@ -295,6 +255,8 @@
             background-color: var(--system-bubble-bg);
         }
 
+        #code-preview-iframe { border: none; width: 100%; height: 100%; }
+
         #chat-sidebar {
             position: fixed;
             top: 0;
@@ -336,10 +298,9 @@
             font-size: 1.2em !important;
             line-height: 1.5 !important;
         }
-
     </style>
 </head>
-<body class="relative flex flex-col">
+<body class="relative flex flex-col min-h-screen">
     <div class="blob-container">
         <div class="blob blob-1"></div>
         <div class="blob blob-2"></div>
@@ -349,7 +310,7 @@
     <aside id="chat-sidebar" class="soft-card !rounded-none">
         <div class="flex justify-between items-center mb-6">
             <h2 class="text-2xl font-bold">Chat History</h2>
-            <button id="close-sidebar-button" class="p-2 text-3xl font-light leading-none text-[color:var(--primary-accent)]" aria-label="Close chat history">&times;</button>
+            <button id="close-sidebar-button" class="p-2 text-3xl font-light leading-none text-[color:var(--primary-accent)]">&times;</button>
         </div>
         <button id="new-chat-button" class="w-full mb-4 p-3 rounded-full border-2 border-[color:var(--primary-accent)] text-[color:var(--primary-accent)] hover:bg-[color:var(--primary-accent)] hover:text-white dark:hover:text-black transition-colors duration-300 font-semibold">+ New Chat</button>
         <div id="chat-history-list" class="flex-1 overflow-y-auto space-y-2"></div>
@@ -358,29 +319,24 @@
     <header class="fixed top-0 left-0 right-0 z-50">
         <div class="container mx-auto px-6 py-4 max-w-7xl">
             <div class="soft-card flex justify-between items-center px-6 py-3 !rounded-full shadow-lg">
-                <a href="#home" class="text-3xl font-extrabold nav-link !text-[color:var(--primary-accent)]">ALARA<sup class="text-[0.5em] font-normal">beta</sup></a>
+                <a href="#home" class="text-3xl font-extrabold nav-link !text-[color:var(--primary-accent)]">ALARA<sup style="font-size: 0.5em; font-weight: normal;">beta</sup></a>
                 <nav class="hidden md:flex items-center space-x-8">
-                    <a href="#home" class="nav-link text-lg hover:text-[color:var(--primary-accent)] transition-colors duration-300">Home</a>
+                    <a href="#home" class="nav-link text-lg hover:text-[color:var(--primary-accent)] transition-colors duration-300 active">Home</a>
                     <a href="#chat" class="nav-link text-lg hover:text-[color:var(--primary-accent)] transition-colors duration-300">Chat</a>
                     <a href="#pricing" class="nav-link text-lg hover:text-[color:var(--primary-accent)] transition-colors duration-300">Pricing</a>
                     <a href="#about" class="nav-link text-lg hover:text-[color:var(--primary-accent)] transition-colors duration-300">About</a>
                     <div id="user-auth-section" class="pl-4">
                         <a href="/api/auth/login" class="soft-button !px-6 !py-2 !text-base">Login</a>
                     </div>
-                    <button id="sidebar-toggle" class="p-2 rounded-full text-[color:var(--primary-accent)] hover:bg-[color:var(--secondary-accent)]/20 transition-colors" aria-label="Open Chat History">
-                        <svg class="h-7 w-7" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-                        </svg>
-                    </button>
                 </nav>
-                <button id="mobile-menu-button" class="md:hidden p-2 rounded-full hover:bg-[color:var(--secondary-accent)]/20 transition-colors text-[color:var(--primary-accent)]" aria-label="Open menu">
+                <button id="mobile-menu-button" class="md:hidden p-2 rounded-full hover:bg-[color:var(--secondary-accent)]/20 transition-colors" style="color: var(--primary-accent);">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" /></svg>
                 </button>
             </div>
         </div>
          <div id="mobile-menu" class="hidden md:hidden container mx-auto px-6 max-w-7xl">
             <div class="soft-card mt-2 p-4">
-                <a href="#home" class="block text-center py-2 px-6 rounded-full nav-link hover:bg-[color:var(--secondary-accent)]/20 dark:hover:bg-[color:var(--primary-accent)]/20">Home</a>
+                <a href="#home" class="block text-center py-2 px-6 rounded-full nav-link active hover:bg-[color:var(--secondary-accent)]/20 dark:hover:bg-[color:var(--primary-accent)]/20">Home</a>
                 <a href="#chat" class="block text-center py-2 px-6 rounded-full nav-link hover:bg-[color:var(--secondary-accent)]/20 dark:hover:bg-[color:var(--primary-accent)]/20">Chat</a>
                 <a href="#pricing" class="block text-center py-2 px-6 rounded-full nav-link hover:bg-[color:var(--secondary-accent)]/20 dark:hover:bg-[color:var(--primary-accent)]/20">Pricing</a>
                 <a href="#about" class="block text-center py-2 px-6 rounded-full nav-link hover:bg-[color:var(--secondary-accent)]/20 dark:hover:bg-[color:var(--primary-accent)]/20">About</a>
@@ -391,8 +347,7 @@
         </div>
     </header>
 
-    <div class="header-spacer"></div> <!-- Spacer to push main content down -->
-    <main>
+    <main class="pt-28 flex-1">
         <section id="home" class="page-section relative">
             <div class="container mx-auto px-6 text-center h-full flex flex-col justify-center items-center max-w-7xl">
                 <h1 id="hero-title" class="text-5xl md:text-7xl lg:text-8xl font-extrabold mb-6 drop-shadow-lg leading-tight"></h1>
@@ -401,13 +356,16 @@
             </div>
         </section>
 
-        <section id="chat" class="page-section">
-            <div class="container mx-auto px-4 py-8 flex-1 flex flex-col max-w-7xl">
+        <section id="chat" class="page-section flex flex-col">
+             <button id="sidebar-toggle" class="fixed top-24 left-4 soft-card p-3 rounded-full z-40 text-[color:var(--primary-accent)] hover:scale-105 transition-transform duration-200">
+                 <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
+            </button>
+            <div class="container mx-auto px-4 py-8 h-[calc(100vh-7rem)] flex flex-col max-w-7xl">
                 <div id="login-cta" class="hidden h-full flex-col justify-center items-center text-center p-8">
                     <h2 class="text-3xl font-bold mb-4">Welcome to Alara</h2>
                     <p class="text-lg opacity-80 mb-8 max-w-md mx-auto">Please log in with your Google account to begin your conversation.</p>
                     <a href="/api/auth/login" class="soft-button text-xl flex items-center gap-3">
-                        <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" role="img" aria-labelledby="google-login-title"><title id="google-login-title">Google Login Icon</title><path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24s8.955,20,20,20s20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"></path><path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"></path><path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z"></path><path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.574l6.19,5.238C39.99,36.566,44,30.85,44,24C44,22.659,43.862,21.35,43.611,20.083z"></path></svg>
+                        <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24s8.955,20,20,20s20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"></path><path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"></path><path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z"></path><path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.574l6.19,5.238C39.99,36.566,44,30.85,44,24C44,22.659,43.862,21.35,43.611,20.083z"></path></svg>
                         Login with Google
                     </a>
                 </div>
@@ -415,23 +373,22 @@
                 <div id="chat-box" class="flex-1 overflow-y-auto p-4 space-y-4"></div>
                 <input type="file" id="image-input" class="hidden" accept="image/*">
                 
-                <div class="input-area-container mt-4 soft-card p-4 rounded-3xl flex-shrink-0">
+                <div class="input-area-container mt-4 soft-card p-4 rounded-3xl"> 
                     <div id="image-preview-container" class="mb-2"></div>
                     <div class="relative flex items-end gap-2">
                         <textarea id="chat-input" placeholder="Type your message or image prompt..." rows="1" maxlength="5000" class="w-full border rounded-2xl py-3 px-5 pr-44 text-base focus:outline-none focus:ring-2 focus:ring-[color:var(--primary-accent)] transition-all max-h-40 overflow-y-auto"
                             style="background-color: var(--input-bg); border-color: var(--input-border); color: var(--text-color);"></textarea>
                         <div class="absolute right-3 bottom-2 flex items-center gap-1">
-                            <button id="upload-image-button" class="p-2 rounded-full text-[color:var(--primary-accent)] hover:bg-[color:var(--secondary-accent)]/20 dark:hover:bg-[color:var(--primary-accent)]/20 transition-colors" aria-label="Upload Image">
+                            <button id="upload-image-button" class="p-2 rounded-full text-[color:var(--primary-accent)] hover:bg-[color:var(--secondary-accent)]/20 dark:hover:bg-[color:var(--primary-accent)]/20 transition-colors" title="Upload Image">
                                 <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
                             </button>
-                            <button id="generate-image-button" class="p-2 rounded-full text-[color:var(--primary-accent)] hover:bg-[color:var(--secondary-accent)]/20 dark:hover:bg-[color:var(--primary-accent)]/20 transition-colors" aria-label="Generate Image from Text">
+                            <button id="generate-image-button" class="p-2 rounded-full text-[color:var(--primary-accent)] hover:bg-[color:var(--secondary-accent)]/20 dark:hover:bg-[color:var(--primary-accent)]/20 transition-colors" title="Generate Image from Text">
                                 <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.008 2.008a1 1 0 010 1.414L10 17.414l-2 2V19h-.5l-2-2-.5-.5H4.5l-2-2-.5-.5v-.5l-.5-2 2-2 2-2 2-2 2-2 2-2zM15 5h.01M19 8h.01M15 11h.01" />
                                 </svg>
                             </button>
-                            <button id="send-button" class="soft-button w-10 h-10 p-2 flex items-center justify-center !bg-[color:var(--primary-accent)] !text-white !shadow-md hover:!shadow-lg" aria-label="Send message">
-                                <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.428A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" /></svg>
-                            </button>
+                            <button id="send-button" class="soft-button w-10 h-10 p-2 flex items-center justify-center !bg-[color:var(--primary-accent)] !text-white !shadow-md hover:!shadow-lg">
+                                </button>
                         </div>
                     </div>
                     <div id="char-counter" class="text-xs text-right text-[color:var(--text-color)]/60 mt-1 pr-2">0 / 5000</div>
@@ -446,7 +403,7 @@
                     <p class="text-lg opacity-80 max-w-2xl mx-auto">Get started for free or unlock Alara's full potential with our Pro plan.</p>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-                    <div id="free-plan-card" class="soft-card p-8 flex flex-col border-2 border-transparent">
+                    <div id="free-plan-card" class="soft-card p-8 flex flex-col">
                         <h3 class="text-3xl font-bold mb-2">Free</h3>
                         <p class="text-xl font-medium opacity-80 mb-6">For casual users & exploration</p>
                         <ul class="space-y-4 text-left flex-1 mb-8">
@@ -458,7 +415,7 @@
                         </ul>
                         <button id="free-plan-button" class="soft-button bg-gray-300 !text-gray-700 cursor-default" disabled>Your Current Plan</button>
                     </div>
-                    <div id="pro-plan-card" class="soft-card p-8 flex flex-col border-2 border-transparent">
+                    <div id="pro-plan-card" class="soft-card p-8 flex flex-col">
                         <h3 class="text-3xl font-bold mb-2">Alara Pro</h3>
                         <p class="text-xl font-medium opacity-80 mb-6">For power users & professionals</p>
                         <ul class="space-y-4 text-left flex-1 mb-8">
@@ -486,7 +443,7 @@
         </section>
     </main>
 
-    <button id="theme-toggle" class="fixed bottom-5 right-5 soft-card p-3 rounded-full text-[color:var(--primary-accent)] hover:scale-105 transition-transform duration-200" aria-label="Toggle light/dark theme">
+    <button id="theme-toggle" class="fixed bottom-5 right-5 soft-card p-3 rounded-full text-[color:var(--primary-accent)] hover:scale-105 transition-transform duration-200">
         <svg id="theme-icon-light" class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
         <svg id="theme-icon-dark" class="h-6 w-6 hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
     </button>
@@ -541,106 +498,106 @@
 
             // --- UI & AUTH FUNCTIONS ---
              function updatePricingUI() {
-                 if (!currentUser) return; 
+                if (!currentUser) return; 
 
-                 const freePlanCard = document.getElementById('free-plan-card');
-                 const proPlanCard = document.getElementById('pro-plan-card');
-                 const freePlanButton = document.getElementById('free-plan-button');
-                 const proPlanButton = document.getElementById('pro-plan-button');
+                const freePlanCard = document.getElementById('free-plan-card');
+                const proPlanCard = document.getElementById('pro-plan-card');
+                const freePlanButton = document.getElementById('free-plan-button');
+                const proPlanButton = document.getElementById('pro-plan-button');
 
-                 if (currentUser.plan === 'pro') {
-                     proPlanButton.textContent = 'Your Current Plan';
-                     proPlanButton.disabled = true;
-                     proPlanButton.classList.add('bg-gray-300', '!text-gray-700', 'cursor-default');
-                     proPlanCard.classList.remove('border-2', 'border-[color:var(--primary-accent)]');
-                     proPlanCard.classList.add('border-4', 'border-green-500');
-                     
-                     freePlanButton.textContent = 'Downgrade';
-                     freePlanButton.disabled = false;
-                     freePlanButton.classList.remove('bg-gray-300', '!text-gray-700', 'cursor-default');
-                     freePlanCard.classList.add('opacity-70');
-                 } else {
-                     freePlanButton.textContent = 'Your Current Plan';
-                     freePlanButton.disabled = true;
-                     freePlanButton.classList.add('bg-gray-300', '!text-gray-700', 'cursor-default');
-                     proPlanCard.classList.add('border-2', 'border-[color:var(--primary-accent)]');
-                     proPlanCard.classList.remove('border-4', 'border-green-500');
-                     freePlanCard.classList.remove('opacity-70');
-                 }
-             }
+                if (currentUser.plan === 'pro') {
+                    proPlanButton.textContent = 'Your Current Plan';
+                    proPlanButton.disabled = true;
+                    proPlanButton.classList.add('bg-gray-300', '!text-gray-700', 'cursor-default');
+                    proPlanCard.classList.remove('border-2', 'border-[color:var(--primary-accent)]');
+                    proPlanCard.classList.add('border-4', 'border-green-500');
+                    
+                    freePlanButton.textContent = 'Downgrade';
+                    freePlanButton.disabled = false;
+                    freePlanButton.classList.remove('bg-gray-300', '!text-gray-700', 'cursor-default');
+                    freePlanCard.classList.add('opacity-70');
+                } else {
+                    freePlanButton.textContent = 'Your Current Plan';
+                    freePlanButton.disabled = true;
+                    freePlanButton.classList.add('bg-gray-300', '!text-gray-700', 'cursor-default');
+                    proPlanCard.classList.add('border-2', 'border-[color:var(--primary-accent)]');
+                    proPlanCard.classList.remove('border-4', 'border-green-500');
+                    freePlanCard.classList.remove('opacity-70');
+                }
+            }
 
-             function initializeFeatures() {
-                 let finalPrompt = baseSystemPrompt + healthRule;
-                 if (currentUser && currentUser.plan === 'pro') {
-                     imageGenerationLimit = 20;
-                     chatInput.removeAttribute('maxlength');
-                     charCounter.textContent = 'Unlimited';
-                 } else {
-                     finalPrompt += proUpgradeMessage;
-                     imageGenerationLimit = 5;
-                     chatInput.setAttribute('maxlength', '5000');
-                     charCounter.textContent = `${chatInput.value.length} / 5000`; 
-                 }
+            function initializeFeatures() {
+                let finalPrompt = baseSystemPrompt + healthRule;
+                if (currentUser && currentUser.plan === 'pro') {
+                    imageGenerationLimit = 20;
+                    chatInput.removeAttribute('maxlength');
+                    charCounter.textContent = 'Unlimited';
+                } else {
+                    finalPrompt += proUpgradeMessage;
+                    imageGenerationLimit = 5;
+                    chatInput.setAttribute('maxlength', '5000');
+                    charCounter.textContent = `${chatInput.value.length} / 5000`; 
+                }
 
-                 systemPrompt = finalPrompt;
+                systemPrompt = finalPrompt;
 
-                 if (!currentUser) {
-                     chatInput.disabled = true;
-                     sendButton.disabled = true;
-                     uploadImageButton.disabled = true;
-                     generateImageButton.disabled = true;
-                     chatInput.placeholder = "Please log in to start your chat with Alara...";
-                     loginCta.classList.remove('hidden');
-                     loginCta.classList.add('flex');
-                     chatBox.classList.add('hidden');
-                     charCounter.textContent = ''; 
-                 } else {
-                     chatInput.disabled = false;
-                     sendButton.disabled = false;
-                     uploadImageButton.disabled = false;
-                     generateImageButton.disabled = false;
-                     chatInput.placeholder = "Type your message or image prompt...";
-                     loginCta.classList.add('hidden');
-                     loginCta.classList.remove('flex');
-                     chatBox.classList.remove('hidden');
-                 }
-             }
+                if (!currentUser) {
+                    chatInput.disabled = true;
+                    sendButton.disabled = true;
+                    uploadImageButton.disabled = true;
+                    generateImageButton.disabled = true;
+                    chatInput.placeholder = "Please log in to start your chat with Alara...";
+                    loginCta.classList.remove('hidden');
+                    loginCta.classList.add('flex');
+                    chatBox.classList.add('hidden');
+                    charCounter.textContent = ''; 
+                } else {
+                    chatInput.disabled = false;
+                    sendButton.disabled = false;
+                    uploadImageButton.disabled = false;
+                    generateImageButton.disabled = false;
+                    chatInput.placeholder = "Type your message or image prompt...";
+                    loginCta.classList.add('hidden');
+                    loginCta.classList.remove('flex');
+                    chatBox.classList.remove('hidden');
+                }
+            }
 
-             async function updateLoginState() {
-                 try {
-                     const response = await fetch('/api/user/me');
-                     if (response.ok) {
-                         const { user } = await response.json();
-                         currentUser = user;
-                         const loggedInHTML = `
-                             <div class="flex items-center gap-4">
-                                 <span class="font-semibold text-sm truncate">Hi, ${user.name.split(' ')[0]}</span>
-                                 <a href="/api/auth/logout" class="soft-button !px-4 !py-1.5 !text-sm">Logout</a>
-                             </div>
-                         `;
-                         userAuthSection.innerHTML = loggedInHTML;
-                         mobileUserAuthSection.innerHTML = `<a href="/api/auth/logout" class="block text-center py-2 px-6 rounded-full nav-link hover:bg-[color:var(--secondary-accent)]/20 dark:hover:bg-[color:var(--primary-accent)]/20">Logout</a>`;
-                     } else {
-                          currentUser = null;
-                     }
-                 } catch (error) {
-                     currentUser = null;
-                 } finally {
-                     const loggedOutHTML = `<a href="/api/auth/login" class="soft-button !px-6 !py-2 !text-base">Login</a>`;
-                     if (!currentUser) {
-                         userAuthSection.innerHTML = loggedOutHTML;
-                         mobileUserAuthSection.innerHTML = `<a href="/api/auth/login" class="block text-center py-2 px-6 rounded-full nav-link hover:bg-[color:var(--secondary-accent)]/20 dark:hover:bg-[color:var(--primary-accent)]/20">Login</a>`;
-                     }
-                     initializeFeatures(); 
-                     updatePricingUI();        
-                 }
-             }
+            async function updateLoginState() {
+                try {
+                    const response = await fetch('/api/user/me');
+                    if (response.ok) {
+                        const { user } = await response.json();
+                        currentUser = user;
+                        const loggedInHTML = `
+                            <div class="flex items-center gap-4">
+                                <span class="font-semibold text-sm truncate">Hi, ${user.name.split(' ')[0]}</span>
+                                <a href="/api/auth/logout" class="soft-button !px-4 !py-1.5 !text-sm">Logout</a>
+                            </div>
+                        `;
+                        userAuthSection.innerHTML = loggedInHTML;
+                        mobileUserAuthSection.innerHTML = `<a href="/api/auth/logout" class="block text-center py-2 px-6 rounded-full nav-link hover:bg-[color:var(--secondary-accent)]/20 dark:hover:bg-[color:var(--primary-accent)]/20">Logout</a>`;
+                    } else {
+                         currentUser = null;
+                    }
+                } catch (error) {
+                    currentUser = null;
+                } finally {
+                    const loggedOutHTML = `<a href="/api/auth/login" class="soft-button !px-6 !py-2 !text-base">Login</a>`;
+                    if (!currentUser) {
+                        userAuthSection.innerHTML = loggedOutHTML;
+                        mobileUserAuthSection.innerHTML = `<a href="/api/auth/login" class="block text-center py-2 px-6 rounded-full nav-link hover:bg-[color:var(--secondary-accent)]/20 dark:hover:bg-[color:var(--primary-accent)]/20">Login</a>`;
+                    }
+                    initializeFeatures(); 
+                    updatePricingUI();       
+                }
+            }
 
             // --- Core Functions ---
             function runTypingAnimation() {
                 if (!heroTitle) return;
                 const currentHash = window.location.hash || '#home';
-                if (currentHash === '#home') { // Only run animation if home is the current section
+                if (currentHash === '#home') { 
                     if (currentHeroCharIndex < heroText.length) {
                         heroTitle.innerHTML = heroText.substring(0, currentHeroCharIndex + 1) + '<span class="typing-cursor"></span>';
                         currentHeroCharIndex++;
@@ -660,46 +617,23 @@
                 currentHeroCharIndex = 0;
             }
 
-            // Modified showSection for Scroll Snap
             function showSection(targetHash) {
                 if (!targetHash || targetHash === '#') targetHash = '#home';
-
-                // Update active navigation link styles
-                navLinks.forEach(l => l.classList.remove('active'));
-                document.querySelectorAll(`a[href="${targetHash}"]`).forEach(link => link.classList.add('active'));
-
                 const targetSection = document.querySelector(targetHash);
                 if (targetSection) {
-                    const headerOffset = 7 * parseFloat(getComputedStyle(document.documentElement).fontSize); // 7rem
-                    // Scroll directly to the target section. scroll-snap-type and scroll-padding-top handle the rest.
-                    window.scrollTo({
-                        top: targetSection.offsetTop - headerOffset, // Account for fixed header
-                        behavior: 'smooth'
-                    });
+                    targetSection.scrollIntoView({ behavior: 'smooth' });
                 }
-
+                
                 if (window.location.hash !== targetHash) {
                     window.history.pushState(null, '', targetHash);
                 }
-
                 mobileMenu.classList.add('hidden');
-                
-                // Control hero title animation based on current section
-                if (targetHash === '#home') {
-                    if (!typingAnimationTimeout && currentHeroCharIndex === 0) {
-                        heroTitle.innerHTML = ''; // Reset before starting animation
-                        runTypingAnimation();
-                    }
-                } else {
-                    stopTypingAnimation();
-                }
             }
-
+            
             function postProcessMessageBubble(bubble) {
                 const codeBlocks = bubble.querySelectorAll('pre');
                 codeBlocks.forEach(pre => {
                     if (pre.querySelector('.copy-code-button')) return;
-
                     const copyButton = document.createElement('button');
                     copyButton.className = 'copy-code-button';
                     copyButton.innerHTML = `<svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg> <span>Copy</span>`;
@@ -752,12 +686,7 @@
 
                 wrapper.appendChild(bubble);
                 chatBox.appendChild(wrapper);
-
-                // Auto-scroll chat box only if it's the active section
-                const currentHash = window.location.hash || '#home';
-                if (currentHash === '#chat') {
-                    chatBox.scrollTop = chatBox.scrollHeight;
-                }
+                chatBox.scrollTop = chatBox.scrollHeight;
                 return bubble;
             }
 
@@ -766,23 +695,17 @@
                 let i = 0;
                 contentDiv.innerHTML = "";
                 
-                const typingIntervalSpeed = 5; // ms
+                const typingIntervalSpeed = 5;
                 const typingInterval = setInterval(() => {
                     if (i < text.length) {
                         contentDiv.innerHTML = marked.parse(text.substring(0, i + 1) + '<span class="typing-cursor"></span>');
-                        const currentHash = window.location.hash || '#home';
-                        if (currentHash === '#chat') { // Only scroll if chat is the active section
-                            chatBox.scrollTop = chatBox.scrollHeight;
-                        }
+                        chatBox.scrollTop = chatBox.scrollHeight;
                         i++;
                     } else {
                         clearInterval(typingInterval);
                         contentDiv.innerHTML = marked.parse(text);
                         postProcessMessageBubble(bubble);
-                        const currentHash = window.location.hash || '#home';
-                        if (currentHash === '#chat') { // Only scroll if chat is the active section
-                            chatBox.scrollTop = chatBox.scrollHeight;
-                        }
+                        chatBox.scrollTop = chatBox.scrollHeight;
                     }
                 }, typingIntervalSpeed);
             }
@@ -793,10 +716,7 @@
                 typingIndicator.className = 'chat-message flex';
                 typingIndicator.innerHTML = `<div class="p-3 rounded-lg ai-bubble ai-typing-indicator"><span class="inline-block w-2 h-2 bg-[color:var(--primary-accent)] rounded-full mr-1" style="animation-delay: 0s;"></span><span class="inline-block w-2 h-2 bg-[color:var(--primary-accent)] rounded-full mr-1" style="animation-delay: 0.2s;"></span><span class="inline-block w-2 h-2 bg-[color:var(--primary-accent)] rounded-full" style="animation-delay: 0.4s;"></span></div>`;
                 chatBox.appendChild(typingIndicator);
-                const currentHash = window.location.hash || '#home';
-                if (currentHash === '#chat') { // Only scroll if chat is the active section
-                    chatBox.scrollTop = chatBox.scrollHeight;
-                }
+                chatBox.scrollTop = chatBox.scrollHeight;
                 return typingIndicator;
             }
 
@@ -817,13 +737,14 @@
                     body: JSON.stringify(payload), 
                     signal 
                 };
-                
+               
                 const response = await fetch(apiUrl, fetchOptions);
                 if (!response.ok) throw new Error(`API error: ${response.statusText}`);
                 return await response.json();
             }
 
-            async function handleSendMessage() {
+            async function handleSendMessage(event) {
+                if (event) event.preventDefault();
                 if (!currentUser) {
                     addMessage("Please log in to send a message.", 'system');
                     return;
@@ -940,14 +861,14 @@
                 if (isAwaitingResponse) {
                     abortController.abort();
                 } else {
-                    handleSendMessage();
+                    handleSendMessage(e);
                 }
             });
             chatInput.addEventListener('keydown', (e) => { 
                 if (e.key === 'Enter' && !e.shiftKey) { 
                     e.preventDefault(); 
                     if (!isAwaitingResponse) {
-                       handleSendMessage();
+                       handleSendMessage(e);
                     }
                 } 
             });
@@ -962,11 +883,12 @@
             chatInput.addEventListener('input', () => {
                 chatInput.style.height = 'auto';
                 chatInput.style.height = `${chatInput.scrollHeight}px`;
-                if (!currentUser) {
-                    charCounter.textContent = '';
-                } else if (currentUser.plan === 'pro') {
+                 if (currentUser && currentUser.plan === 'pro') {
                     charCounter.textContent = 'Unlimited';
-                } else {
+                } else if (!currentUser) {
+                    charCounter.textContent = '';
+                }
+                else {
                     charCounter.textContent = `${chatInput.value.length} / 5000`;
                 }
             });
@@ -1020,12 +942,13 @@
                     const codeBlock = target.closest('pre')?.querySelector('code');
                     if (codeBlock) {
                         navigator.clipboard.writeText(codeBlock.innerText).then(() => {
-                            const originalHTML = target.closest('.copy-code-button').innerHTML;
-                            target.closest('.copy-code-button').innerHTML = `<svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg> <span>Copied!</span>`;
-                            target.closest('.copy-code-button').classList.add('copied');
+                            const button = target.closest('.copy-code-button');
+                            const originalHTML = button.innerHTML;
+                            button.innerHTML = `<svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg> <span>Copied!</span>`;
+                            button.classList.add('copied');
                             setTimeout(() => {
-                                target.closest('.copy-code-button').innerHTML = originalHTML;
-                                target.closest('.copy-code-button').classList.remove('copied');
+                                button.innerHTML = originalHTML;
+                                button.classList.remove('copied');
                             }, 2000);
                         }).catch(err => console.error('Failed to copy text:', err));
                     }
@@ -1045,7 +968,7 @@
                 themeIconLight.classList.toggle('hidden', isDark);
                 themeIconDark.classList.toggle('hidden', !isDark);
             }
-
+            
             function saveAllChats() {
                 try { localStorage.setItem('alaraAllChats', JSON.stringify(allChats)); } catch (e) { console.error("Could not save chat history:", e); }
             }
@@ -1152,46 +1075,31 @@
                 }
             }
 
-            // Function to update active nav link based on scroll position
-            function updateActiveNavLink() {
-                const headerOffset = 7 * parseFloat(getComputedStyle(document.documentElement).fontSize);
-                let activeSectionId = '#home'; // Default to home
-
+            function updateActiveNavLinkOnScroll() {
+                let currentSection = '';
                 sections.forEach(section => {
-                    const rect = section.getBoundingClientRect();
-                    // Check if the section's top is visible below the header
-                    // Give a small tolerance (e.g., +5px) for perfect snapping
-                    if (rect.top <= headerOffset + 5 && rect.bottom > headerOffset + 5) {
-                        activeSectionId = '#' + section.id;
+                    const sectionTop = section.offsetTop - 150; // Offset for header
+                    if (window.scrollY >= sectionTop) {
+                        currentSection = '#' + section.id;
                     }
                 });
 
-                navLinks.forEach(l => {
-                    l.classList.remove('active');
-                    if (l.getAttribute('href') === activeSectionId) {
-                        l.classList.add('active');
+                navLinks.forEach(link => {
+                    link.classList.remove('active');
+                    if(link.getAttribute('href') === currentSection) {
+                        link.classList.add('active');
                     }
                 });
-
-                // Manage typing animation on scroll
-                if (activeSectionId === '#home') {
-                    if (!typingAnimationTimeout && currentHeroCharIndex === 0) {
-                        heroTitle.innerHTML = '';
-                        runTypingAnimation();
-                    }
-                } else {
-                    stopTypingAnimation();
-                }
             }
-
+            
             async function initialize() {
                 const savedTheme = localStorage.getItem('alaraTheme');
                 if (savedTheme === 'dark') document.body.classList.add('dark');
                 updateThemeIcons(savedTheme === 'dark');
                 
-                // On initial load, set active nav link and scroll to the correct section
                 const initialHash = window.location.hash || '#home';
-                showSection(initialHash); 
+                document.querySelector(initialHash).style.display = 'block';
+                updateActiveNavLinkOnScroll();
                 
                 await updateLoginState(); 
                 
@@ -1201,15 +1109,10 @@
                 } else {
                     loadChat(allChats[0].id);
                 }
-
-                updateSendButtonUI(false); 
-
-                // Add an event listener for scroll to update active nav link
-                let scrollTimeout;
-                window.addEventListener('scroll', () => {
-                    clearTimeout(scrollTimeout);
-                    scrollTimeout = setTimeout(updateActiveNavLink, 50); // Debounce
-                });
+                
+                updateSendButtonUI(false);
+                
+                window.addEventListener('scroll', updateActiveNavLinkOnScroll);
             }
 
             initialize();
