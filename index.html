@@ -30,7 +30,6 @@
     </script>
     <script src="/_vercel/insights/script.js" defer></script>
 
-
     <style>
         :root {
             --bs-body-font-family: 'Nunito', sans-serif;
@@ -125,6 +124,8 @@
         .pdf-render-scale { font-size: 1.2em !important; line-height: 1.5 !important; }
         .navbar-brand sup { font-size: 0.5em; font-weight: normal; }
         .navbar .soft-button { padding: .5rem 1.5rem !important; font-size: .875rem !important; }
+        .auth-loading { display: inline-block; width: 1rem; height: 1rem; border: 2px solid #f3f3f3; border-top: 2px solid var(--primary-accent); border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body class="position-relative d-flex flex-column vh-100">
@@ -156,9 +157,8 @@
                         <li class="nav-item"><a href="#chat" class="nav-link px-3">Chat</a></li>
                         <li class="nav-item"><a href="#pricing" class="nav-link px-3">Pricing</a></li>
                         <li class="nav-item"><a href="#about" class="nav-link px-3">About</a></li>
-                        <li class="nav-item ps-md-3 d-none d-md-block" id="user-auth-section"><a href="/api/auth/login" class="soft-button">Login</a></li>
-                        <li class="nav-item d-md-none mt-3 pt-3 border-top" id="mobile-user-auth-section">
-                            <a href="/api/auth/login" class="nav-link text-center">Login</a>
+                        <li class="nav-item ps-md-3" id="user-auth-section">
+                            <div class="auth-loading"></div>
                         </li>
                     </ul>
                 </div>
@@ -167,7 +167,7 @@
     </header>
 
     <main class="pt-5 flex-grow-1" style="padding-top: 7rem !important;">
-        <section id="home" class="page-section active position-relative vh-100 pt-5">
+        <section id="home" class="page-section active position-relative vh-100">
             <div class="container-xl px-3 text-center h-100 d-flex flex-column justify-content-center align-items-center">
                 <h1 id="hero-title" class="display-1 fw-bolder mb-4" style="text-shadow: 0 2px 4px rgba(0,0,0,0.1);"></h1>
                 <p class="fs-4 lead mx-auto mb-5" style="max-width: 48rem; opacity: 0.85;">Your intelligent AI companion for creativity, conversation, and code.</p>
@@ -266,7 +266,7 @@
         </section>
     </main>
 
-    <button id="theme-toggle" class="position-fixed bottom-0 end-0 m-3 soft-card p-3 rounded-pill">
+    <button id="theme-toggle" class="fixed-bottom-right m-3 soft-card p-3 rounded-pill">
         <svg id="theme-icon-light" style="height: 1.5rem; width: 1.5rem; color: var(--primary-accent);" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
         <svg id="theme-icon-dark" class="d-none" style="height: 1.5rem; width: 1.5rem; color: var(--primary-accent);" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
     </button>
@@ -276,7 +276,6 @@
         document.addEventListener('DOMContentLoaded', () => {
             const { jsPDF } = window.jspdf;
             
-            // All the JavaScript functions go here. This is the complete script.
             const navLinks = document.querySelectorAll('.nav-link');
             const sections = document.querySelectorAll('.page-section');
             const mobileMenuButton = document.getElementById('mobile-menu-button');
@@ -299,7 +298,6 @@
             const charCounter = document.getElementById('char-counter');
             const generateImageButton = document.getElementById('generate-image-button');
             const userAuthSection = document.getElementById('user-auth-section');
-            const mobileUserAuthSection = document.getElementById('mobile-user-auth-section');
             const loginCta = document.getElementById('login-cta');
             
             let allChats = [];
@@ -313,17 +311,83 @@
             let systemPrompt = '';
             let imageGenerationLimit = 5;
             let isAwaitingResponse = false;
+            let authCheckInProgress = false;
             
             const baseSystemPrompt = `You are Alara, a knowledgeable and direct AI assistant. You provide clear, concise, and accurate explanations. You must directly answer the user's request. When asked for code, you must provide a complete, runnable HTML/CSS/JS code block first, followed by a brief, step-by-step explanation. CRITICAL RULE: For beginner-friendly examples, you MUST avoid complex libraries or functions (like iostream in C++) unless the user specifically asks for them. Use comments to indicate where output would appear instead of printing to a console. When asked for structured data, use Markdown tables. Ensure all responses are well-written, with correct grammar and punctuation. You are Alara, beta v1.0. If asked about your knowledge cutoff, state that your data is current up to early 2025. If the user asks who made you, who trained you, or who coded you, you must say that you were created by a brilliant developer. You can add that your developer leveraged powerful existing LLMs to help bring you to life quickly, but the vision, design, and implementation are entirely their work. If the user asks about the specific AI model you use (e.g., 'are you Gemini?'), state that your architecture is proprietary and was developed by your creator, but that it leverages foundational technologies from major AI labs to accelerate development.`;
             const proUpgradeMessage = ` CRITICAL RULE FOR LONG RESPONSES: If the user requests a long-form text output like an essay, a story, a business plan, or a detailed article, you must provide a concise, high-quality summary or the first complete paragraph (approximately 150 words). After this summary, on a new line, you must include the following message with a warning symbol: '⚠️ For the full, detailed response, please upgrade to Alara Pro.' This rule does NOT apply to requests for code, tables, or step-by-step instructions.`;
             const healthRule = ` CRITICAL RULE FOR HEALTH-RELATED QUERIES: If a user describes physical or mental health symptoms (e.g., 'I have a headache,' 'I'm feeling anxious,' 'my stomach hurts'), you MUST adopt a helpful but extremely cautious 'First Aid & General Wellness' persona. You are not a doctor. You MUST follow these steps: 1. Acknowledge their symptoms empathetically. 2. Identify the MOST LIKELY and COMMON, NON-SEVERE condition that could cause these symptoms (e.g., headache -> dehydration, stress; stomach ache -> indigestion). 3. Suggest ONLY universally safe, common-sense home remedies (e.g., 'drink a glass of water,' 'get some rest,' 'try some ginger tea,' 'take an ORS'). 4. Under no circumstances should you name specific diseases or recommend any prescription or branded medication. 5. You MUST conclude your response with a clear, bolded disclaimer: '**Disclaimer: I am an AI assistant and not a medical professional. This is general guidance and not a substitute for professional medical advice. Please consult a doctor for an accurate diagnosis.**' For the user example 'I'm feeling nauseic, headaches and bile juice vomits', a perfect response would be: 'It sounds like you're feeling really unwell. Those symptoms can often be a sign of dehydration. A good first step would be to rehydrate slowly by sipping on water or an Oral Rehydration Solution (ORS). **Disclaimer: I am an AI assistant and not a medical professional. This is general guidance and not a substitute for professional medical advice. If your symptoms persist or worsen, please consult a doctor for an accurate diagnosis.**'`;
             
-             function updatePricingUI() {
+            // Check for authentication status on page load and after OAuth redirect
+            async function checkAuthStatus() {
+                if (authCheckInProgress) return;
+                authCheckInProgress = true;
+
+                try {
+                    // Add a small delay to allow for backend session processing
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                    
+                    const response = await fetch('/api/user/me', {
+                        method: 'GET',
+                        credentials: 'include', // Important for cookies/sessions
+                        headers: {
+                            'Cache-Control': 'no-cache'
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        const { user } = await response.json();
+                        currentUser = user;
+                        updateAuthUI(true);
+                    } else if (response.status === 401) {
+                        currentUser = null;
+                        updateAuthUI(false);
+                    } else {
+                        // Server error - retry after delay
+                        setTimeout(() => {
+                            authCheckInProgress = false;
+                            checkAuthStatus();
+                        }, 2000);
+                        return;
+                    }
+                } catch (error) {
+                    console.error('Auth check failed:', error);
+                    // Retry after delay on network error
+                    setTimeout(() => {
+                        authCheckInProgress = false;
+                        checkAuthStatus();
+                    }, 2000);
+                    return;
+                } finally {
+                    authCheckInProgress = false;
+                }
+
+                initializeFeatures();
+                updatePricingUI();
+            }
+
+            function updateAuthUI(isLoggedIn) {
+                if (isLoggedIn && currentUser) {
+                    const firstName = currentUser.name.split(' ')[0];
+                    const loggedInHTML = `
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="fw-semibold text-sm">Hi, ${firstName}</span>
+                            <a href="/api/auth/logout" class="soft-button">Logout</a>
+                        </div>
+                    `;
+                    userAuthSection.innerHTML = loggedInHTML;
+                } else {
+                    const loggedOutHTML = `<a href="/api/auth/login" class="soft-button">Login</a>`;
+                    userAuthSection.innerHTML = loggedOutHTML;
+                }
+            }
+
+            function updatePricingUI() {
                 if (!currentUser) return; 
                 const freePlanCard = document.getElementById('free-plan-card');
                 const proPlanCard = document.getElementById('pro-plan-card');
                 const freePlanButton = document.getElementById('free-plan-button');
                 const proPlanButton = document.getElementById('pro-plan-button');
+                
                 if (currentUser.plan === 'pro') {
                     proPlanButton.textContent = 'Your Current Plan';
                     proPlanButton.disabled = true;
@@ -355,6 +419,7 @@
                     charCounter.textContent = `${chatInput.value.length} / 5000`; 
                 }
                 systemPrompt = finalPrompt;
+                
                 if (!currentUser) {
                     chatInput.disabled = true;
                     sendButton.disabled = true;
@@ -377,29 +442,18 @@
                 }
             }
 
-            async function updateLoginState() {
-                try {
-                    const response = await fetch('/api/user/me');
-                    if (response.ok) {
-                        const { user } = await response.json();
-                        currentUser = user;
-                        const loggedInHTML = `<div class="d-flex align-items-center gap-2"><span class="fw-semibold text-sm">Hi, ${user.name.split(' ')[0]}</span><a href="/api/auth/logout" class="soft-button">Logout</a></div>`;
-                        userAuthSection.innerHTML = loggedInHTML;
-                        mobileUserAuthSection.innerHTML = `<a href="/api/auth/logout" class="nav-link text-center">Logout</a>`;
-                    } else {
-                         currentUser = null;
-                    }
-                } catch (error) {
-                    currentUser = null;
-                } finally {
-                    const loggedOutHTML = `<a href="/api/auth/login" class="soft-button">Login</a>`;
-                    if (!currentUser) {
-                        userAuthSection.innerHTML = loggedOutHTML;
-                        mobileUserAuthSection.innerHTML = `<a href="/api/auth/login" class="nav-link text-center">Login</a>`;
-                    }
-                    initializeFeatures(); 
-                    updatePricingUI();       
+            // Check for URL parameters that indicate OAuth return
+            function checkForOAuthReturn() {
+                const urlParams = new URLSearchParams(window.location.search);
+                const hasAuthParams = urlParams.has('code') || urlParams.has('state') || urlParams.has('error');
+                
+                if (hasAuthParams) {
+                    // Clean up URL
+                    window.history.replaceState({}, document.title, window.location.pathname + window.location.hash);
+                    // Force auth check
+                    return true;
                 }
+                return false;
             }
 
             function runTypingAnimation() {
@@ -437,9 +491,7 @@
                     window.history.pushState(null, '', targetHash);
                 }
                 const mobileMenuInstance = new bootstrap.Collapse(mobileMenu, { toggle: false });
-                if(mobileMenu.classList.contains('show')) {
-                    mobileMenuInstance.hide();
-                }
+                mobileMenuInstance.hide();
             }
             
             function postProcessMessageBubble(bubble) {
@@ -455,7 +507,7 @@
                 Prism.highlightAllUnder(bubble);
                 
                 renderMathInElement(bubble, {
-                    delimiters: [ {left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false} ]
+                    delimiters: [ {left: '$', right: '$', display: true}, {left: ', right: ', display: false} ]
                 });
             }
 
@@ -547,7 +599,8 @@
                     method: 'POST', 
                     headers: { 'Content-Type': 'application/json' }, 
                     body: JSON.stringify(payload), 
-                    signal 
+                    signal,
+                    credentials: 'include'
                 };
                
                 const response = await fetch(apiUrl, fetchOptions);
@@ -555,7 +608,8 @@
                 return await response.json();
             }
 
-            async function handleSendMessage() {
+            async function handleSendMessage(event) {
+                if (event) event.preventDefault();
                 if (isAwaitingResponse) return;
                 if (!currentUser) {
                     addMessage("Please log in to send a message.", 'system');
@@ -579,6 +633,7 @@
                 currentChat.history.push({ role: "user", parts: userParts });
                 saveAllChats();
                 clearAttachment();
+                
                 try {
                     const result = await getAIResponse(currentChat.history);
                     typingIndicator.remove();
@@ -593,14 +648,20 @@
                         }
                         saveAllChats();
                     } else {
-                        addMessage("I'm having a little trouble thinking right now. Could you try asking again? 😅", 'ai');
+                        addMessage("I'm having a little trouble thinking right now. Could you try asking again?", 'ai');
                     }
                 } catch (error) {
                     if (error.name !== 'AbortError') {
                         console.error("Error fetching AI response:", error);
-                        addMessage("Oh no! Something went wrong with my circuits. Please give me a moment and try again. 💖", 'ai');
+                        if (error.message.includes('401')) {
+                            addMessage("Your session has expired. Please log in again.", 'system');
+                            currentUser = null;
+                            initializeFeatures();
+                        } else {
+                            addMessage("Oh no! Something went wrong with my circuits. Please give me a moment and try again.", 'ai');
+                        }
                     }
-                     typingIndicator.remove();
+                    typingIndicator.remove();
                 } finally {
                     isAwaitingResponse = false;
                     updateSendButtonUI(false);
@@ -608,39 +669,85 @@
             }
             
             async function generateImage() {
-                // This function's logic remains the same.
+                // Placeholder for image generation logic
+                addMessage("Image generation feature coming soon!", 'system');
             }
 
             function updateSendButtonUI(isThinking) {
                  if (isThinking) {
-                    sendButton.innerHTML = `<svg style="width: 1.5rem; height: 1.5rem;" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>`;
+                    sendButton.innerHTML = `<svg class="h-6 w-6" style="width: 1.5rem; height: 1.5rem;" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>`;
                     sendButton.setAttribute('aria-label', 'Stop generating');
                 } else {
-                    sendButton.innerHTML = `<svg style="width: 1.5rem; height: 1.5rem;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.428A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" /></svg>`;
+                    sendButton.innerHTML = `<svg class="h-6 w-6" style="width: 1.5rem; height: 1.5rem;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.428A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" /></svg>`;
                     sendButton.setAttribute('aria-label', 'Send message');
                 }
             }
 
-            // --- Event Listeners & UI Handlers ---
+            // Event Listeners & UI Handlers
             sendButton.addEventListener('click', (e) => {
                 e.preventDefault();
                 if (isAwaitingResponse) {
                     abortController.abort();
                 } else {
-                    handleSendMessage();
+                    handleSendMessage(e);
                 }
             });
+            
             chatInput.addEventListener('keydown', (e) => { 
                 if (e.key === 'Enter' && !e.shiftKey) { 
                     e.preventDefault(); 
                     if (!isAwaitingResponse) {
-                       handleSendMessage();
+                       handleSendMessage(e);
                     }
                 } 
             });
             
             navLinks.forEach(l => l.addEventListener('click', (e) => { e.preventDefault(); showSection(l.getAttribute('href')); }));
+            mobileMenuButton.addEventListener('click', () => {
+                 const mobileMenuInstance = new bootstrap.Collapse(mobileMenu, { toggle: true });
+            });
+             if (sidebarToggle) {
+                sidebarToggle.addEventListener('click', () => sidebar.classList.toggle('open'));
+            }
+            closeSidebarButton.addEventListener('click', () => sidebar.classList.remove('open'));
             
+            chatInput.addEventListener('input', () => {
+                chatInput.style.height = 'auto';
+                chatInput.style.height = `${chatInput.scrollHeight}px`;
+                 if (currentUser && currentUser.plan === 'pro') {
+                    charCounter.textContent = 'Unlimited';
+                } else if (!currentUser) {
+                    charCounter.textContent = '';
+                } else {
+                    charCounter.textContent = `${chatInput.value.length} / 5000`;
+                }
+            });
+            
+            uploadImageButton.addEventListener('click', () => imageInput.click());
+            imageInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    attachedFile = { base64Data: reader.result.split(',')[1], mimeType: file.type, name: file.name };
+                    renderImagePreview();
+                };
+                reader.readAsDataURL(file);
+            });
+
+            function renderImagePreview() {
+                if (!attachedFile) return;
+                imagePreviewContainer.innerHTML = `<div class="position-relative d-inline-block"><img src="data:${attachedFile.mimeType};base64,${attachedFile.base64Data}" class="h-16 w-16 object-cover rounded-lg"><button id="remove-image-btn" class="position-absolute top-0 start-100 translate-middle btn btn-danger btn-sm rounded-circle">&times;</button></div>`;
+                document.getElementById('remove-image-btn').addEventListener('click', clearAttachment);
+            }
+
+            function clearAttachment() {
+                attachedFile = null;
+                imagePreviewContainer.innerHTML = '';
+                imageInput.value = '';
+            }
+
+            // Event delegation for dynamic buttons
             chatBox.addEventListener('click', (e) => {
                 const target = e.target.closest('button');
                 if (!target) return;
@@ -679,30 +786,216 @@
                     }
                 } 
             });
-            
-            // Other event listeners from your stable version...
-             function updateThemeIcons(isDark) {
+
+            generateImageButton.addEventListener('click', generateImage);
+
+            themeToggle.addEventListener('click', () => {
+                document.body.classList.toggle('dark');
+                const isDark = document.body.classList.contains('dark');
+                localStorage.setItem('alaraTheme', isDark ? 'dark' : 'light');
+                updateThemeIcons(isDark);
+            });
+
+            function updateThemeIcons(isDark) {
                 themeIconLight.classList.toggle('d-none', isDark);
                 themeIconDark.classList.toggle('d-none', !isDark);
             }
-             async function initialize() {
+            
+            function saveAllChats() {
+                try { localStorage.setItem('alaraAllChats', JSON.stringify(allChats)); } catch (e) { console.error("Could not save chat history:", e); }
+            }
+
+            function loadAllChats() {
+                try {
+                    const savedChats = localStorage.getItem('alaraAllChats');
+                    allChats = savedChats ? JSON.parse(savedChats) : [];
+                } catch (e) {
+                    console.error("Could not parse chat history:", e);
+                    allChats = [];
+                }
+            }
+            
+            function loadChat(chatId) {
+                const chat = allChats.find(c => c.id === chatId);
+                if (!chat) {
+                    if (allChats.length > 0) {
+                        loadChat(allChats[0].id)
+                    } else {
+                        startNewChat();
+                    }
+                    return;
+                };
+                currentChatId = chat.id;
+                chatBox.innerHTML = '';
+                chat.history.forEach(msg => {
+                    const textPart = msg.parts.find(p => p.text)?.text || '';
+                    const imageMatch = textPart.match(/^Image generated: (https:\/\/[^\s]+)$/);
+                    if (imageMatch && msg.role === 'model') {
+                        addMessage(`Here's your image:`, 'ai', { imageUrl: imageMatch[1], imageAlt: 'Generated image' });
+                    } else {
+                        const bubble = addMessage(textPart, msg.role === 'model' ? 'ai' : 'user');
+                        if (msg.role === 'model') {
+                            postProcessMessageBubble(bubble);
+                        }
+                    }
+                });
+                sidebar.classList.remove('open');
+                renderChatHistorySidebar();
+            }
+
+            function startNewChat() {
+                const newChat = { id: Date.now().toString(), title: "New Chat", history: [] };
+                allChats.unshift(newChat);
+                currentChatId = newChat.id;
+                saveAllChats();
+                loadChat(currentChatId);
+            }
+            
+            newChatButton.addEventListener('click', startNewChat);
+
+            function renderChatHistorySidebar() {
+                chatHistoryList.innerHTML = '';
+                const renameSVG = `<svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5L15.232 5.232z" /></svg>`;
+                const deleteSVG = `<svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>`;
+                
+                allChats.forEach(chat => {
+                    const item = document.createElement('div');
+                    item.className = 'p-3 rounded-lg cursor-pointer flex justify-between items-center text-sm font-medium hover:bg-[color:var(--secondary-accent)]/20 dark:hover:bg-[color:var(--primary-accent)]/20 transition-colors duration-200';
+                    item.classList.toggle('bg-[color:var(--secondary-accent)]/30', chat.id === currentChatId);
+                    item.classList.toggle('dark:bg-[color:var(--primary-accent)]/30', chat.id === currentChatId);
+                    item.innerHTML = `
+                        <span class="truncate pr-2 flex-1">${chat.title}</span>
+                        <div class="flex-shrink-0 flex items-center space-x-1">
+                            <button class="rename-btn p-1.5 rounded-full hover:bg-gray-500/10 text-gray-600 dark:text-gray-300 transition-colors" aria-label="Rename chat">${renameSVG}</button>
+                            <button class="delete-btn p-1.5 rounded-full hover:bg-red-500/10 text-red-500 transition-colors" aria-label="Delete chat">${deleteSVG}</button>
+                        </div>
+                    `;
+                    item.onclick = (e) => {
+                        if (!e.target.closest('button')) {
+                            loadChat(chat.id);
+                        }
+                    };
+                    item.querySelector('.rename-btn').onclick = (e) => { e.stopPropagation(); renameChat(chat.id); };
+                    item.querySelector('.delete-btn').onclick = (e) => { e.stopPropagation(); deleteChat(chat.id); };
+                    chatHistoryList.appendChild(item);
+                });
+            }
+            
+            function renameChat(chatId) {
+                const chat = allChats.find(c => c.id === chatId);
+                const newTitle = prompt("Enter new chat title:", chat.title);
+                if(newTitle && newTitle.trim() !== '') {
+                    chat.title = newTitle.trim();
+                    saveAllChats();
+                    renderChatHistorySidebar();
+                }
+            }
+            
+            function deleteChat(chatId) {
+                if(confirm("Are you sure you want to delete this chat?")) {
+                    allChats = allChats.filter(c => c.id !== chatId);
+                    saveAllChats();
+                    if(currentChatId === chatId) {
+                        currentChatId = null;
+                        if(allChats.length > 0) {
+                            loadChat(allChats[0].id);
+                        } else {
+                            startNewChat();
+                        }
+                    }
+                    renderChatHistorySidebar();
+                }
+            }
+            
+            function updateActiveNavLinkOnScroll() {
+                 const headerOffset = 120;
+                 let currentSectionId = sections[0].id;
+
+                sections.forEach(section => {
+                    const rect = section.getBoundingClientRect();
+                    if (rect.top <= headerOffset && rect.bottom >= headerOffset) {
+                       currentSectionId = section.id;
+                    }
+                });
+
+                navLinks.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('href') === `#${currentSectionId}`) {
+                        link.classList.add('active');
+                    }
+                });
+
+                 if (`#${currentSectionId}` === '#home') {
+                    if (!typingAnimationTimeout && currentHeroCharIndex === 0) {
+                        heroTitle.innerHTML = '';
+                        runTypingAnimation();
+                    }
+                } else {
+                    stopTypingAnimation();
+                }
+            }
+
+            async function initialize() {
+                // Theme setup
                 const savedTheme = localStorage.getItem('alaraTheme');
                 if (savedTheme === 'dark') document.body.classList.add('dark');
                 updateThemeIcons(savedTheme === 'dark');
+                
+                // Navigation setup
                 showSection(window.location.hash || '#home');
-                await updateLoginState(); 
+                
+                // Check for OAuth return
+                const isOAuthReturn = checkForOAuthReturn();
+                
+                // Auth check with potential delay for OAuth
+                if (isOAuthReturn) {
+                    // Wait a bit longer for OAuth processing
+                    setTimeout(checkAuthStatus, 1000);
+                } else {
+                    await checkAuthStatus();
+                }
+                
+                // Chat setup
                 loadAllChats();
                 if (allChats.length === 0) {
                     startNewChat();
                 } else {
                     loadChat(allChats[0].id);
                 }
+                
                 updateSendButtonUI(false);
+                
+                // Scroll handler
+                let scrollTimeout;
+                window.addEventListener('scroll', () => {
+                    clearTimeout(scrollTimeout);
+                    scrollTimeout = setTimeout(updateActiveNavLinkOnScroll, 50);
+                });
+                
+                setTimeout(updateActiveNavLinkOnScroll, 100);
+                
+                // Listen for storage events (for multi-tab auth sync)
+                window.addEventListener('storage', (e) => {
+                    if (e.key === 'alara_auth_change') {
+                        checkAuthStatus();
+                    }
+                });
+                
+                // Periodic auth check
+                setInterval(() => {
+                    if (!authCheckInProgress) {
+                        checkAuthStatus();
+                    }
+                }, 30000); // Check every 30 seconds
             }
+
+            // Handle browser back/forward navigation
+            window.addEventListener('popstate', () => {
+                showSection(window.location.hash || '#home');
+            });
 
             initialize();
         });
     </script>
 </body>
 </html>
-
