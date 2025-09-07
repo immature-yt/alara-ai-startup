@@ -176,7 +176,7 @@
         </section>
 
         <section id="chat" class="page-section vh-100 d-flex flex-column">
-             <button id="sidebar-toggle" class="d-none d-md-block position-fixed top-50 start-0 translate-middle-y ms-3 soft-card p-3 rounded-pill z-3" style="color: var(--primary-accent);">
+             <button id="sidebar-toggle" class="d-none d-md-block position-fixed start-0 ms-3 soft-card p-3 rounded-pill z-3" style="color: var(--primary-accent); top: 8rem;">
                  <svg style="height: 1.5rem; width: 1.5rem;" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
             </button>
             <div class="container-xl px-4 py-5 h-100 d-flex flex-column">
@@ -737,7 +737,17 @@
 
             function renderImagePreview() {
                 if (!attachedFile) return;
-                imagePreviewContainer.innerHTML = `<div class="position-relative d-inline-block"><img src="data:${attachedFile.mimeType};base64,${attachedFile.base64Data}" class="h-16 w-16 object-cover rounded-lg"><button id="remove-image-btn" class="position-absolute top-0 start-100 translate-middle btn btn-danger btn-sm rounded-circle">&times;</button></div>`;
+                imagePreviewContainer.innerHTML = `
+                    <div class="position-relative d-inline-block mb-2">
+                        <img src="data:${attachedFile.mimeType};base64,${attachedFile.base64Data}" 
+                             class="rounded-3 border" 
+                             style="width: 80px; height: 80px; object-fit: cover;">
+                        <button id="remove-image-btn" 
+                                class="position-absolute top-0 start-100 translate-middle btn btn-danger btn-sm rounded-circle p-1" 
+                                style="width: 24px; height: 24px; font-size: 12px; line-height: 1;"
+                                title="Remove image">&times;</button>
+                    </div>
+                `;
                 document.getElementById('remove-image-btn').addEventListener('click', clearAttachment);
             }
 
@@ -858,17 +868,18 @@
                 
                 allChats.forEach(chat => {
                     const item = document.createElement('div');
-                    item.className = 'p-3 rounded-lg cursor-pointer d-flex justify-content-between align-items-center text-sm font-weight-medium transition-all duration-200';
-                    item.style.cssText = 'cursor: pointer;';
+                    item.className = 'p-2 mb-1 rounded d-flex justify-content-between align-items-center';
+                    item.style.cursor = 'pointer';
                     
                     if (chat.id === currentChatId) {
-                        item.classList.add('bg-light');
+                        item.style.backgroundColor = 'var(--secondary-accent)';
+                        item.style.opacity = '0.7';
                     }
                     
                     item.addEventListener('mouseenter', () => {
                         if (chat.id !== currentChatId) {
                             item.style.backgroundColor = 'var(--secondary-accent)';
-                            item.style.opacity = '0.7';
+                            item.style.opacity = '0.5';
                         }
                     });
                     
@@ -880,24 +891,25 @@
                     });
                     
                     item.innerHTML = `
-                        <span class="text-truncate pe-2 flex-fill">${chat.title}</span>
+                        <span class="text-truncate pe-2 flex-fill" style="font-size: 0.9rem;">${chat.title}</span>
                         <div class="d-flex align-items-center gap-1 flex-shrink-0">
-                            <button class="rename-btn btn btn-sm p-1 rounded-pill" 
-                                    style="width: 32px; height: 32px; background: none; border: none; color: var(--text-color);" 
+                            <button class="rename-btn btn btn-sm p-1" 
+                                    style="width: 28px; height: 28px; background: none; border: none; color: var(--text-color);" 
                                     title="Rename chat">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                                    <path d="m18.5 2.5 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
+                                    <path d="m15 5 4 4"/>
                                 </svg>
                             </button>
-                            <button class="delete-btn btn btn-sm p-1 rounded-pill" 
-                                    style="width: 32px; height: 32px; background: none; border: none; color: #dc3545;" 
+                            <button class="delete-btn btn btn-sm p-1" 
+                                    style="width: 28px; height: 28px; background: none; border: none; color: #dc3545;" 
                                     title="Delete chat">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <polyline points="3,6 5,6 21,6"></polyline>
-                                    <path d="m19,6v14a2,2 0 0,1 -2,2H7a2,2 0 0,1 -2,-2V6m3,0V4a2,2 0 0,1 2,-2h4a2,2 0 0,1 2,2v2"></path>
-                                    <line x1="10" y1="11" x2="10" y2="17"></line>
-                                    <line x1="14" y1="11" x2="14" y2="17"></line>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M3 6h18"/>
+                                    <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
+                                    <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
+                                    <line x1="10" x2="10" y1="11" y2="17"/>
+                                    <line x1="14" x2="14" y1="11" y2="17"/>
                                 </svg>
                             </button>
                         </div>
@@ -909,16 +921,16 @@
                     
                     renameBtn.addEventListener('mouseenter', () => {
                         renameBtn.style.backgroundColor = 'var(--secondary-accent)';
-                        renameBtn.style.opacity = '0.8';
+                        renameBtn.style.borderRadius = '4px';
                     });
                     
                     renameBtn.addEventListener('mouseleave', () => {
                         renameBtn.style.backgroundColor = '';
-                        renameBtn.style.opacity = '';
                     });
                     
                     deleteBtn.addEventListener('mouseenter', () => {
                         deleteBtn.style.backgroundColor = 'rgba(220, 53, 69, 0.1)';
+                        deleteBtn.style.borderRadius = '4px';
                     });
                     
                     deleteBtn.addEventListener('mouseleave', () => {
