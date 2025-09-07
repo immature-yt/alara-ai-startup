@@ -259,8 +259,11 @@
             const themeToggle = document.getElementById('theme-toggle');
             const themeIconLight = document.getElementById('theme-icon-light');
             const themeIconDark = document.getElementById('theme-icon-dark');
+            const previewIframe = document.getElementById('code-preview-iframe');
+            const previewPlaceholder = document.getElementById('preview-placeholder');
+            const previewContainer = document.getElementById('preview-container');
             const sidebar = document.getElementById('chat-sidebar');
-            const sidebarToggle = document.getElementById('sidebar-toggle'); 
+            const sidebarToggle = document.getElementById('sidebar-toggle');
             const closeSidebarButton = document.getElementById('close-sidebar-button');
             const newChatButton = document.getElementById('new-chat-button');
             const chatHistoryList = document.getElementById('chat-history-list');
@@ -301,14 +304,13 @@
                     proPlanButton.textContent = 'Your Current Plan';
                     proPlanButton.disabled = true;
                     proPlanButton.classList.add('bg-gray-300', '!text-gray-700', 'cursor-default');
-                    proPlanCard.classList.remove('border-2', 'border-transparent');
+                    proPlanCard.classList.remove('border-2', 'border-[color:var(--primary-accent)]');
                     proPlanCard.classList.add('border-4', 'border-green-500');
                     
                     freePlanButton.textContent = 'Downgrade';
                     freePlanButton.disabled = false;
                     freePlanButton.classList.remove('bg-gray-300', '!text-gray-700', 'cursor-default');
                     freePlanCard.classList.add('opacity-70');
-                    freePlanCard.classList.remove('border-2', 'border-[color:var(--primary-accent)]');
                 } else {
                     freePlanButton.textContent = 'Your Current Plan';
                     freePlanButton.disabled = true;
@@ -329,7 +331,7 @@
                     finalPrompt += proUpgradeMessage;
                     imageGenerationLimit = 5;
                     chatInput.setAttribute('maxlength', '5000');
-                    charCounter.textContent = `${chatInput.value.length} / 5000`; 
+                    charCounter.textContent = `0 / 5000`;
                 }
 
                 systemPrompt = finalPrompt;
@@ -343,7 +345,7 @@
                     loginCta.classList.remove('hidden');
                     loginCta.classList.add('flex');
                     chatBox.classList.add('hidden');
-                    charCounter.textContent = ''; 
+                    charCounter.textContent = '';
                 } else {
                     chatInput.disabled = false;
                     sendButton.disabled = false;
@@ -411,38 +413,20 @@
             }
 
             function showSection(targetHash) {
-                const targetId = targetHash || '#home';
-                document.querySelectorAll('.page-section').forEach(section => {
-                    section.style.display = 'none';
-                });
-                const targetSection = document.querySelector(targetId);
-                if(targetSection) {
-                    targetSection.style.display = 'flex'; // Changed from block to flex
+                if (!targetHash) targetHash = '#home';
+                
+                // Use scrolling for navigation
+                const targetElement = document.querySelector(targetHash);
+                if (targetElement) {
+                    targetElement.scrollIntoView({ behavior: 'smooth' });
                 }
                 
-                navLinks.forEach(l => {
-                    l.classList.remove('active');
-                    if (l.getAttribute('href') === targetId) {
-                        l.classList.add('active');
-                    }
-                });
-
-                if (window.location.hash !== targetId) {
-                    window.history.pushState(null, '', targetId);
-                }
-                
-                mobileMenu.classList.add('hidden');
-                
-                if (targetId === '#home') {
-                    if (!typingAnimationTimeout && currentHeroCharIndex === 0) {
-                        heroTitle.innerHTML = '';
-                        runTypingAnimation();
-                    }
-                } else {
-                    stopTypingAnimation();
+                // Update history without causing a page jump
+                if (window.location.hash !== targetHash) {
+                    history.pushState(null, null, targetHash);
                 }
             }
-
+            
             function postProcessMessageBubble(bubble) {
                 const codeBlocks = bubble.querySelectorAll('pre');
                 codeBlocks.forEach(pre => {
@@ -889,12 +873,13 @@
             }
             
             function updateActiveNavLinkOnScroll() {
-                 const headerOffset = 120;
-                 let currentSectionId = sections[0].id;
+                const headerOffset = 120;
+                let currentSectionId = sections[0].id;
 
                 sections.forEach(section => {
                     const sectionTop = section.offsetTop;
-                    if (window.scrollY >= sectionTop - headerOffset) {
+                    const sectionHeight = section.offsetHeight;
+                    if (window.scrollY >= sectionTop - headerOffset && window.scrollY < sectionTop + sectionHeight - headerOffset) {
                         currentSectionId = section.id;
                     }
                 });
@@ -906,7 +891,7 @@
                     }
                 });
 
-                 if (`#${currentSectionId}` === '#home') {
+                if (`#${currentSectionId}` === '#home') {
                     if (!typingAnimationTimeout && currentHeroCharIndex === 0) {
                         heroTitle.innerHTML = '';
                         runTypingAnimation();
@@ -921,7 +906,7 @@
                 if (savedTheme === 'dark') document.body.classList.add('dark');
                 updateThemeIcons(savedTheme === 'dark');
                 
-                showSection(window.location.hash || '#home');
+                showSection(window.location.hash);
                 
                 await updateLoginState(); 
                 
@@ -934,7 +919,12 @@
                 
                 updateSendButtonUI(false);
                 
-                window.addEventListener('scroll', updateActiveNavLinkOnScroll, { passive: true });
+                let scrollTimeout;
+                window.addEventListener('scroll', () => {
+                    clearTimeout(scrollTimeout);
+                    scrollTimeout = setTimeout(updateActiveNavLinkOnScroll, 50);
+                });
+                
                 setTimeout(updateActiveNavLinkOnScroll, 100);
             }
 
