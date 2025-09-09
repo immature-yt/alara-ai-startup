@@ -92,7 +92,7 @@
         .page-section { display: none; animation: fadeIn 0.8s ease-out; }
         .page-section.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        .chat-message { animation: popIn 0.3s ease-out; }
+        .chat-message { animation: popIn 0.3s ease-out; position: relative; }
         @keyframes popIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
         .ai-typing-indicator span { animation: bounce 1.4s infinite ease-in-out both; }
         @keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1.0); } }
@@ -106,8 +106,31 @@
         .dark .copy-code-button:hover { background-color: rgba(0, 0, 0, 0.4); }
         :not(pre) > code[class*="language-"] { background: var(--system-bubble-bg); color: var(--text-color); padding: .2em .4em; border-radius: .4em; }
         .dark :not(pre) > code[class*="language-"] { background: #3e3e3e; color: #f0f0f0; }
-        .pdf-button { opacity: 0; transition: opacity 0.3s ease; }
-        .chat-message:hover .pdf-button { opacity: 1; }
+        
+        /* Fixed PDF button visibility */
+        .pdf-button { 
+            opacity: 0; 
+            transition: opacity 0.3s ease; 
+        }
+        .chat-message:hover .pdf-button { 
+            opacity: 1; 
+        }
+        
+        /* Better button container positioning */
+        .message-actions { 
+            position: absolute; 
+            top: -12px; 
+            right: -12px; 
+            z-index: 10; 
+            display: flex; 
+            gap: 4px; 
+            opacity: 0; 
+            transition: opacity 0.3s ease; 
+        }
+        .chat-message:hover .message-actions { 
+            opacity: 1; 
+        }
+        
         .ai-bubble { background-color: var(--ai-bubble-bg); color: var(--text-color); border-bottom-left-radius: 0.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
         .user-bubble { background-color: var(--user-bubble-bg); color: white; border-bottom-right-radius: 0.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
         .dark .user-bubble { color: hsl(220, 25%, 15%); }
@@ -121,11 +144,39 @@
         #chat-sidebar.open { left: 0; }
         #home::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, var(--secondary-accent) 0%, rgba(255,255,255,0) 50%, var(--primary-accent) 100%); opacity: 0.1; z-index: -1; transition: background 0.4s ease-in-out, opacity 0.4s ease-in-out; }
         .dark #home::before { background: linear-gradient(135deg, var(--secondary-accent) 0%, rgba(0,0,0,0) 50%, var(--primary-accent) 100%); opacity: 0.08; }
-        .pdf-render-scale { font-size: 1.2em !important; line-height: 1.5 !important; }
+        
+        /* Enhanced PDF rendering for mathematical symbols */
+        .pdf-render-scale { 
+            font-size: 1.3em !important; 
+            line-height: 1.6 !important; 
+        }
+        .pdf-render-scale .katex { 
+            font-size: 1.2em !important; 
+        }
+        .pdf-render-scale .katex-display { 
+            margin: 1em 0 !important; 
+        }
+        
         .navbar-brand sup { font-size: 0.5em; font-weight: normal; }
         .navbar .soft-button { padding: .5rem 1.5rem !important; font-size: .875rem !important; }
         .auth-loading { display: inline-block; width: 1rem; height: 1rem; border: 2px solid #f3f3f3; border-top: 2px solid var(--primary-accent); border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* Loading spinner for image generation */
+        .image-generating {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .image-generating::after {
+            content: "";
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--primary-accent);
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
     </style>
 </head>
 <body class="position-relative d-flex flex-column vh-100">
@@ -225,20 +276,6 @@
                     <div class="col-md-6 col-lg-5">
                         <div id="free-plan-card" class="soft-card p-4 h-100 d-flex flex-column">
                             <h3 class="fs-2 fw-bold mb-2">Free</h3>
-                            <p class="fs-5 mb-4 text-secondary">For casual users & exploration</p>
-                            <ul class="list-unstyled flex-grow-1 mb-4">
-                                <li class="d-flex align-items-center mb-3"><span class="text-success me-2">✓</span>Alara Nova Model</li>
-                                <li class="d-flex align-items-center mb-3"><span class="text-success me-2">✓</span>Standard Chat Responses</li>
-                                <li class="d-flex align-items-center mb-3"><span class="text-success me-2">✓</span>Local Chat History</li>
-                                <li class="d-flex align-items-center mb-3"><span class="text-danger me-2">✗</span>5 Image Generations / Hour</li>
-                                <li class="d-flex align-items-center"><span class="text-danger me-2">✗</span>Limited Prompt Length</li>
-                            </ul>
-                            <button id="free-plan-button" class="soft-button btn-secondary disabled">Your Current Plan</button>
-                        </div>
-                    </div>
-                     <div class="col-md-6 col-lg-5">
-                        <div id="pro-plan-card" class="soft-card p-4 h-100 d-flex flex-column">
-                            <h3 class="fs-2 fw-bold mb-2">Alara Pro</h3>
                             <p class="fs-5 mb-4 text-secondary">For power users & professionals</p>
                             <ul class="list-unstyled flex-grow-1 mb-4">
                                 <li class="d-flex align-items-center mb-3"><span class="text-success me-2">✓</span>Alara Nova Pro Model</li>
@@ -312,6 +349,8 @@
             let imageGenerationLimit = 5;
             let isAwaitingResponse = false;
             let authCheckInProgress = false;
+            let imageGenerationCount = 0;
+            let imageGenerationResetTime = Date.now();
             
             const baseSystemPrompt = `You are Alara, a knowledgeable and direct AI assistant. You provide clear, concise, and accurate explanations. You must directly answer the user's request. When asked for code, you must provide a complete, runnable HTML/CSS/JS code block first, followed by a brief, step-by-step explanation. CRITICAL RULE: For beginner-friendly examples, you MUST avoid complex libraries or functions (like iostream in C++) unless the user specifically asks for them. Use comments to indicate where output would appear instead of printing to a console. When asked for structured data, use Markdown tables. Ensure all responses are well-written, with correct grammar and punctuation. You are Alara, beta v1.0. If asked about your knowledge cutoff, state that your data is current up to early 2025. If the user asks who made you, who trained you, or who coded you, you must say that you were created by a brilliant developer. You can add that your developer leveraged powerful existing LLMs to help bring you to life quickly, but the vision, design, and implementation are entirely their work. If the user asks about the specific AI model you use (e.g., 'are you Gemini?'), state that your architecture is proprietary and was developed by your creator, but that it leverages foundational technologies from major AI labs to accelerate development.`;
             const proUpgradeMessage = ` CRITICAL RULE FOR LONG RESPONSES: If the user requests a long-form text output like an essay, a story, a business plan, or a detailed article, you must provide a concise, high-quality summary or the first complete paragraph (approximately 150 words). After this summary, on a new line, you must include the following message with a warning symbol: '⚠️ For the full, detailed response, please upgrade to Alara Pro.' This rule does NOT apply to requests for code, tables, or step-by-step instructions.`;
@@ -507,7 +546,35 @@
                 Prism.highlightAllUnder(bubble);
                 
                 renderMathInElement(bubble, {
-                    delimiters: [ {left: '$', right: '$', display: true}, {left: ', right: ', display: false} ]
+                    delimiters: [ {left: '$', right: '$', display: true}, {left: '-4 text-secondary">For casual users & exploration</p>
+                            <ul class="list-unstyled flex-grow-1 mb-4">
+                                <li class="d-flex align-items-center mb-3"><span class="text-success me-2">✓</span>Alara Nova Model</li>
+                                <li class="d-flex align-items-center mb-3"><span class="text-success me-2">✓</span>Standard Chat Responses</li>
+                                <li class="d-flex align-items-center mb-3"><span class="text-success me-2">✓</span>Local Chat History</li>
+                                <li class="d-flex align-items-center mb-3"><span class="text-danger me-2">✗</span>5 Image Generations / Hour</li>
+                                <li class="d-flex align-items-center"><span class="text-danger me-2">✗</span>Limited Prompt Length</li>
+                            </ul>
+                            <button id="free-plan-button" class="soft-button btn-secondary disabled">Your Current Plan</button>
+                        </div>
+                    </div>
+                     <div class="col-md-6 col-lg-5">
+                        <div id="pro-plan-card" class="soft-card p-4 h-100 d-flex flex-column">
+                            <h3 class="fs-2 fw-bold mb-2">Alara Pro</h3>
+                            <p class="fs-5 mb, right: '-4 text-secondary">For casual users & exploration</p>
+                            <ul class="list-unstyled flex-grow-1 mb-4">
+                                <li class="d-flex align-items-center mb-3"><span class="text-success me-2">✓</span>Alara Nova Model</li>
+                                <li class="d-flex align-items-center mb-3"><span class="text-success me-2">✓</span>Standard Chat Responses</li>
+                                <li class="d-flex align-items-center mb-3"><span class="text-success me-2">✓</span>Local Chat History</li>
+                                <li class="d-flex align-items-center mb-3"><span class="text-danger me-2">✗</span>5 Image Generations / Hour</li>
+                                <li class="d-flex align-items-center"><span class="text-danger me-2">✗</span>Limited Prompt Length</li>
+                            </ul>
+                            <button id="free-plan-button" class="soft-button btn-secondary disabled">Your Current Plan</button>
+                        </div>
+                    </div>
+                     <div class="col-md-6 col-lg-5">
+                        <div id="pro-plan-card" class="soft-card p-4 h-100 d-flex flex-column">
+                            <h3 class="fs-2 fw-bold mb-2">Alara Pro</h3>
+                            <p class="fs-5 mb, display: false} ]
                 });
             }
 
@@ -535,17 +602,18 @@
 
                 bubble.appendChild(contentDiv);
 
+                // Fixed PDF button visibility and positioning
                 if (sender === 'ai' && message) {
-                    const buttonContainer = document.createElement('div');
-                    buttonContainer.className = 'position-absolute top-0 end-0 mt-2 me-2 d-flex gap-1 opacity-0 group-hover-opacity-100';
+                    const actionsContainer = document.createElement('div');
+                    actionsContainer.className = 'message-actions';
                     
                     const pdfButton = document.createElement('button');
-                    pdfButton.className = 'pdf-button btn btn-light btn-sm rounded-pill';
+                    pdfButton.className = 'pdf-button btn btn-light btn-sm rounded-circle shadow-sm';
                     pdfButton.title = 'Download as PDF';
-                    pdfButton.innerHTML = `<svg style="height: 1rem; width: 1rem;" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>`;
-                    buttonContainer.appendChild(pdfButton);
+                    pdfButton.innerHTML = `<svg style="height: 1rem; width: 1rem;" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>`;
+                    actionsContainer.appendChild(pdfButton);
                     
-                    bubble.appendChild(buttonContainer);
+                    bubble.appendChild(actionsContainer);
                 }
 
                 wrapper.appendChild(bubble);
@@ -608,6 +676,98 @@
                 return await response.json();
             }
 
+            // Check image generation rate limit
+            function checkImageGenerationLimit() {
+                const now = Date.now();
+                if (now - imageGenerationResetTime > 3600000) { // 1 hour = 3600000ms
+                    imageGenerationCount = 0;
+                    imageGenerationResetTime = now;
+                }
+                return imageGenerationCount < imageGenerationLimit;
+            }
+
+            // Image generation function connected to your API
+            async function generateImage() {
+                if (!currentUser) {
+                    addMessage("Please log in to generate images.", 'system');
+                    return;
+                }
+
+                if (!checkImageGenerationLimit()) {
+                    const timeLeft = Math.ceil((3600000 - (Date.now() - imageGenerationResetTime)) / 60000);
+                    addMessage(`Image generation limit reached. Please wait ${timeLeft} minutes or upgrade to Pro for more generations.`, 'system');
+                    return;
+                }
+
+                const prompt = chatInput.value.trim();
+                if (!prompt) {
+                    addMessage("Please enter a description for the image you'd like to generate.", 'system');
+                    return;
+                }
+
+                // Show generating message
+                const generatingBubble = addMessage(`Generating image: "${prompt}"`, 'ai');
+                const generateButton = generateImageButton;
+                const originalButtonHTML = generateButton.innerHTML;
+                generateButton.innerHTML = `<div class="image-generating">Generating...</div>`;
+                generateButton.disabled = true;
+
+                chatInput.value = '';
+                chatInput.dispatchEvent(new Event('input'));
+
+                try {
+                    const response = await fetch('/api/imagine', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ prompt }),
+                        credentials: 'include'
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`Failed to generate image: ${response.statusText}`);
+                    }
+
+                    const result = await response.json();
+                    
+                    // Remove generating message
+                    generatingBubble.remove();
+
+                    if (result.success && result.imageUrl) {
+                        // Add image to chat
+                        addMessage(`Here's your generated image:`, 'ai', { 
+                            imageUrl: result.imageUrl, 
+                            imageAlt: `Generated image: ${prompt}` 
+                        });
+
+                        // Update chat history
+                        const currentChat = allChats.find(c => c.id === currentChatId);
+                        if (currentChat) {
+                            currentChat.history.push({ 
+                                role: "user", 
+                                parts: [{ text: `Generate image: ${prompt}` }] 
+                            });
+                            currentChat.history.push({ 
+                                role: "model", 
+                                parts: [{ text: `Image generated: ${result.imageUrl}` }] 
+                            });
+                            saveAllChats();
+                        }
+
+                        imageGenerationCount++;
+                    } else {
+                        addMessage("Sorry, I couldn't generate the image. Please try again with a different prompt.", 'ai');
+                    }
+
+                } catch (error) {
+                    console.error('Image generation error:', error);
+                    generatingBubble.remove();
+                    addMessage("There was an error generating your image. Please try again later.", 'ai');
+                } finally {
+                    generateButton.innerHTML = originalButtonHTML;
+                    generateButton.disabled = false;
+                }
+            }
+
             async function handleSendMessage(event) {
                 if (event) event.preventDefault();
                 if (isAwaitingResponse) return;
@@ -666,11 +826,6 @@
                     isAwaitingResponse = false;
                     updateSendButtonUI(false);
                 }
-            }
-            
-            async function generateImage() {
-                // Placeholder for image generation logic
-                addMessage("Image generation feature coming soon!", 'system');
             }
 
             function updateSendButtonUI(isThinking) {
@@ -778,7 +933,12 @@
                         margin: [15, 15, 15, 15],
                         autoPaging: 'text',
                         width: 180,
-                        windowWidth: 750
+                        windowWidth: 750,
+                        html2canvas: {
+                            scale: 2,
+                            useCORS: true,
+                            letterRendering: true
+                        }
                     });
                 } else if (target.matches('.copy-code-button, .copy-code-button *')) {
                     const codeBlock = target.closest('pre')?.querySelector('code');
