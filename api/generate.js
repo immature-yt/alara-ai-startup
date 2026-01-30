@@ -19,7 +19,7 @@ export default async function handler(request, response) {
     }
 
     // 3. Select the AI model based on your available API key.
-    const model = 'gemini-1.5-flash'; 
+    const model = 'gemini-2.5-flash'; 
     console.log(`User plan: '${userPlan}', using model: '${model}'`); // FIXED: Changed backticks in console.log
 
     // 4. Call the Gemini API with the selected model
