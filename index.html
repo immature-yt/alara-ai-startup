@@ -9,7 +9,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- FONTS: Original Nunito + Poppins -->
+    <!-- FONTS -->
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&family=Poppins:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     
     <!-- UTILITIES -->
@@ -36,38 +36,37 @@
             --font-code: 'JetBrains Mono', monospace;
             
             /* LIGHT THEME */
-            --bg-body: #fff0f5; /* Very subtle pink tint background */
+            --bg-body: #fff0f5; 
             --bg-sidebar: rgba(255, 255, 255, 0.65);
             --bg-card: rgba(255, 255, 255, 0.85);
             --bg-glass: rgba(255, 255, 255, 0.7);
-            --text-primary: #4a044e; /* Dark pink/purple text */
+            --text-primary: #4a044e;
             --text-secondary: #86198f;
             
-            /* BRAND COLORS (Restored Pink/Rose) */
-            --accent: #db2777; /* Pink-600 */
+            /* BRAND COLORS (Pink/Rose) */
+            --accent: #db2777; 
             --accent-gradient: linear-gradient(135deg, #ec4899 0%, #db2777 100%);
             --accent-glow: rgba(236, 72, 153, 0.4);
-            --accent-light: #fce7f3; /* Pink-100 */
+            --accent-light: #fce7f3;
             
             --border: rgba(255, 255, 255, 0.8);
             --shadow-light: 0 8px 32px 0 rgba(219, 39, 119, 0.07);
             --shadow-float: 0 20px 50px -12px rgba(219, 39, 119, 0.15);
             
-            /* CHAT COLORS */
             --ai-bubble-bg: #ffffff;
             --user-bubble-bg: var(--accent);
         }
 
         .dark {
             /* DARK THEME */
-            --bg-body: #1a0515; /* Deep plum background */
+            --bg-body: #1a0515;
             --bg-sidebar: rgba(30, 10, 25, 0.7);
             --bg-card: rgba(45, 15, 35, 0.7);
             --bg-glass: rgba(30, 10, 25, 0.8);
             --text-primary: #fdf2f8;
             --text-secondary: #fbcfe8;
             
-            --accent: #f472b6; /* Pink-400 */
+            --accent: #f472b6;
             --accent-gradient: linear-gradient(135deg, #f472b6 0%, #c026d3 100%);
             --accent-glow: rgba(244, 114, 182, 0.4);
             --accent-light: rgba(244, 114, 182, 0.15);
@@ -76,7 +75,7 @@
             --shadow-light: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
             
             --ai-bubble-bg: rgba(255, 255, 255, 0.08);
-            --user-bubble-bg: var(--accent); /* Keep accent for user bubble */
+            --user-bubble-bg: var(--accent);
         }
 
         /* --- GLOBAL & ANIMATIONS --- */
@@ -92,13 +91,12 @@
 
         h1, h2, h3, h4, h5 { font-family: var(--font-header); font-weight: 800; color: var(--text-primary); }
 
-        /* Smoother Scrollbars */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: rgba(219, 39, 119, 0.2); border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
 
-        /* --- FLUID BACKGROUND ("Oil in Water" - Pink Edition) --- */
+        /* --- FLUID BACKGROUND --- */
         .blob-container { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
             z-index: -1; overflow: hidden; pointer-events: none; 
@@ -109,43 +107,17 @@
             border-radius: 50%; 
             filter: blur(80px); 
             opacity: 0.6; 
-            /* This mix-blend-mode creates the "oil" overlap effect */
             mix-blend-mode: multiply; 
             animation: drift 20s infinite ease-in-out alternate;
         }
         .dark .blob { mix-blend-mode: screen; opacity: 0.3; filter: blur(100px); }
 
-        /* Blob 1: Rose Pink - Moving Bottom Left to Center */
-        .blob-1 { 
-            width: 500px; height: 500px; 
-            background: #fbcfe8; /* Rose-200 */
-            bottom: -100px; left: -100px; 
-            animation-duration: 25s;
-        }
-        
-        /* Blob 2: Magenta/Fuchsia - Moving Top Right */
-        .blob-2 { 
-            width: 450px; height: 450px; 
-            background: #f5d0fe; /* Fuchsia-200 */
-            top: -50px; right: -50px; 
-            animation-duration: 28s; 
-            animation-delay: -5s;
-        }
-        
-        /* Blob 3: Deep Pink Accent - Wandering */
-        .blob-3 { 
-            width: 350px; height: 350px; 
-            background: #f472b6; /* Pink-400 */
-            top: 40%; left: 40%; 
-            opacity: 0.4;
-            animation-duration: 35s; 
-            animation-delay: -10s;
-        }
+        .blob-1 { width: 500px; height: 500px; background: #fbcfe8; bottom: -100px; left: -100px; animation-duration: 25s; }
+        .blob-2 { width: 450px; height: 450px; background: #f5d0fe; top: -50px; right: -50px; animation-duration: 28s; animation-delay: -5s; }
+        .blob-3 { width: 350px; height: 350px; background: #f472b6; top: 40%; left: 40%; opacity: 0.4; animation-duration: 35s; animation-delay: -10s; }
 
         @keyframes drift {
             0% { transform: translate(0, 0) scale(1) rotate(0deg); border-radius: 50%; }
-            33% { transform: translate(50px, -50px) scale(1.1) rotate(10deg); border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
-            66% { transform: translate(-30px, 40px) scale(0.9) rotate(-5deg); border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%; }
             100% { transform: translate(0, 0) scale(1) rotate(0deg); border-radius: 50%; }
         }
 
@@ -261,30 +233,13 @@
             max-width: 100%;
         }
         
-        .message.ai .msg-content {
-            background-color: var(--ai-bubble-bg);
-            color: var(--text-primary);
-            border-top-left-radius: 0.2rem;
-        }
-        
-        .message.user .msg-content {
-            background-color: var(--user-bubble-bg);
-            color: white;
-            border-top-right-radius: 0.2rem;
-        }
-        .dark .message.user .msg-content { color: #fff; } /* Ensure text is white on user bubble in dark mode */
+        .message.ai .msg-content { background-color: var(--ai-bubble-bg); color: var(--text-primary); border-top-left-radius: 0.2rem; }
+        .message.user .msg-content { background-color: var(--user-bubble-bg); color: white; border-top-right-radius: 0.2rem; }
+        .dark .message.user .msg-content { color: #fff; }
 
-        /* Rich Content Styling */
-        .msg-content p { margin-bottom: 0.8rem; }
-        .msg-content p:last-child { margin-bottom: 0; }
-        
         .msg-content pre { 
-            background: #2d2d2d; 
-            border-radius: 0.8rem; 
-            padding: 1rem; 
-            color: #f8f8f2; 
-            overflow-x: auto;
-            margin: 1rem 0;
+            background: #2d2d2d; border-radius: 0.8rem; padding: 1rem; 
+            color: #f8f8f2; overflow-x: auto; margin: 1rem 0; 
             border: 1px solid rgba(255,255,255,0.1);
         }
         .msg-content code { font-family: var(--font-code); font-size: 0.9em; }
@@ -327,6 +282,7 @@
             align-items: flex-end;
             box-shadow: var(--shadow-light);
             transition: all 0.3s ease;
+            gap: 0.5rem;
         }
         .chat-input-wrapper:focus-within {
             border-color: var(--accent);
@@ -334,9 +290,32 @@
             transform: translateY(-2px);
         }
 
+        /* --- MODE BADGES (New) --- */
+        .mode-badge {
+            display: none; /* Hidden by default */
+            align-items: center;
+            background: var(--accent-light);
+            color: var(--accent);
+            padding: 0.4rem 0.8rem;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            white-space: nowrap;
+            margin-bottom: 0.2rem;
+            border: 1px solid var(--accent);
+        }
+        .mode-badge.active { display: flex; }
+        .mode-badge .close-mode {
+            margin-left: 0.5rem;
+            cursor: pointer;
+            opacity: 0.6;
+            transition: opacity 0.2s;
+        }
+        .mode-badge .close-mode:hover { opacity: 1; }
+
         textarea {
             flex: 1; border: none; background: transparent;
-            resize: none; padding: 0.6rem 1rem; outline: none;
+            resize: none; padding: 0.6rem 0.5rem; outline: none;
             color: var(--text-primary); max-height: 150px;
             font-size: 1rem; font-family: var(--bs-body-font-family);
         }
@@ -344,14 +323,14 @@
         .tool-btn {
             background: transparent; border: none; color: var(--text-secondary);
             padding: 0.6rem; border-radius: 50%; transition: 0.2s;
-            cursor: pointer; opacity: 0.7;
+            cursor: pointer; opacity: 0.7; flex-shrink: 0;
         }
         .tool-btn:hover { background: var(--accent-light); color: var(--accent); opacity: 1; }
 
         .send-btn {
             background: var(--accent-gradient);
             color: white; border: none; border-radius: 50%;
-            width: 2.5rem; height: 2.5rem;
+            width: 2.5rem; height: 2.5rem; flex-shrink: 0;
             display: flex; align-items: center; justify-content: center;
             transition: 0.3s; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
@@ -391,10 +370,7 @@
             color: var(--accent); cursor: pointer;
             transition: all 0.2s; 
         }
-        .preview-btn:hover { 
-            background: var(--accent); 
-            color: white; transform: translateY(-2px); 
-        }
+        .preview-btn:hover { background: var(--accent); color: white; transform: translateY(-2px); }
         .dark .preview-btn:hover { color: white; }
 
         /* Tools Dropdown */
@@ -440,39 +416,22 @@
             font-weight: 600; color: var(--text-secondary); cursor: pointer;
             transition: all 0.2s; box-shadow: var(--shadow-light);
         }
-        .suggestion-card:hover { 
-            transform: translateY(-3px); color: var(--accent);
-            box-shadow: var(--shadow-light-hover);
-        }
+        .suggestion-card:hover { transform: translateY(-3px); color: var(--accent); box-shadow: var(--shadow-light-hover); }
         
-        /* Pricing Cards - UPGRADED BUTTONS */
+        /* Pricing Cards */
         .pricing-card {
-            border: 1px solid var(--border);
-            background: var(--bg-glass);
-            border-radius: 1.5rem;
-            padding: 2rem;
-            text-align: center;
-            transition: all 0.3s;
+            border: 1px solid var(--border); background: var(--bg-glass);
+            border-radius: 1.5rem; padding: 2rem; text-align: center; transition: all 0.3s;
         }
         .pricing-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-light-hover); border-color: var(--accent); }
         .pricing-card.featured { border: 2px solid var(--accent); background: linear-gradient(180deg, var(--bg-card) 0%, var(--accent-light) 100%); }
 
         .upgrade-btn {
-            background: var(--accent-gradient);
-            color: white;
-            border: none;
-            border-radius: 999px;
-            padding: 12px 24px;
-            font-weight: 700;
-            width: 100%;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px var(--accent-glow);
+            background: var(--accent-gradient); color: white; border: none; border-radius: 999px;
+            padding: 12px 24px; font-weight: 700; width: 100%;
+            transition: all 0.3s ease; box-shadow: 0 4px 15px var(--accent-glow);
         }
-        .upgrade-btn:hover {
-            transform: translateY(-2px) scale(1.02);
-            box-shadow: 0 8px 25px var(--accent-glow);
-            color: white;
-        }
+        .upgrade-btn:hover { transform: translateY(-2px) scale(1.02); box-shadow: 0 8px 25px var(--accent-glow); color: white; }
 
         /* Mobile */
         @media (max-width: 768px) {
@@ -572,9 +531,15 @@
                         <i class="fas fa-plus fa-lg"></i>
                     </button>
                     
+                    <!-- Mode Badge (Hidden by default) -->
+                    <div id="image-mode-badge" class="mode-badge">
+                        <i class="fas fa-image me-1"></i> Image Mode
+                        <i class="fas fa-times close-mode" onclick="toggleImageMode(false)"></i>
+                    </div>
+
                     <!-- Tools Dropdown -->
                     <div class="custom-dropdown" id="tools-dropdown">
-                        <div class="dropdown-item-custom" onclick="activateTool('image')">
+                        <div class="dropdown-item-custom" onclick="toggleImageMode(true)">
                             <i class="fas fa-wand-magic-sparkles" style="color: var(--accent);"></i> Generate Image
                         </div>
                         <div class="dropdown-item-custom" onclick="activateTool('canvas')">
@@ -609,7 +574,7 @@
                     <button class="btn btn-sm btn-light text-secondary rounded-circle" style="width: 32px; height: 32px;" onclick="toggleCanvas(false)"><i class="fas fa-times"></i></button>
                 </div>
             </div>
-            <iframe id="preview-frame" sandbox="allow-scripts allow-modals"></iframe>
+            <iframe id="preview-frame" sandbox="allow-scripts allow-modals allow-same-origin"></iframe>
         </section>
 
     </main>
@@ -702,6 +667,7 @@
             let isCanvasOpen = false;
             let canvasCode = '';
             let typingIndicatorElement = null;
+            let currentMode = 'chat'; // 'chat' or 'image'
 
             // ELEMENTS
             const els = {
@@ -715,7 +681,8 @@
                 history: document.getElementById('history-list'),
                 welcome: document.getElementById('welcome-message'),
                 sidebar: document.getElementById('sidebar'),
-                charCount: document.getElementById('char-count')
+                charCount: document.getElementById('char-count'),
+                modeBadge: document.getElementById('image-mode-badge')
             };
 
             const settingsModal = new bootstrap.Modal(document.getElementById('settingsModal'));
@@ -745,9 +712,13 @@
                         updateUserUI(data.user);
                     } else {
                         document.getElementById('user-name').innerText = "Guest User";
+                        document.getElementById('settings-email').value = "Not Logged In"; // Fallback for loading state
                         els.input.placeholder = "Log in to chat...";
                     }
-                } catch (e) { console.error("Auth check error", e); }
+                } catch (e) { 
+                    console.error("Auth check error", e);
+                    document.getElementById('settings-email').value = "Guest (Not Logged In)"; 
+                }
             }
 
             function updateUserUI(user) {
@@ -798,6 +769,35 @@
                     });
                 }
                 renderHistoryList();
+            }
+
+            // Mode Switching Logic
+            window.toggleImageMode = function(active) {
+                currentMode = active ? 'image' : 'chat';
+                els.toolsDrop.classList.remove('show');
+                
+                if (active) {
+                    els.modeBadge.classList.add('active');
+                    els.input.placeholder = "Describe the image you want to generate...";
+                    els.input.focus();
+                } else {
+                    els.modeBadge.classList.remove('active');
+                    els.input.placeholder = "Ask Alara anything...";
+                }
+            }
+
+            async function handleSend() {
+                if (currentMode === 'image') {
+                    const prompt = els.input.value.trim();
+                    if(prompt) {
+                        generateImage(prompt);
+                        toggleImageMode(false); // Reset to chat mode after sending
+                        els.input.value = '';
+                        els.input.style.height = 'auto';
+                    }
+                } else {
+                    sendMessage();
+                }
             }
 
             async function sendMessage() {
@@ -898,7 +898,13 @@
 
                 content.querySelectorAll('pre code').forEach(block => {
                     hljs.highlightElement(block);
+                    // Check for HTML/CSS to enable Canvas
                     if (block.classList.contains('language-html') || block.classList.contains('language-xml')) {
+                        // If Canvas is ALREADY open, auto-update
+                        if(isCanvasOpen) {
+                            loadCanvas(block.innerText);
+                        }
+                        
                         const btn = document.createElement('button');
                         btn.className = 'preview-btn';
                         btn.innerHTML = '<i class="fas fa-play me-2"></i> Open in Canvas';
@@ -945,10 +951,8 @@
             window.loadCanvas = function(code) {
                 canvasCode = code;
                 toggleCanvas(true);
-                const doc = els.preview.contentWindow.document;
-                doc.open();
-                doc.write(code);
-                doc.close();
+                // Use srcdoc for safer/cleaner rendering
+                els.preview.srcdoc = code;
             };
 
             window.downloadCanvas = function() {
@@ -965,12 +969,11 @@
             window.activateTool = function(tool) {
                 els.toolsDrop.classList.remove('show');
                 if (tool === 'image') {
-                    const prompt = window.prompt("Describe the image you want to generate:");
-                    if (prompt) generateImage(prompt);
+                    // Activate Image Mode instead of prompt()
+                    toggleImageMode(true);
                 } else if (tool === 'canvas') {
                     toggleCanvas(true);
-                    const doc = els.preview.contentWindow.document;
-                    doc.body.innerHTML = `
+                    els.preview.srcdoc = `
                         <div style="font-family:sans-serif; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#64748b;">
                             <h2>Canvas Ready</h2>
                             <p>Ask Alara to write HTML code, then click "Open in Canvas".</p>
@@ -1053,9 +1056,10 @@
             }
 
             // EVENT LISTENERS
-            els.sendBtn.addEventListener('click', sendMessage);
+            // Updated to handle both modes
+            els.sendBtn.addEventListener('click', handleSend);
             els.input.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+                if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); }
             });
             els.input.addEventListener('input', function() {
                 this.style.height = 'auto';
