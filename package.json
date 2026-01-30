@@ -4,15 +4,12 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vercel dev"
+    "start": "node api/index.js"
   },
   "dependencies": {
     "@vercel/postgres": "^0.8.0",
     "cookie": "^0.6.0",
     "google-auth-library": "^9.11.0",
     "jsonwebtoken": "^9.0.2"
-  },
-  "engines": {
-    "node": "18.x"
   }
 }
