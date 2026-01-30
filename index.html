@@ -276,6 +276,20 @@
                     <div class="col-md-6 col-lg-5">
                         <div id="free-plan-card" class="soft-card p-4 h-100 d-flex flex-column">
                             <h3 class="fs-2 fw-bold mb-2">Free</h3>
+                            <p class="fs-5 mb-4 text-secondary">For casual users & exploration</p>
+                            <ul class="list-unstyled flex-grow-1 mb-4">
+                                <li class="d-flex align-items-center mb-3"><span class="text-success me-2">✓</span>Alara Nova Model</li>
+                                <li class="d-flex align-items-center mb-3"><span class="text-success me-2">✓</span>Standard Chat Responses</li>
+                                <li class="d-flex align-items-center mb-3"><span class="text-success me-2">✓</span>Local Chat History</li>
+                                <li class="d-flex align-items-center mb-3"><span class="text-danger me-2">✗</span>5 Image Generations / Hour</li>
+                                <li class="d-flex align-items-center"><span class="text-danger me-2">✗</span>Limited Prompt Length</li>
+                            </ul>
+                            <button id="free-plan-button" class="soft-button btn-secondary disabled">Your Current Plan</button>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-5">
+                        <div id="pro-plan-card" class="soft-card p-4 h-100 d-flex flex-column">
+                            <h3 class="fs-2 fw-bold mb-2">Alara Pro</h3>
                             <p class="fs-5 mb-4 text-secondary">For power users & professionals</p>
                             <ul class="list-unstyled flex-grow-1 mb-4">
                                 <li class="d-flex align-items-center mb-3"><span class="text-success me-2">✓</span>Alara Nova Pro Model</li>
@@ -546,35 +560,13 @@
                 Prism.highlightAllUnder(bubble);
                 
                 renderMathInElement(bubble, {
-                    delimiters: [ {left: '$', right: '$', display: true}, {left: '-4 text-secondary">For casual users & exploration</p>
-                            <ul class="list-unstyled flex-grow-1 mb-4">
-                                <li class="d-flex align-items-center mb-3"><span class="text-success me-2">✓</span>Alara Nova Model</li>
-                                <li class="d-flex align-items-center mb-3"><span class="text-success me-2">✓</span>Standard Chat Responses</li>
-                                <li class="d-flex align-items-center mb-3"><span class="text-success me-2">✓</span>Local Chat History</li>
-                                <li class="d-flex align-items-center mb-3"><span class="text-danger me-2">✗</span>5 Image Generations / Hour</li>
-                                <li class="d-flex align-items-center"><span class="text-danger me-2">✗</span>Limited Prompt Length</li>
-                            </ul>
-                            <button id="free-plan-button" class="soft-button btn-secondary disabled">Your Current Plan</button>
-                        </div>
-                    </div>
-                     <div class="col-md-6 col-lg-5">
-                        <div id="pro-plan-card" class="soft-card p-4 h-100 d-flex flex-column">
-                            <h3 class="fs-2 fw-bold mb-2">Alara Pro</h3>
-                            <p class="fs-5 mb, right: '-4 text-secondary">For casual users & exploration</p>
-                            <ul class="list-unstyled flex-grow-1 mb-4">
-                                <li class="d-flex align-items-center mb-3"><span class="text-success me-2">✓</span>Alara Nova Model</li>
-                                <li class="d-flex align-items-center mb-3"><span class="text-success me-2">✓</span>Standard Chat Responses</li>
-                                <li class="d-flex align-items-center mb-3"><span class="text-success me-2">✓</span>Local Chat History</li>
-                                <li class="d-flex align-items-center mb-3"><span class="text-danger me-2">✗</span>5 Image Generations / Hour</li>
-                                <li class="d-flex align-items-center"><span class="text-danger me-2">✗</span>Limited Prompt Length</li>
-                            </ul>
-                            <button id="free-plan-button" class="soft-button btn-secondary disabled">Your Current Plan</button>
-                        </div>
-                    </div>
-                     <div class="col-md-6 col-lg-5">
-                        <div id="pro-plan-card" class="soft-card p-4 h-100 d-flex flex-column">
-                            <h3 class="fs-2 fw-bold mb-2">Alara Pro</h3>
-                            <p class="fs-5 mb, display: false} ]
+                    delimiters: [
+                        {left: '$$', right: '$$', display: true},
+                        {left: '$', right: '$', display: false},
+                        {left: '\\(', right: '\\)', display: false},
+                        {left: '\\[', right: '\\]', display: true}
+                    ],
+                    throwOnError: false
                 });
             }
 
@@ -670,7 +662,7 @@
                     signal,
                     credentials: 'include'
                 };
-               
+                
                 const response = await fetch(apiUrl, fetchOptions);
                 if (!response.ok) throw new Error(`API error: ${response.statusText}`);
                 return await response.json();
@@ -732,7 +724,7 @@
                     // Remove generating message
                     generatingBubble.remove();
 
-                    if (result.success && result.imageUrl) {
+                    if (result.imageUrl) {
                         // Add image to chat
                         addMessage(`Here's your generated image:`, 'ai', { 
                             imageUrl: result.imageUrl, 
