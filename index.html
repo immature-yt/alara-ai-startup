@@ -873,15 +873,23 @@
                      // Add a small delay to allow for backend session processing
                     await new Promise(resolve => setTimeout(resolve, 500));
 
-                    const res = await fetch('/api/user/me', {
+                    // Cache buster + No-Cache header to prevent 401 loop
+                    const res = await fetch('/api/user/me?ts=' + Date.now(), {
                         credentials: 'include', // CRITICAL: Ensures cookie is sent
-                        headers: { 'Cache-Control': 'no-cache' } // Avoid stale guest state
+                        headers: { 
+                            'Cache-Control': 'no-cache',
+                            'Pragma': 'no-cache'
+                        } 
                     });
                     
                     if (res.ok) {
                         const data = await res.json();
-                        currentUser = data.user;
-                        updateUserUI(data.user);
+                        if (data.user) {
+                            currentUser = data.user;
+                            updateUserUI(data.user);
+                        } else {
+                            showGuestUI();
+                        }
                     } else {
                         showGuestUI();
                     }
