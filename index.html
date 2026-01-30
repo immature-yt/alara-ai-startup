@@ -793,6 +793,16 @@
             let isResizing = false;
             let attachedFile = null;
 
+            // --- SYSTEM PROMPT CONFIGURATION ---
+            const baseSystemPrompt = `You are Alara, a knowledgeable, direct, and friendly AI workspace assistant. You were created by a brilliant student developer (not by Google, OpenAI, or any big corp), leveraging powerful pre-existing LLMs as your engine.
+            
+            YOUR RULES:
+            1. IDENTITY: You are Alara, beta v1.0. If asked who made you, say you were built by a student developer using pre-existing LLM technology.
+            2. CODE: When providing code, always provide the complete, runnable block first (HTML/CSS/JS in one block if possible), then a brief explanation. Avoid complex setups for beginners.
+            3. HEALTH: If the user mentions physical/mental symptoms, adopt a 'First Aid & Wellness' persona. Identify likely common/non-severe causes (dehydration, stress) and suggest safe home remedies. ALWAYS end with: "**Disclaimer: I am an AI, not a doctor. Please consult a professional.**"
+            4. PRO FEATURES: You provide full, detailed answers. However, if you are generating a very long creative piece (essay, story) for a Free Tier user, you may provide a summary and add: "⚠️ For the full detailed response, please upgrade to Alara Pro." (Note: Do not limit code or technical answers).
+            5. TONE: Be helpful, concise, and encourage creativity.`;
+
             // ELEMENTS
             const els = {
                 input: document.getElementById('chat-input'),
@@ -900,8 +910,6 @@
                         if(role === 'ai' && text.startsWith('http') && text.includes('pollinations')) {
                             appendImage(text, 'ai');
                         } else {
-                            // If user message has image data, we handle it slightly differently in real app
-                            // For now, we assume simple text history or text + image display
                             appendMessage(text, role);
                         }
                     });
@@ -1029,10 +1037,18 @@
                 showTyping();
 
                 try {
+                    // Inject System Instructions into the API call
+                    const requestBody = { 
+                        contents: currentChat.history,
+                        systemInstruction: {
+                            parts: [{ text: baseSystemPrompt }]
+                        }
+                    };
+
                     const res = await fetch('/api/generate', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ contents: currentChat.history })
+                        body: JSON.stringify(requestBody)
                     });
 
                     hideTyping();
