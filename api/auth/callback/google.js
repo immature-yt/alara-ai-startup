@@ -3,6 +3,19 @@ import jwt from 'jsonwebtoken';
 import cookie from 'cookie';
 import { sql } from '@vercel/postgres';
 
+// REQUIRED SQL TABLE SCHEMA:
+/*
+  CREATE TABLE IF NOT EXISTS users (
+    id SERIAL PRIMARY KEY,
+    google_id VARCHAR(255) UNIQUE NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    name VARCHAR(255),
+    role VARCHAR(50) DEFAULT 'user',
+    plan VARCHAR(50) DEFAULT 'free',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+  );
+*/
+
 async function getOrCreateUser({ google_id, email, name }) {
     // Check if user exists
     const { rows } = await sql`SELECT * FROM users WHERE google_id = ${google_id};`;
