@@ -21,8 +21,6 @@
     <!-- PDF & Math -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    
-    <!-- KaTeX -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
     <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
@@ -188,7 +186,13 @@
 
         /* --- WORKSPACE & CHAT --- */
         #workspace { flex: 1; display: flex; position: relative; overflow: hidden; }
-        #chat-pane { flex: 1; display: flex; flex-direction: column; position: relative; transition: all 0.4s ease; }
+        
+        /* Resizing Logic */
+        #workspace.resizing { user-select: none; cursor: col-resize; }
+        #workspace.resizing #chat-pane { pointer-events: none; }
+        #workspace.resizing #canvas-pane { pointer-events: none; transition: none; } /* Disable transition during drag */
+
+        #chat-pane { flex: 1; display: flex; flex-direction: column; position: relative; min-width: 300px; }
 
         .top-nav {
             padding: 1rem 2rem;
@@ -253,32 +257,17 @@
 
         /* Action Buttons */
         .msg-actions {
-            display: flex;
-            justify-content: flex-end;
-            gap: 8px;
-            margin-top: 8px;
-            padding-top: 8px;
-            border-top: 1px solid rgba(0,0,0,0.05);
+            display: flex; justify-content: flex-end; gap: 8px;
+            margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(0,0,0,0.05);
         }
         .dark .msg-actions { border-top-color: rgba(255,255,255,0.1); }
         
         .action-btn {
-            background: transparent;
-            border: 1px solid transparent;
-            border-radius: 6px;
-            color: var(--text-secondary);
-            padding: 4px 8px;
-            font-size: 0.8rem;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 4px;
+            background: transparent; border: 1px solid transparent; border-radius: 6px;
+            color: var(--text-secondary); padding: 4px 8px; font-size: 0.8rem;
+            cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 4px;
         }
-        .action-btn:hover {
-            background: var(--accent-light);
-            color: var(--accent);
-        }
+        .action-btn:hover { background: var(--accent-light); color: var(--accent); }
 
         /* Typing Indicator */
         .typing-bubble {
@@ -326,27 +315,16 @@
             transform: translateY(-2px);
         }
 
-        /* --- MODE BADGES (New) --- */
         .mode-badge {
-            display: none; /* Hidden by default */
-            align-items: center;
-            background: var(--accent-light);
-            color: var(--accent);
-            padding: 0.4rem 0.8rem;
-            border-radius: 999px;
-            font-size: 0.8rem;
-            font-weight: 700;
-            white-space: nowrap;
-            margin-bottom: 0.2rem;
+            display: none; align-items: center;
+            background: var(--accent-light); color: var(--accent);
+            padding: 0.4rem 0.8rem; border-radius: 999px;
+            font-size: 0.8rem; font-weight: 700;
+            white-space: nowrap; margin-bottom: 0.2rem;
             border: 1px solid var(--accent);
         }
         .mode-badge.active { display: flex; }
-        .mode-badge .close-mode {
-            margin-left: 0.5rem;
-            cursor: pointer;
-            opacity: 0.6;
-            transition: opacity 0.2s;
-        }
+        .mode-badge .close-mode { margin-left: 0.5rem; cursor: pointer; opacity: 0.6; transition: opacity 0.2s; }
         .mode-badge .close-mode:hover { opacity: 1; }
 
         textarea {
@@ -373,6 +351,27 @@
         .send-btn:hover { transform: scale(1.1); box-shadow: 0 6px 15px var(--accent-glow); }
         .dark .send-btn { color: white; }
 
+        /* --- DRAG HANDLE (Resizer) --- */
+        #resizer {
+            width: 12px;
+            margin-left: -6px; margin-right: -6px; /* Overlap for easier clicking */
+            cursor: col-resize;
+            background: transparent;
+            z-index: 60;
+            display: none; /* Hidden when canvas closed */
+            position: relative;
+            flex-shrink: 0;
+        }
+        #resizer::after {
+            content: ''; position: absolute;
+            top: 0; bottom: 0; left: 5px;
+            width: 2px; background: transparent;
+            transition: background 0.2s;
+        }
+        #resizer:hover::after, #workspace.resizing #resizer::after {
+            background: var(--accent);
+        }
+
         /* --- CANVAS PANE --- */
         #canvas-pane {
             width: 0;
@@ -380,12 +379,14 @@
             border-left: 1px solid var(--border);
             display: flex;
             flex-direction: column;
+            /* Default transition for opening/closing. Removed during drag via JS class */
             transition: width 0.5s cubic-bezier(0.19, 1, 0.22, 1);
             overflow: hidden;
             box-shadow: -5px 0 30px rgba(0,0,0,0.05);
             z-index: 40;
+            min-width: 0; /* Important for flex */
         }
-        #canvas-pane.open { width: 55%; }
+        #canvas-pane.open { width: 55%; } /* Default open width */
 
         .canvas-header {
             padding: 1rem 1.5rem;
@@ -406,7 +407,10 @@
             color: var(--accent); cursor: pointer;
             transition: all 0.2s; 
         }
-        .preview-btn:hover { background: var(--accent); color: white; transform: translateY(-2px); }
+        .preview-btn:hover { 
+            background: var(--accent); 
+            color: white; transform: translateY(-2px); 
+        }
         .dark .preview-btn:hover { color: white; }
 
         /* Tools Dropdown */
@@ -475,6 +479,7 @@
             #sidebar.open { transform: translateX(0); }
             #canvas-pane.open { position: fixed; width: 100%; height: 100%; z-index: 60; top: 0; right: 0; }
             .hero-title { font-size: 2rem; }
+            #resizer { display: none !important; } /* No resizing on mobile */
         }
     </style>
 </head>
@@ -598,6 +603,9 @@
             </div>
         </section>
 
+        <!-- RESIZER HANDLE -->
+        <div id="resizer"></div>
+
         <!-- CANVAS PANE -->
         <section id="canvas-pane">
             <div class="canvas-header">
@@ -704,6 +712,7 @@
             let canvasCode = '';
             let typingIndicatorElement = null;
             let currentMode = 'chat'; // 'chat' or 'image'
+            let isResizing = false;
 
             // ELEMENTS
             const els = {
@@ -718,7 +727,9 @@
                 welcome: document.getElementById('welcome-message'),
                 sidebar: document.getElementById('sidebar'),
                 charCount: document.getElementById('char-count'),
-                modeBadge: document.getElementById('image-mode-badge')
+                modeBadge: document.getElementById('image-mode-badge'),
+                resizer: document.getElementById('resizer'),
+                workspace: document.getElementById('workspace')
             };
 
             const settingsModal = new bootstrap.Modal(document.getElementById('settingsModal'));
@@ -748,7 +759,7 @@
                         updateUserUI(data.user);
                     } else {
                         document.getElementById('user-name').innerText = "Guest User";
-                        document.getElementById('settings-email').value = "Not Logged In"; // Fallback for loading state
+                        document.getElementById('settings-email').value = "Not Logged In"; 
                         els.input.placeholder = "Log in to chat...";
                     }
                 } catch (e) { 
@@ -827,7 +838,7 @@
                     const prompt = els.input.value.trim();
                     if(prompt) {
                         generateImage(prompt);
-                        toggleImageMode(false); // Reset to chat mode after sending
+                        toggleImageMode(false); 
                         els.input.value = '';
                         els.input.style.height = 'auto';
                     }
@@ -932,7 +943,6 @@
                 
                 content.innerHTML = marked.parse(text);
 
-                // Math rendering (KaTeX)
                 if (window.renderMathInElement) {
                     renderMathInElement(content, {
                         delimiters: [
@@ -965,7 +975,6 @@
                 if(sender === 'ai') {
                     msgDiv.append(avatar, content);
                     
-                    // Add Actions (Copy / PDF)
                     const actionsDiv = document.createElement('div');
                     actionsDiv.className = 'msg-actions';
                     
@@ -996,12 +1005,10 @@
             }
 
             function downloadMessageAsPDF(element) {
-                // Clone to remove actions temporarily
                 const clone = element.cloneNode(true);
                 const actions = clone.querySelector('.msg-actions');
                 if(actions) actions.remove();
                 
-                // Add a wrapper for padding in PDF
                 const wrapper = document.createElement('div');
                 wrapper.style.padding = '20px';
                 wrapper.style.background = 'white';
@@ -1009,16 +1016,12 @@
                 wrapper.appendChild(clone);
                 document.body.appendChild(wrapper);
 
-                html2canvas(wrapper, {
-                    scale: 2,
-                    useCORS: true
-                }).then(canvas => {
+                html2canvas(wrapper, { scale: 2, useCORS: true }).then(canvas => {
                     const imgData = canvas.toDataURL('image/png');
                     const pdf = new jspdf.jsPDF();
                     const imgProps = pdf.getImageProperties(imgData);
                     const pdfWidth = pdf.internal.pageSize.getWidth();
                     const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-                    
                     pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
                     pdf.save('alara-chat.pdf');
                     document.body.removeChild(wrapper);
@@ -1044,15 +1047,17 @@
                 isCanvasOpen = forceState !== undefined ? forceState : !isCanvasOpen;
                 if (isCanvasOpen) {
                     els.canvas.classList.add('open');
+                    els.resizer.style.display = 'block';
                 } else {
                     els.canvas.classList.remove('open');
+                    els.resizer.style.display = 'none';
+                    els.canvas.style.width = ''; // Reset width on close
                 }
             };
 
             window.loadCanvas = function(code) {
                 canvasCode = code;
                 toggleCanvas(true);
-                // Use srcdoc for safer/cleaner rendering
                 els.preview.srcdoc = code;
             };
 
@@ -1066,11 +1071,33 @@
                 a.click();
             };
 
-            // 4. TOOLS LOGIC
+            // 4. RESIZER LOGIC
+            els.resizer.addEventListener('mousedown', (e) => {
+                isResizing = true;
+                els.workspace.classList.add('resizing');
+                document.addEventListener('mousemove', handleResize);
+                document.addEventListener('mouseup', stopResize);
+            });
+
+            function handleResize(e) {
+                if (!isResizing) return;
+                const newWidth = window.innerWidth - e.clientX;
+                if (newWidth > 300 && newWidth < window.innerWidth - 300) {
+                    els.canvas.style.width = `${newWidth}px`;
+                }
+            }
+
+            function stopResize() {
+                isResizing = false;
+                els.workspace.classList.remove('resizing');
+                document.removeEventListener('mousemove', handleResize);
+                document.removeEventListener('mouseup', stopResize);
+            }
+
+            // 5. TOOLS LOGIC
             window.activateTool = function(tool) {
                 els.toolsDrop.classList.remove('show');
                 if (tool === 'image') {
-                    // Activate Image Mode instead of prompt()
                     toggleImageMode(true);
                 } else if (tool === 'canvas') {
                     toggleCanvas(true);
@@ -1109,7 +1136,7 @@
                 }
             }
 
-            // 5. HISTORY & UTILS
+            // 6. HISTORY & UTILS
             function saveChats() {
                 localStorage.setItem('alaraAllChats', JSON.stringify(allChats));
             }
@@ -1157,7 +1184,6 @@
             }
 
             // EVENT LISTENERS
-            // Updated to handle both modes
             els.sendBtn.addEventListener('click', handleSend);
             els.input.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); }
