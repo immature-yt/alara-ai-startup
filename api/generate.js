@@ -19,12 +19,18 @@ export default async function handler(request, response) {
     }
 
     // 3. Select the AI model based on your available API key.
-    const model = 'gemini-2.5-flash-preview-05-20'; // Sticking to your specified model.
+    // CHANGED: Switched to a standard stable model to ensure reliability.
+    const model = 'gemini-1.5-flash'; 
 
     console.log(`User plan: '${userPlan}', using model: '${model}'`);
 
     // 4. Call the Gemini API with the selected model
     const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+        console.error("GEMINI_API_KEY is missing from environment variables.");
+        return response.status(500).json({ error: 'Server configuration error' });
+    }
+
     const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
 
     if (request.method !== 'POST') {
