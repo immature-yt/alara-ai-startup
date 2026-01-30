@@ -17,8 +17,15 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
+    
+    <!-- PDF & Math -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    
+    <!-- KaTeX -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
 
     <script>
       window.va = window.va || function () { (window.va.q = window.va.q || []).push(arguments); };
@@ -243,6 +250,35 @@
             border: 1px solid rgba(255,255,255,0.1);
         }
         .msg-content code { font-family: var(--font-code); font-size: 0.9em; }
+
+        /* Action Buttons */
+        .msg-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid rgba(0,0,0,0.05);
+        }
+        .dark .msg-actions { border-top-color: rgba(255,255,255,0.1); }
+        
+        .action-btn {
+            background: transparent;
+            border: 1px solid transparent;
+            border-radius: 6px;
+            color: var(--text-secondary);
+            padding: 4px 8px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .action-btn:hover {
+            background: var(--accent-light);
+            color: var(--accent);
+        }
 
         /* Typing Indicator */
         .typing-bubble {
@@ -896,6 +932,19 @@
                 
                 content.innerHTML = marked.parse(text);
 
+                // Math rendering (KaTeX)
+                if (window.renderMathInElement) {
+                    renderMathInElement(content, {
+                        delimiters: [
+                            {left: '$$', right: '$$', display: true},
+                            {left: '$', right: '$', display: false},
+                            {left: '\\(', right: '\\)', display: false},
+                            {left: '\\[', right: '\\]', display: true}
+                        ],
+                        throwOnError: false
+                    });
+                }
+
                 content.querySelectorAll('pre code').forEach(block => {
                     hljs.highlightElement(block);
                     // Check for HTML/CSS to enable Canvas
@@ -915,6 +964,28 @@
 
                 if(sender === 'ai') {
                     msgDiv.append(avatar, content);
+                    
+                    // Add Actions (Copy / PDF)
+                    const actionsDiv = document.createElement('div');
+                    actionsDiv.className = 'msg-actions';
+                    
+                    const copyBtn = document.createElement('button');
+                    copyBtn.className = 'action-btn';
+                    copyBtn.innerHTML = '<i class="fas fa-copy"></i> Copy';
+                    copyBtn.onclick = () => {
+                        navigator.clipboard.writeText(text);
+                        copyBtn.innerHTML = '<i class="fas fa-check"></i> Copied';
+                        setTimeout(() => copyBtn.innerHTML = '<i class="fas fa-copy"></i> Copy', 2000);
+                    };
+
+                    const pdfBtn = document.createElement('button');
+                    pdfBtn.className = 'action-btn';
+                    pdfBtn.innerHTML = '<i class="fas fa-file-pdf"></i> PDF';
+                    pdfBtn.onclick = () => downloadMessageAsPDF(content);
+
+                    actionsDiv.append(copyBtn, pdfBtn);
+                    content.appendChild(actionsDiv);
+
                 } else {
                     msgDiv.style.flexDirection = 'row-reverse';
                     msgDiv.append(avatar, content);
@@ -922,6 +993,36 @@
                 
                 els.stream.appendChild(msgDiv);
                 els.stream.scrollTop = els.stream.scrollHeight;
+            }
+
+            function downloadMessageAsPDF(element) {
+                // Clone to remove actions temporarily
+                const clone = element.cloneNode(true);
+                const actions = clone.querySelector('.msg-actions');
+                if(actions) actions.remove();
+                
+                // Add a wrapper for padding in PDF
+                const wrapper = document.createElement('div');
+                wrapper.style.padding = '20px';
+                wrapper.style.background = 'white';
+                wrapper.style.color = 'black';
+                wrapper.appendChild(clone);
+                document.body.appendChild(wrapper);
+
+                html2canvas(wrapper, {
+                    scale: 2,
+                    useCORS: true
+                }).then(canvas => {
+                    const imgData = canvas.toDataURL('image/png');
+                    const pdf = new jspdf.jsPDF();
+                    const imgProps = pdf.getImageProperties(imgData);
+                    const pdfWidth = pdf.internal.pageSize.getWidth();
+                    const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+                    
+                    pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+                    pdf.save('alara-chat.pdf');
+                    document.body.removeChild(wrapper);
+                });
             }
 
             function appendImage(url, sender) {
