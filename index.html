@@ -793,6 +793,7 @@
             let isResizing = false;
             let attachedFile = null;
             let finalSystemPrompt = '';
+            let authCheckInProgress = false;
 
             // --- SYSTEM PROMPT CONFIGURATION ---
             const baseSystemPrompt = `You are Alara, a knowledgeable, direct, and friendly AI workspace assistant. You were created by a brilliant student developer (not by Google, OpenAI, or any big corp), leveraging powerful pre-existing LLMs as your engine.
@@ -852,8 +853,18 @@
             }
 
             async function checkAuth() {
+                if (authCheckInProgress) return;
+                authCheckInProgress = true;
+                
                 try {
-                    const res = await fetch('/api/user/me');
+                     // Add a small delay to allow for backend session processing
+                    await new Promise(resolve => setTimeout(resolve, 500));
+
+                    const res = await fetch('/api/user/me', {
+                        credentials: 'include', // CRITICAL: Ensures cookie is sent
+                        headers: { 'Cache-Control': 'no-cache' } // Avoid stale guest state
+                    });
+                    
                     if (res.ok) {
                         const data = await res.json();
                         currentUser = data.user;
@@ -869,6 +880,8 @@
                     console.error("Auth check error", e);
                     document.getElementById('settings-email').value = "Guest (Not Logged In)";
                     finalSystemPrompt = baseSystemPrompt + healthRule + proUpgradeMessage;
+                } finally {
+                    authCheckInProgress = false;
                 }
             }
 
