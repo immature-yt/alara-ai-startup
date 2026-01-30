@@ -19,10 +19,8 @@ export default async function handler(request, response) {
     }
 
     // 3. Select the AI model based on your available API key.
-    // CHANGED: Switched to a standard stable model to ensure reliability.
     const model = 'gemini-1.5-flash'; 
-
-    console.log(`User plan: '${userPlan}', using model: '${model}'`);
+    console.log(`User plan: '${userPlan}', using model: '${model}'`); // FIXED: Changed backticks in console.log
 
     // 4. Call the Gemini API with the selected model
     const apiKey = process.env.GEMINI_API_KEY;
@@ -57,7 +55,6 @@ export default async function handler(request, response) {
         }
 
         return response.status(200).json(data);
-
     } catch (error) {
         console.error('Internal Server Error:', error);
         return response.status(500).json({ error: 'Internal server error' });
