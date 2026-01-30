@@ -792,16 +792,22 @@
             let currentMode = 'chat'; // 'chat' or 'image'
             let isResizing = false;
             let attachedFile = null;
+            let finalSystemPrompt = '';
 
             // --- SYSTEM PROMPT CONFIGURATION ---
             const baseSystemPrompt = `You are Alara, a knowledgeable, direct, and friendly AI workspace assistant. You were created by a brilliant student developer (not by Google, OpenAI, or any big corp), leveraging powerful pre-existing LLMs as your engine.
             
-            YOUR RULES:
-            1. IDENTITY: You are Alara, beta v1.0. If asked who made you, say you were built by a student developer using pre-existing LLM technology.
-            2. CODE: When providing code, always provide the complete, runnable block first (HTML/CSS/JS in one block if possible), then a brief explanation. Avoid complex setups for beginners.
-            3. HEALTH: If the user mentions physical/mental symptoms, adopt a 'First Aid & Wellness' persona. Identify likely common/non-severe causes (dehydration, stress) and suggest safe home remedies. ALWAYS end with: "**Disclaimer: I am an AI, not a doctor. Please consult a professional.**"
-            4. PRO FEATURES: You provide full, detailed answers. However, if you are generating a very long creative piece (essay, story) for a Free Tier user, you may provide a summary and add: "⚠️ For the full detailed response, please upgrade to Alara Pro." (Note: Do not limit code or technical answers).
-            5. TONE: Be helpful, concise, and encourage creativity.`;
+            YOUR IDENTITY RULES:
+            1. ORIGIN: If asked who made you, say you were built by a student developer using pre-existing LLM technology.
+            2. NAME: You are Alara, beta v1.0.
+            3. TONE: Be helpful, concise, and encourage creativity.`;
+            
+            const healthRule = `
+            CRITICAL HEALTH PROTOCOL:
+            If the user mentions physical/mental symptoms, adopt a 'First Aid & Wellness' persona. Identify likely common/non-severe causes (dehydration, stress) and suggest safe home remedies. ALWAYS end with: "**Disclaimer: I am an AI, not a doctor. Please consult a professional.**"`;
+            
+            const proUpgradeMessage = `
+            LIMITATION: If you are generating a very long creative piece (essay, story) for a Free Tier user, you may provide a summary and add: "⚠️ For the full detailed response, please upgrade to Alara Pro." (Note: Do not limit code or technical answers).`;
 
             // ELEMENTS
             const els = {
@@ -856,10 +862,13 @@
                         document.getElementById('user-name').innerText = "Guest User";
                         document.getElementById('settings-email').value = "Not Logged In"; 
                         els.input.placeholder = "Log in to chat...";
+                        // Default prompt for guest
+                        finalSystemPrompt = baseSystemPrompt + healthRule + proUpgradeMessage;
                     }
                 } catch (e) { 
                     console.error("Auth check error", e);
-                    document.getElementById('settings-email').value = "Guest (Not Logged In)"; 
+                    document.getElementById('settings-email').value = "Guest (Not Logged In)";
+                    finalSystemPrompt = baseSystemPrompt + healthRule + proUpgradeMessage;
                 }
             }
 
@@ -871,10 +880,14 @@
                 document.getElementById('settings-email').value = user.email;
                 document.getElementById('settings-plan-display').innerText = (user.plan === 'pro' ? 'Pro Plan' : 'Free Plan');
                 
+                // Construct System Prompt based on Plan
+                finalSystemPrompt = baseSystemPrompt + healthRule;
                 if (user.plan === 'pro') {
                     els.input.removeAttribute('maxlength');
                     els.charCount.innerText = "Unlimited";
                 } else {
+                    // Free users get the limiter message
+                    finalSystemPrompt += proUpgradeMessage;
                     els.input.setAttribute('maxlength', '5000');
                 }
             }
@@ -910,6 +923,8 @@
                         if(role === 'ai' && text.startsWith('http') && text.includes('pollinations')) {
                             appendImage(text, 'ai');
                         } else {
+                            // If user message has image data, we handle it slightly differently in real app
+                            // For now, we assume simple text history or text + image display
                             appendMessage(text, role);
                         }
                     });
@@ -1041,7 +1056,7 @@
                     const requestBody = { 
                         contents: currentChat.history,
                         systemInstruction: {
-                            parts: [{ text: baseSystemPrompt }]
+                            parts: [{ text: finalSystemPrompt }]
                         }
                     };
 
