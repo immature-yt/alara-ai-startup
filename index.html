@@ -644,7 +644,6 @@
                 return typingIndicator;
             }
 
-            // FIXED: This is the corrected getAIResponse function
             async function getAIResponse(history) {
                 abortController = new AbortController();
                 const signal = abortController.signal;
@@ -655,26 +654,17 @@
                     } 
                 };
                 
-                // FIXED: Use relative URL instead of constructing from window.location
-                const apiUrl = '/api/generate';
-                
+                const apiUrl = new URL('/api/generate', window.location.origin).toString();
                 const fetchOptions = { 
                     method: 'POST', 
-                    headers: { 
-                        'Content-Type': 'application/json'
-                    }, 
+                    headers: { 'Content-Type': 'application/json' }, 
                     body: JSON.stringify(payload), 
                     signal,
-                    credentials: 'include' // This ensures cookies are sent
+                    credentials: 'include'
                 };
                 
                 const response = await fetch(apiUrl, fetchOptions);
-                
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    throw new Error(`API error: ${response.status} - ${errorText}`);
-                }
-                
+                if (!response.ok) throw new Error(`API error: ${response.statusText}`);
                 return await response.json();
             }
 
