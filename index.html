@@ -1437,25 +1437,17 @@
 
             document.getElementById('new-chat-btn').addEventListener('click', createNewChat);
             
-            document.getElementById('theme-toggle').addEventListener('click', () => {
+            // Theme Toggle Logic
+            function toggleTheme() {
                 document.body.classList.toggle('dark');
                 localStorage.setItem('alaraTheme', document.body.classList.contains('dark') ? 'dark' : 'light');
-            });
-
-            // Toggle themes also on guest button
-            if(document.getElementById('theme-toggle-guest')) {
-                 document.getElementById('theme-toggle-guest').addEventListener('click', () => {
-                    document.body.classList.toggle('dark');
-                    localStorage.setItem('alaraTheme', document.body.classList.contains('dark') ? 'dark' : 'light');
-                 });
-            }
-             if(document.getElementById('theme-toggle-user')) {
-                 document.getElementById('theme-toggle-user').addEventListener('click', () => {
-                    document.body.classList.toggle('dark');
-                    localStorage.setItem('alaraTheme', document.body.classList.contains('dark') ? 'dark' : 'light');
-                 });
             }
 
+            const guestThemeBtn = document.getElementById('theme-toggle-guest');
+            const userThemeBtn = document.getElementById('theme-toggle-user');
+
+            if (guestThemeBtn) guestThemeBtn.addEventListener('click', toggleTheme);
+            if (userThemeBtn) userThemeBtn.addEventListener('click', toggleTheme);
 
             // document.getElementById('open-sidebar').addEventListener('click', () => els.sidebar.classList.add('open'));
             // Note: open-sidebar button removed in favor of unified toggle logic
