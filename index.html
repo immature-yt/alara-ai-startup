@@ -569,11 +569,22 @@
         
         <!-- User Profile Area -->
         <div class="user-menu-area">
-            <div class="dropdown">
+            <!-- Guest State (Visible by default) -->
+            <div id="guest-menu" class="d-none flex-column gap-2">
+                <a href="/api/auth/login" class="btn w-100 rounded-4 py-2 fw-bold text-white d-flex align-items-center justify-content-center gap-2 shadow-sm" style="background: var(--accent-gradient); border: none;">
+                    <i class="fab fa-google"></i> Login with Google
+                </a>
+                <button id="theme-toggle-guest" class="btn btn-sm w-100 rounded-pill text-secondary fw-bold" style="background: var(--bg-card); border: 1px solid var(--border);">
+                    <i class="fas fa-moon me-2"></i> Toggle Theme
+                </button>
+            </div>
+
+            <!-- User State (Hidden by default) -->
+            <div id="user-menu" class="dropdown d-none">
                 <div class="user-chip dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" id="user-menu-btn">
                     <div class="avatar user" style="width: 2.25rem; height: 2.25rem; font-size: 1rem;" id="user-avatar-text">?</div>
                     <div class="overflow-hidden">
-                        <div class="fw-bold text-truncate" style="font-size:0.95rem;" id="user-name">Guest</div>
+                        <div class="fw-bold text-truncate" style="font-size:0.95rem;" id="user-name">User</div>
                         <div class="small text-muted text-truncate" style="font-size:0.75rem;" id="user-plan">Free Tier</div>
                     </div>
                 </div>
@@ -581,7 +592,7 @@
                     <li><button class="dropdown-item rounded-3 py-2 fw-bold" onclick="showPricing()"><i class="fas fa-bolt me-3 text-warning"></i> Upgrade</button></li>
                     <li><button class="dropdown-item rounded-3 py-2 fw-bold" onclick="showSettings()"><i class="fas fa-cog me-3 text-secondary"></i> Settings</button></li>
                     <li><hr class="dropdown-divider border-secondary opacity-25"></li>
-                    <li><button class="dropdown-item rounded-3 py-2 fw-bold" id="theme-toggle"><i class="fas fa-moon me-3 text-secondary"></i> Toggle Theme</button></li>
+                    <li><button class="dropdown-item rounded-3 py-2 fw-bold" id="theme-toggle-user"><i class="fas fa-moon me-3 text-secondary"></i> Toggle Theme</button></li>
                     <li><a class="dropdown-item rounded-3 py-2 text-danger fw-bold" href="/api/auth/logout"><i class="fas fa-sign-out-alt me-3"></i> Logout</a></li>
                 </ul>
             </div>
@@ -831,7 +842,9 @@
                 modeBadge: document.getElementById('image-mode-badge'),
                 resizer: document.getElementById('resizer'),
                 workspace: document.getElementById('workspace'),
-                toggleSidebarBtn: document.getElementById('toggle-sidebar-btn')
+                toggleSidebarBtn: document.getElementById('toggle-sidebar-btn'),
+                guestMenu: document.getElementById('guest-menu'),
+                userMenu: document.getElementById('user-menu')
             };
 
             const settingsModal = new bootstrap.Modal(document.getElementById('settingsModal'));
@@ -870,22 +883,35 @@
                         currentUser = data.user;
                         updateUserUI(data.user);
                     } else {
-                        document.getElementById('user-name').innerText = "Guest User";
-                        document.getElementById('settings-email').value = "Not Logged In"; 
-                        els.input.placeholder = "Log in to chat...";
-                        // Default prompt for guest
-                        finalSystemPrompt = baseSystemPrompt + healthRule + proUpgradeMessage;
+                        showGuestUI();
                     }
                 } catch (e) { 
                     console.error("Auth check error", e);
-                    document.getElementById('settings-email').value = "Guest (Not Logged In)";
-                    finalSystemPrompt = baseSystemPrompt + healthRule + proUpgradeMessage;
+                    showGuestUI();
                 } finally {
                     authCheckInProgress = false;
                 }
             }
 
+            function showGuestUI() {
+                currentUser = null;
+                document.getElementById('user-name').innerText = "Guest User";
+                document.getElementById('settings-email').value = "Guest (Not Logged In)";
+                els.input.placeholder = "Log in to chat...";
+                // Show Login Button, Hide User Menu
+                els.guestMenu.classList.remove('d-none');
+                els.guestMenu.classList.add('d-flex');
+                els.userMenu.classList.add('d-none');
+                // Default prompt for guest
+                finalSystemPrompt = baseSystemPrompt + healthRule + proUpgradeMessage;
+            }
+
             function updateUserUI(user) {
+                // Show User Menu, Hide Login Button
+                els.userMenu.classList.remove('d-none');
+                els.guestMenu.classList.remove('d-flex');
+                els.guestMenu.classList.add('d-none');
+
                 document.getElementById('user-name').innerText = user.name;
                 document.getElementById('welcome-name').innerText = user.name.split(' ')[0];
                 document.getElementById('user-avatar-text').innerText = user.name.charAt(0).toUpperCase();
@@ -1415,6 +1441,21 @@
                 document.body.classList.toggle('dark');
                 localStorage.setItem('alaraTheme', document.body.classList.contains('dark') ? 'dark' : 'light');
             });
+
+            // Toggle themes also on guest button
+            if(document.getElementById('theme-toggle-guest')) {
+                 document.getElementById('theme-toggle-guest').addEventListener('click', () => {
+                    document.body.classList.toggle('dark');
+                    localStorage.setItem('alaraTheme', document.body.classList.contains('dark') ? 'dark' : 'light');
+                 });
+            }
+             if(document.getElementById('theme-toggle-user')) {
+                 document.getElementById('theme-toggle-user').addEventListener('click', () => {
+                    document.body.classList.toggle('dark');
+                    localStorage.setItem('alaraTheme', document.body.classList.contains('dark') ? 'dark' : 'light');
+                 });
+            }
+
 
             // document.getElementById('open-sidebar').addEventListener('click', () => els.sidebar.classList.add('open'));
             // Note: open-sidebar button removed in favor of unified toggle logic
