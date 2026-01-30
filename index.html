@@ -136,7 +136,15 @@
             display: flex;
             flex-direction: column;
             z-index: 50;
-            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+        }
+        
+        #sidebar.collapsed {
+            width: 0;
+            opacity: 0;
+            overflow: hidden;
+            border-right: none;
         }
 
         .logo-area {
@@ -148,6 +156,7 @@
             display: flex;
             align-items: center;
             gap: 0.5rem;
+            white-space: nowrap;
         }
         .logo-area sup { font-size: 0.5em; font-weight: 600; top: -0.6em; position: relative; color: var(--text-secondary); opacity: 0.8; }
 
@@ -164,6 +173,7 @@
             align-items: center;
             transition: all 0.3s;
             box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+            white-space: nowrap;
         }
         .new-chat-btn:hover { background: var(--accent); color: white; transform: translateY(-2px); box-shadow: 0 6px 15px var(--accent-glow); }
 
@@ -178,6 +188,9 @@
             color: var(--text-secondary);
             transition: all 0.2s;
             border: 1px solid transparent;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         .chat-item:hover { background: var(--accent-light); opacity: 1; color: var(--accent); }
         .chat-item.active { background: var(--bg-card); font-weight: 700; color: var(--text-primary); border-color: var(--border); box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
@@ -190,7 +203,7 @@
         /* Resizing Logic */
         #workspace.resizing { user-select: none; cursor: col-resize; }
         #workspace.resizing #chat-pane { pointer-events: none; }
-        #workspace.resizing #canvas-pane { pointer-events: none; transition: none; } /* Disable transition during drag */
+        #workspace.resizing #canvas-pane { pointer-events: none; transition: none; } 
 
         #chat-pane { flex: 1; display: flex; flex-direction: column; position: relative; min-width: 300px; }
 
@@ -254,6 +267,12 @@
             border: 1px solid rgba(255,255,255,0.1);
         }
         .msg-content code { font-family: var(--font-code); font-size: 0.9em; }
+        
+        .msg-content img {
+            max-width: 100%;
+            border-radius: 0.8rem;
+            margin-top: 0.5rem;
+        }
 
         /* Action Buttons */
         .msg-actions {
@@ -308,6 +327,7 @@
             box-shadow: var(--shadow-light);
             transition: all 0.3s ease;
             gap: 0.5rem;
+            position: relative;
         }
         .chat-input-wrapper:focus-within {
             border-color: var(--accent);
@@ -350,6 +370,44 @@
         }
         .send-btn:hover { transform: scale(1.1); box-shadow: 0 6px 15px var(--accent-glow); }
         .dark .send-btn { color: white; }
+
+        /* Attachment Preview */
+        #attachment-preview {
+            position: absolute;
+            bottom: 100%;
+            left: 20px;
+            margin-bottom: 10px;
+            background: var(--bg-card);
+            padding: 8px;
+            border-radius: 12px;
+            box-shadow: var(--shadow-light);
+            border: 1px solid var(--border);
+            display: none;
+            animation: popIn 0.2s ease-out;
+        }
+        #attachment-preview.show { display: block; }
+        #attachment-preview img {
+            height: 60px;
+            width: auto;
+            border-radius: 8px;
+            display: block;
+        }
+        #attachment-preview .remove-btn {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: var(--text-primary);
+            color: var(--bg-body);
+            border: none;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
 
         /* --- DRAG HANDLE (Resizer) --- */
         #resizer {
@@ -496,6 +554,7 @@
     <aside id="sidebar">
         <div class="logo-area">
             ALARA<sup>beta</sup>
+            <!-- Mobile Close Button -->
             <button class="btn ms-auto d-md-none text-secondary" id="close-sidebar"><i class="fas fa-times"></i></button>
         </div>
         
@@ -535,7 +594,11 @@
         <!-- CHAT PANE -->
         <section id="chat-pane">
             <div class="top-nav">
-                <button class="btn d-md-none p-0 text-secondary" id="open-sidebar"><i class="fas fa-bars fa-lg"></i></button>
+                <!-- Hamburger / Toggle Sidebar -->
+                <button class="btn p-0 text-secondary" id="toggle-sidebar-btn" title="Toggle Sidebar">
+                    <i class="fas fa-bars fa-lg"></i>
+                </button>
+                
                 <div class="model-pill">
                     <span>Alara Nova</span>
                 </div>
@@ -572,6 +635,11 @@
                         <i class="fas fa-plus fa-lg"></i>
                     </button>
                     
+                    <!-- File Upload Button (Paperclip) -->
+                    <button class="tool-btn" id="upload-btn" title="Upload Image">
+                        <i class="fas fa-paperclip fa-lg"></i>
+                    </button>
+                    
                     <!-- Mode Badge (Hidden by default) -->
                     <div id="image-mode-badge" class="mode-badge">
                         <i class="fas fa-image me-1"></i> Image Mode
@@ -597,6 +665,13 @@
                         <i class="fas fa-arrow-up"></i>
                     </button>
                 </div>
+                
+                <!-- Attachment Preview -->
+                <div id="attachment-preview">
+                    <img id="preview-img" src="" alt="Attachment">
+                    <button class="remove-btn" id="remove-attachment"><i class="fas fa-times"></i></button>
+                </div>
+
                 <div class="text-center mt-3">
                     <span class="small fw-bold opacity-50" style="color: var(--text-secondary); letter-spacing: 1px;" id="char-count"></span>
                 </div>
@@ -700,6 +775,9 @@
         </div>
     </div>
 
+    <!-- Hidden Input for File Upload -->
+    <input type="file" id="file-input" class="d-none" accept="image/*">
+
     <!-- JAVASCRIPT -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
@@ -713,6 +791,7 @@
             let typingIndicatorElement = null;
             let currentMode = 'chat'; // 'chat' or 'image'
             let isResizing = false;
+            let attachedFile = null;
 
             // ELEMENTS
             const els = {
@@ -720,6 +799,11 @@
                 sendBtn: document.getElementById('send-btn'),
                 stream: document.getElementById('chat-stream'),
                 toolsBtn: document.getElementById('tools-btn'),
+                uploadBtn: document.getElementById('upload-btn'),
+                fileInput: document.getElementById('file-input'),
+                attachmentPreview: document.getElementById('attachment-preview'),
+                previewImg: document.getElementById('preview-img'),
+                removeAttachmentBtn: document.getElementById('remove-attachment'),
                 toolsDrop: document.getElementById('tools-dropdown'),
                 canvas: document.getElementById('canvas-pane'),
                 preview: document.getElementById('preview-frame'),
@@ -729,7 +813,8 @@
                 charCount: document.getElementById('char-count'),
                 modeBadge: document.getElementById('image-mode-badge'),
                 resizer: document.getElementById('resizer'),
-                workspace: document.getElementById('workspace')
+                workspace: document.getElementById('workspace'),
+                toggleSidebarBtn: document.getElementById('toggle-sidebar-btn')
             };
 
             const settingsModal = new bootstrap.Modal(document.getElementById('settingsModal'));
@@ -790,7 +875,10 @@
                 allChats.unshift(newChat);
                 saveChats();
                 loadChat(newChat.id);
-                els.sidebar.classList.remove('open');
+                // On mobile, close sidebar on new chat
+                if(window.innerWidth < 768) {
+                    els.sidebar.classList.remove('open'); 
+                }
             }
 
             function loadChat(id) {
@@ -808,15 +896,30 @@
                         const text = msg.parts[0].text;
                         const role = msg.role === 'model' ? 'ai' : 'user';
                         
+                        // Check for inline images in history (if any) or text URLs
                         if(role === 'ai' && text.startsWith('http') && text.includes('pollinations')) {
                             appendImage(text, 'ai');
                         } else {
+                            // If user message has image data, we handle it slightly differently in real app
+                            // For now, we assume simple text history or text + image display
                             appendMessage(text, role);
                         }
                     });
                 }
                 renderHistoryList();
             }
+
+            // Sidebar Toggle Logic
+            els.toggleSidebarBtn.addEventListener('click', () => {
+                if(window.innerWidth < 768) {
+                    els.sidebar.classList.toggle('open'); // Mobile behavior
+                } else {
+                    els.sidebar.classList.toggle('collapsed'); // Desktop behavior
+                }
+            });
+            // Mobile close button inside sidebar
+            document.getElementById('close-sidebar').addEventListener('click', () => els.sidebar.classList.remove('open'));
+
 
             // Mode Switching Logic
             window.toggleImageMode = function(active) {
@@ -832,6 +935,32 @@
                     els.input.placeholder = "Ask Alara anything...";
                 }
             }
+
+            // File Upload Logic
+            els.uploadBtn.addEventListener('click', () => els.fileInput.click());
+            
+            els.fileInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    attachedFile = {
+                        base64: reader.result.split(',')[1],
+                        mimeType: file.type,
+                        url: reader.result
+                    };
+                    els.previewImg.src = reader.result;
+                    els.attachmentPreview.classList.add('show');
+                };
+                reader.readAsDataURL(file);
+            });
+
+            els.removeAttachmentBtn.addEventListener('click', () => {
+                attachedFile = null;
+                els.fileInput.value = '';
+                els.attachmentPreview.classList.remove('show');
+            });
 
             async function handleSend() {
                 if (currentMode === 'image') {
@@ -854,22 +983,48 @@
                 }
 
                 const text = els.input.value.trim();
-                if (!text) return;
+                if (!text && !attachedFile) return;
 
                 els.input.value = '';
                 els.input.style.height = 'auto'; 
                 els.welcome.style.display = 'none';
 
-                appendMessage(text, 'user');
+                // Display User Message
+                if(attachedFile) {
+                    appendImage(attachedFile.url, 'user');
+                }
+                if(text) {
+                    appendMessage(text, 'user');
+                }
                 
                 const currentChat = allChats.find(c => c.id === currentChatId);
                 if (!currentChat) return; 
                 
-                currentChat.history.push({ role: 'user', parts: [{ text }] });
-                if (currentChat.title === "New Chat") {
+                // Construct Payload
+                const newParts = [];
+                if (text) newParts.push({ text: text });
+                if (attachedFile) {
+                    newParts.push({ 
+                        inlineData: { 
+                            mimeType: attachedFile.mimeType, 
+                            data: attachedFile.base64 
+                        } 
+                    });
+                }
+
+                // Add to History
+                currentChat.history.push({ role: 'user', parts: newParts });
+                
+                if (currentChat.title === "New Chat" && text) {
                     currentChat.title = text.substring(0, 20) + "...";
                     renderHistoryList();
                 }
+
+                // Clear Attachment UI
+                const wasAttached = attachedFile;
+                attachedFile = null;
+                els.attachmentPreview.classList.remove('show');
+                els.fileInput.value = '';
 
                 showTyping();
 
@@ -1033,11 +1188,18 @@
                 msgDiv.className = `message ${sender}`;
                 const avatar = document.createElement('div');
                 avatar.className = `avatar ${sender}`;
-                avatar.innerText = 'AI';
+                avatar.innerText = sender === 'ai' ? 'AI' : 'U';
                 const content = document.createElement('div');
                 content.className = 'msg-content';
                 content.innerHTML = `<img src="${url}" class="img-fluid rounded-4 shadow-sm" style="max-height: 400px;">`;
-                msgDiv.append(avatar, content);
+                
+                if(sender === 'ai') {
+                    msgDiv.append(avatar, content);
+                } else {
+                    msgDiv.style.flexDirection = 'row-reverse';
+                    msgDiv.append(avatar, content);
+                }
+                
                 els.stream.appendChild(msgDiv);
                 els.stream.scrollTop = els.stream.scrollHeight;
             }
@@ -1210,8 +1372,8 @@
                 localStorage.setItem('alaraTheme', document.body.classList.contains('dark') ? 'dark' : 'light');
             });
 
-            document.getElementById('open-sidebar').addEventListener('click', () => els.sidebar.classList.add('open'));
-            document.getElementById('close-sidebar').addEventListener('click', () => els.sidebar.classList.remove('open'));
+            // document.getElementById('open-sidebar').addEventListener('click', () => els.sidebar.classList.add('open'));
+            // Note: open-sidebar button removed in favor of unified toggle logic
 
             window.addEventListener('click', () => els.toolsDrop.classList.remove('show'));
 
