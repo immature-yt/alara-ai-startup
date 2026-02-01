@@ -23,9 +23,9 @@ export default async function handler(req, res) {
   try {
       // 2. Create Order
       // Amount is in "paise" (smallest currency unit). 
-      // ₹10 = 1000 paise.
+      // ₹199 = 19900 paise.
       const options = {
-          amount: 1000,  // Changed to ₹10 for Pro Plan testing
+          amount: 19900,  // Changed to ₹199 for Pro Plan testing
           currency: "INR",
           receipt: "order_rcptid_" + Date.now(),
           payment_capture: 1
