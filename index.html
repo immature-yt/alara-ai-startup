@@ -60,10 +60,6 @@
             
             --ai-bubble-bg: #ffffff;
             --user-bubble-bg: var(--accent);
-            
-            --input-bg: rgba(255, 255, 255, 0.8);
-            --input-border: rgba(219, 39, 119, 0.1);
-            --shadow-light-hover: 0 12px 40px rgba(219, 39, 119, 0.12);
         }
 
         .dark {
@@ -85,9 +81,6 @@
             
             --ai-bubble-bg: rgba(255, 255, 255, 0.08);
             --user-bubble-bg: var(--accent);
-            
-            --input-bg: rgba(45, 15, 35, 0.6);
-            --input-border: rgba(255, 255, 255, 0.05);
         }
 
         /* --- GLOBAL & ANIMATIONS --- */
@@ -129,8 +122,8 @@
         .blob-3 { width: 350px; height: 350px; background: #f472b6; top: 40%; left: 40%; opacity: 0.4; animation-duration: 35s; animation-delay: -10s; }
 
         @keyframes drift {
-            0% { transform: translate(0, 0) scale(1) rotate(0deg); }
-            100% { transform: translate(20px, 40px) scale(1.1) rotate(10deg); }
+            0% { transform: translate(0, 0) scale(1) rotate(0deg); border-radius: 50%; }
+            100% { transform: translate(0, 0) scale(1) rotate(0deg); border-radius: 50%; }
         }
 
         /* --- SIDEBAR --- */
@@ -198,11 +191,8 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
         }
-        .chat-item:hover { background: var(--accent-light); color: var(--accent); }
+        .chat-item:hover { background: var(--accent-light); opacity: 1; color: var(--accent); }
         .chat-item.active { background: var(--bg-card); font-weight: 700; color: var(--text-primary); border-color: var(--border); box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
         .chat-item .delete-icon { opacity: 0; color: #dc3545; transition: 0.2s; }
         .chat-item:hover .delete-icon { opacity: 1; }
@@ -265,11 +255,11 @@
             font-size: 1rem;
             box-shadow: 0 2px 5px rgba(0,0,0,0.05);
             max-width: 100%;
-            word-wrap: break-word;
         }
         
         .message.ai .msg-content { background-color: var(--ai-bubble-bg); color: var(--text-primary); border-top-left-radius: 0.2rem; }
         .message.user .msg-content { background-color: var(--user-bubble-bg); color: white; border-top-right-radius: 0.2rem; }
+        .dark .message.user .msg-content { color: #fff; }
 
         .msg-content pre { 
             background: #2d2d2d; border-radius: 0.8rem; padding: 1rem; 
@@ -277,6 +267,12 @@
             border: 1px solid rgba(255,255,255,0.1);
         }
         .msg-content code { font-family: var(--font-code); font-size: 0.9em; }
+        
+        .msg-content img {
+            max-width: 100%;
+            border-radius: 0.8rem;
+            margin-top: 0.5rem;
+        }
 
         /* Action Buttons */
         .msg-actions {
@@ -348,6 +344,8 @@
             border: 1px solid var(--accent);
         }
         .mode-badge.active { display: flex; }
+        .mode-badge .close-mode { margin-left: 0.5rem; cursor: pointer; opacity: 0.6; transition: opacity 0.2s; }
+        .mode-badge .close-mode:hover { opacity: 1; }
 
         textarea {
             flex: 1; border: none; background: transparent;
@@ -371,43 +369,86 @@
             transition: 0.3s; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
         .send-btn:hover { transform: scale(1.1); box-shadow: 0 6px 15px var(--accent-glow); }
+        .dark .send-btn { color: white; }
 
         /* Attachment Preview */
         #attachment-preview {
-            position: absolute; bottom: 100%; left: 20px;
-            margin-bottom: 10px; background: var(--bg-card);
-            padding: 8px; border-radius: 12px;
-            box-shadow: var(--shadow-light); border: 1px solid var(--border);
-            display: none; animation: popIn 0.2s ease-out;
+            position: absolute;
+            bottom: 100%;
+            left: 20px;
+            margin-bottom: 10px;
+            background: var(--bg-card);
+            padding: 8px;
+            border-radius: 12px;
+            box-shadow: var(--shadow-light);
+            border: 1px solid var(--border);
+            display: none;
+            animation: popIn 0.2s ease-out;
         }
         #attachment-preview.show { display: block; }
-        #attachment-preview img { height: 60px; width: auto; border-radius: 8px; }
+        #attachment-preview img {
+            height: 60px;
+            width: auto;
+            border-radius: 8px;
+            display: block;
+        }
+        #attachment-preview .remove-btn {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: var(--text-primary);
+            color: var(--bg-body);
+            border: none;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
 
         /* --- DRAG HANDLE (Resizer) --- */
         #resizer {
-            width: 12px; margin-left: -6px; margin-right: -6px;
-            cursor: col-resize; background: transparent;
-            z-index: 60; display: none; position: relative; flex-shrink: 0;
+            width: 12px;
+            margin-left: -6px; margin-right: -6px; /* Overlap for easier clicking */
+            cursor: col-resize;
+            background: transparent;
+            z-index: 60;
+            display: none; /* Hidden when canvas closed */
+            position: relative;
+            flex-shrink: 0;
         }
         #resizer::after {
-            content: ''; position: absolute; top: 0; bottom: 0; left: 5px;
-            width: 2px; background: transparent; transition: background 0.2s;
+            content: ''; position: absolute;
+            top: 0; bottom: 0; left: 5px;
+            width: 2px; background: transparent;
+            transition: background 0.2s;
         }
-        #resizer:hover::after, #workspace.resizing #resizer::after { background: var(--accent); }
+        #resizer:hover::after, #workspace.resizing #resizer::after {
+            background: var(--accent);
+        }
 
         /* --- CANVAS PANE --- */
         #canvas-pane {
-            width: 0; background: var(--bg-body);
+            width: 0;
+            background: var(--bg-body);
             border-left: 1px solid var(--border);
-            display: flex; flex-direction: column;
+            display: flex;
+            flex-direction: column;
+            /* Default transition for opening/closing. Removed during drag via JS class */
             transition: width 0.5s cubic-bezier(0.19, 1, 0.22, 1);
-            overflow: hidden; box-shadow: -5px 0 30px rgba(0,0,0,0.05);
-            z-index: 40; min-width: 0;
+            overflow: hidden;
+            box-shadow: -5px 0 30px rgba(0,0,0,0.05);
+            z-index: 40;
+            min-width: 0; /* Important for flex */
         }
-        #canvas-pane.open { width: 55%; }
+        #canvas-pane.open { width: 55%; } /* Default open width */
 
         .canvas-header {
-            padding: 1rem 1.5rem; border-bottom: 1px solid var(--border);
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border);
             display: flex; justify-content: space-between; align-items: center;
             background: var(--bg-card); backdrop-filter: blur(10px);
         }
@@ -418,12 +459,19 @@
         .preview-btn {
             display: inline-flex; align-items: center; gap: 0.5rem;
             padding: 0.5rem 1rem; margin-top: 0.8rem;
-            background: var(--accent-light); border: none;
+            background: var(--accent-light);
+            border: none;
             border-radius: 0.8rem; font-size: 0.9rem; font-weight: 700;
-            color: var(--accent); cursor: pointer; transition: all 0.2s; 
+            color: var(--accent); cursor: pointer;
+            transition: all 0.2s; 
         }
-        .preview-btn:hover { background: var(--accent); color: white; transform: translateY(-2px); }
+        .preview-btn:hover { 
+            background: var(--accent); 
+            color: white; transform: translateY(-2px); 
+        }
+        .dark .preview-btn:hover { color: white; }
 
+        /* Tools Dropdown */
         .custom-dropdown {
             position: absolute; bottom: 110%; left: 1rem;
             background: var(--bg-card); backdrop-filter: blur(20px);
@@ -433,6 +481,7 @@
             box-shadow: var(--shadow-light-hover);
             animation: popUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
+        @keyframes popUp { from { opacity: 0; transform: translateY(20px) scale(0.9); } to { opacity: 1; transform: translateY(0) scale(1); } }
         .custom-dropdown.show { display: flex; }
         
         .dropdown-item-custom {
@@ -443,6 +492,7 @@
         }
         .dropdown-item-custom:hover { background: var(--accent-light); color: var(--accent); }
 
+        /* User Menu */
         .user-menu-area { padding: 1.5rem; border-top: 1px solid var(--border); }
         .user-chip {
             display: flex; align-items: center; gap: 1rem;
@@ -452,6 +502,7 @@
         }
         .user-chip:hover { background: var(--bg-card); border-color: var(--border); box-shadow: var(--shadow-light); }
 
+        /* Welcome Screen */
         .hero-title {
             font-family: var(--font-header); font-weight: 800; font-size: 2.5rem;
             color: var(--text-primary); margin-bottom: 1rem;
@@ -465,10 +516,12 @@
         }
         .suggestion-card:hover { transform: translateY(-3px); color: var(--accent); box-shadow: var(--shadow-light-hover); }
         
+        /* Pricing Cards */
         .pricing-card {
             border: 1px solid var(--border); background: var(--bg-glass);
             border-radius: 1.5rem; padding: 2rem; text-align: center; transition: all 0.3s;
         }
+        .pricing-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-light-hover); border-color: var(--accent); }
         .pricing-card.featured { border: 2px solid var(--accent); background: linear-gradient(180deg, var(--bg-card) 0%, var(--accent-light) 100%); }
 
         .upgrade-btn {
@@ -478,12 +531,13 @@
         }
         .upgrade-btn:hover { transform: translateY(-2px) scale(1.02); box-shadow: 0 8px 25px var(--accent-glow); color: white; }
 
+        /* Mobile */
         @media (max-width: 768px) {
             #sidebar { position: fixed; height: 100%; transform: translateX(-100%); width: 280px; }
             #sidebar.open { transform: translateX(0); }
             #canvas-pane.open { position: fixed; width: 100%; height: 100%; z-index: 60; top: 0; right: 0; }
             .hero-title { font-size: 2rem; }
-            #resizer { display: none !important; }
+            #resizer { display: none !important; } /* No resizing on mobile */
         }
     </style>
 </head>
@@ -500,6 +554,7 @@
     <aside id="sidebar">
         <div class="logo-area">
             ALARA<sup>beta</sup>
+            <!-- Mobile Close Button -->
             <button class="btn ms-auto d-md-none text-secondary" id="close-sidebar"><i class="fas fa-times"></i></button>
         </div>
         
@@ -508,15 +563,28 @@
             <i class="fas fa-plus"></i>
         </button>
         
-        <div id="history-list" class="history-list"></div>
+        <div id="history-list" class="history-list">
+            <!-- Chat history injected here -->
+        </div>
         
         <!-- User Profile Area -->
         <div class="user-menu-area">
-            <div class="dropdown">
+            <!-- Guest State (Visible by default) -->
+            <div id="guest-menu" class="d-none flex-column gap-2">
+                <a href="/api/auth/login" class="btn w-100 rounded-4 py-2 fw-bold text-white d-flex align-items-center justify-content-center gap-2 shadow-sm" style="background: var(--accent-gradient); border: none;">
+                    <i class="fab fa-google"></i> Login with Google
+                </a>
+                <button id="theme-toggle-guest" class="btn btn-sm w-100 rounded-pill text-secondary fw-bold" style="background: var(--bg-card); border: 1px solid var(--border);">
+                    <i class="fas fa-moon me-2"></i> Toggle Theme
+                </button>
+            </div>
+
+            <!-- User State (Hidden by default) -->
+            <div id="user-menu" class="dropdown d-none">
                 <div class="user-chip dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" id="user-menu-btn">
                     <div class="avatar user" style="width: 2.25rem; height: 2.25rem; font-size: 1rem;" id="user-avatar-text">?</div>
                     <div class="overflow-hidden">
-                        <div class="fw-bold text-truncate" style="font-size:0.95rem;" id="user-name">Guest</div>
+                        <div class="fw-bold text-truncate" style="font-size:0.95rem;" id="user-name">User</div>
                         <div class="small text-muted text-truncate" style="font-size:0.75rem;" id="user-plan">Free Tier</div>
                     </div>
                 </div>
@@ -524,7 +592,7 @@
                     <li><button class="dropdown-item rounded-3 py-2 fw-bold" onclick="showPricing()"><i class="fas fa-bolt me-3 text-warning"></i> Upgrade</button></li>
                     <li><button class="dropdown-item rounded-3 py-2 fw-bold" onclick="showSettings()"><i class="fas fa-cog me-3 text-secondary"></i> Settings</button></li>
                     <li><hr class="dropdown-divider border-secondary opacity-25"></li>
-                    <li><button class="dropdown-item rounded-3 py-2 fw-bold" id="theme-toggle"><i class="fas fa-moon me-3 text-secondary"></i> Toggle Theme</button></li>
+                    <li><button class="dropdown-item rounded-3 py-2 fw-bold" id="theme-toggle-user"><i class="fas fa-moon me-3 text-secondary"></i> Toggle Theme</button></li>
                     <li><a class="dropdown-item rounded-3 py-2 text-danger fw-bold" href="/api/auth/logout"><i class="fas fa-sign-out-alt me-3"></i> Logout</a></li>
                 </ul>
             </div>
@@ -537,10 +605,14 @@
         <!-- CHAT PANE -->
         <section id="chat-pane">
             <div class="top-nav">
+                <!-- Hamburger / Toggle Sidebar -->
                 <button class="btn p-0 text-secondary" id="toggle-sidebar-btn" title="Toggle Sidebar">
                     <i class="fas fa-bars fa-lg"></i>
                 </button>
-                <div class="model-pill"><span>Alara Nova</span></div>
+                
+                <div class="model-pill">
+                    <span>Alara Nova</span>
+                </div>
                 <div style="width: 24px;"></div>
             </div>
 
@@ -552,8 +624,13 @@
                             <i class="fas fa-sparkles fa-3x" style="color: var(--accent);"></i>
                         </div>
                     </div>
+                    
                     <h2 class="hero-title">Hello, <span id="welcome-name" style="color: var(--accent);">Friend</span></h2>
-                    <p style="color: var(--text-secondary); max-width: 500px; margin: 0 auto; line-height: 1.6;">Your intelligent AI workspace.</p>
+                    <p style="color: var(--text-secondary); max-width: 500px; margin: 0 auto; line-height: 1.6;">
+                        Your intelligent AI workspace. <br>
+                        <span style="font-size: 0.9rem; opacity: 0.8;">Built by a student developer using pre-existing LLMs.</span>
+                    </p>
+                    
                     <div class="d-flex justify-content-center gap-3 mt-5 flex-wrap">
                         <div class="suggestion-card" onclick="setPrompt('Design a modern landing page for a coffee shop')">🎨 Design a Website</div>
                         <div class="suggestion-card" onclick="setPrompt('Explain Quantum Physics like I am 5')">⚛️ Explain Physics</div>
@@ -564,50 +641,99 @@
 
             <div class="input-container">
                 <div class="chat-input-wrapper position-relative">
-                    <button class="tool-btn" id="tools-btn" title="Add Tool"><i class="fas fa-plus fa-lg"></i></button>
-                    <button class="tool-btn" id="upload-btn" title="Upload Image"><i class="fas fa-paperclip fa-lg"></i></button>
-                    <div id="image-mode-badge" class="mode-badge"><i class="fas fa-image me-1"></i> Image Mode <i class="fas fa-times close-mode" onclick="toggleImageMode(false)"></i></div>
-                    <div class="custom-dropdown" id="tools-dropdown">
-                        <div class="dropdown-item-custom" onclick="toggleImageMode(true)"><i class="fas fa-wand-magic-sparkles" style="color: var(--accent);"></i> Generate Image</div>
-                        <div class="dropdown-item-custom" onclick="activateTool('canvas')"><i class="fas fa-code text-warning"></i> Open Canvas</div>
+                    <!-- Tools Button -->
+                    <button class="tool-btn" id="tools-btn" title="Add Tool / Attachment">
+                        <i class="fas fa-plus fa-lg"></i>
+                    </button>
+                    
+                    <!-- File Upload Button (Paperclip) -->
+                    <button class="tool-btn" id="upload-btn" title="Upload Image">
+                        <i class="fas fa-paperclip fa-lg"></i>
+                    </button>
+                    
+                    <!-- Mode Badge (Hidden by default) -->
+                    <div id="image-mode-badge" class="mode-badge">
+                        <i class="fas fa-image me-1"></i> Image Mode
+                        <i class="fas fa-times close-mode" onclick="toggleImageMode(false)"></i>
                     </div>
+
+                    <!-- Tools Dropdown -->
+                    <div class="custom-dropdown" id="tools-dropdown">
+                        <div class="dropdown-item-custom" onclick="toggleImageMode(true)">
+                            <i class="fas fa-wand-magic-sparkles" style="color: var(--accent);"></i> Generate Image
+                        </div>
+                        <div class="dropdown-item-custom" onclick="activateTool('canvas')">
+                            <i class="fas fa-code text-warning"></i> Open Canvas
+                        </div>
+                        <div class="dropdown-item-custom text-muted" style="cursor: not-allowed; opacity: 0.7;">
+                            <i class="fas fa-file-powerpoint"></i> Create PPT <span class="badge bg-secondary ms-auto rounded-pill" style="font-size: 0.6em;">SOON</span>
+                        </div>
+                    </div>
+
                     <textarea id="chat-input" rows="1" placeholder="Ask Alara anything..."></textarea>
-                    <button class="send-btn" id="send-btn"><i class="fas fa-arrow-up"></i></button>
+                    
+                    <button class="send-btn" id="send-btn">
+                        <i class="fas fa-arrow-up"></i>
+                    </button>
                 </div>
-                <div id="attachment-preview"><img id="preview-img" src="" alt="Attachment"><button class="remove-btn" id="remove-attachment"><i class="fas fa-times"></i></button></div>
-                <div class="text-center mt-3"><span class="small fw-bold opacity-50" style="color: var(--text-secondary);" id="char-count"></span></div>
+                
+                <!-- Attachment Preview -->
+                <div id="attachment-preview">
+                    <img id="preview-img" src="" alt="Attachment">
+                    <button class="remove-btn" id="remove-attachment"><i class="fas fa-times"></i></button>
+                </div>
+
+                <div class="text-center mt-3">
+                    <span class="small fw-bold opacity-50" style="color: var(--text-secondary); letter-spacing: 1px;" id="char-count"></span>
+                </div>
             </div>
         </section>
 
+        <!-- RESIZER HANDLE -->
         <div id="resizer"></div>
 
+        <!-- CANVAS PANE -->
         <section id="canvas-pane">
             <div class="canvas-header">
-                <div class="fw-bold d-flex align-items-center gap-2" style="color: var(--accent); font-family: var(--font-header);"><i class="fas fa-layer-group"></i> <span>Canvas Preview</span></div>
+                <div class="fw-bold d-flex align-items-center gap-2" style="color: var(--accent); font-family: var(--font-header);">
+                    <i class="fas fa-layer-group"></i> 
+                    <span>Canvas Preview</span>
+                </div>
                 <div class="d-flex gap-2">
-                    <button class="btn btn-sm" style="background: var(--accent); color: white;" onclick="downloadCanvas()"><i class="fas fa-download me-1"></i>Export</button>
-                    <button class="btn btn-sm btn-light rounded-circle" onclick="toggleCanvas(false)"><i class="fas fa-times"></i></button>
+                    <button class="soft-button" style="padding: 6px 12px; font-size: 0.8rem; background: var(--accent); color: white;" onclick="downloadCanvas()" title="Download HTML"><i class="fas fa-download me-2"></i>Export</button>
+                    <button class="btn btn-sm btn-light text-secondary rounded-circle" style="width: 32px; height: 32px;" onclick="toggleCanvas(false)"><i class="fas fa-times"></i></button>
                 </div>
             </div>
             <iframe id="preview-frame" sandbox="allow-scripts allow-modals allow-same-origin"></iframe>
         </section>
+
     </main>
 
     <!-- SETTINGS MODAL -->
     <div class="modal fade" id="settingsModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 rounded-5" style="background: var(--bg-card); backdrop-filter: blur(20px);">
-                <div class="modal-header border-0 pb-0 pt-4 px-4"><h5 class="modal-title fw-bold">Account Settings</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-content border-0 rounded-5 shadow-lg" style="background: var(--bg-card); backdrop-filter: blur(20px);">
+                <div class="modal-header border-0 pb-0 pt-4 px-4">
+                    <h5 class="modal-title fw-bold font-header">Account Settings</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
                 <div class="modal-body p-4">
-                    <div class="mb-4"><label class="small text-secondary fw-bold mb-2 ps-1">EMAIL ADDRESS</label><input type="text" id="settings-email" class="form-control rounded-4 p-3 border-0 bg-light" readonly value="Loading..."></div>
+                    <div class="mb-4">
+                        <label class="small text-secondary fw-bold mb-2 ps-1">EMAIL ADDRESS</label>
+                        <input type="text" id="settings-email" class="form-control rounded-4 p-3 border-0 bg-light" readonly value="Loading...">
+                    </div>
+                    
                     <div>
                         <label class="small text-secondary fw-bold mb-2 ps-1">ACTIVE PLAN</label>
-                        <div class="p-3 bg-light rounded-4 d-flex justify-content-between align-items-center">
+                        <div class="p-3 bg-light border-0 rounded-4 d-flex justify-content-between align-items-center">
                             <div class="d-flex align-items-center gap-3">
                                 <div class="bg-white p-2 rounded-3 shadow-sm" style="color: var(--accent);"><i class="fas fa-cube fa-lg"></i></div>
-                                <div><div class="fw-bold" id="settings-plan-display">Free Plan</div><div class="small text-muted">Standard Limits</div></div>
+                                <div>
+                                    <div class="fw-bold" id="settings-plan-display">Free Plan</div>
+                                    <div class="small text-muted">Standard Limits</div>
+                                </div>
                             </div>
-                            <button class="btn btn-sm rounded-pill px-3" style="background: var(--accent); color: white;" onclick="showPricing()">Upgrade</button>
+                            <button class="soft-button" style="padding: 8px 20px; font-size: 0.9rem; border-radius: 99px;" onclick="showPricing()">Upgrade</button>
                         </div>
                     </div>
                 </div>
@@ -618,18 +744,49 @@
     <!-- PRICING MODAL -->
     <div class="modal fade" id="pricingModal" tabindex="-1">
         <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content border-0 rounded-5" style="background: var(--bg-body);">
-                <div class="modal-header border-0 pb-0 pt-4 px-4"><h5 class="modal-title fw-bold w-100 text-center fs-3">Upgrade Alara</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-content border-0 rounded-5 shadow-lg" style="background: var(--bg-body);">
+                <div class="modal-header border-0 pb-0 pt-4 px-4">
+                    <h5 class="modal-title fw-bold font-header w-100 text-center fs-3">Upgrade Alara</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
                 <div class="modal-body p-5">
                     <div class="row g-4">
-                        <div class="col-md-6"><div class="pricing-card h-100"><h3 class="fw-bold mb-2">Free</h3><p class="text-secondary mb-4">For exploration</p><ul class="list-unstyled text-start mb-4"><li class="mb-3"><i class="fas fa-check text-success me-2"></i>Alara Nova Model</li><li class="mb-3"><i class="fas fa-check text-success me-2"></i>Standard Chat</li></ul><button class="btn btn-light w-100 rounded-pill disabled" id="plan-btn-free">Current Plan</button></div></div>
-                        <div class="col-md-6"><div class="pricing-card featured h-100 position-relative"><span class="badge bg-warning text-dark position-absolute top-0 end-0 m-3 rounded-pill">RECOMMENDED</span><h3 class="fw-bold mb-2">Pro</h3><p class="text-secondary mb-4">For power users</p><h2 class="fw-bold mb-4" style="color: var(--accent);">₹199<small class="fs-6 text-muted">/mo</small></h2><ul class="list-unstyled text-start mb-4"><li class="mb-3"><i class="fas fa-check text-success me-2"></i><strong>Unlimited</strong> Messages</li><li class="mb-3"><i class="fas fa-check text-success me-2"></i>20 Images / Hour</li></ul><button class="upgrade-btn" id="plan-btn-pro">Upgrade Now</button></div></div>
+                        <!-- Free Plan -->
+                        <div class="col-md-6">
+                            <div class="pricing-card h-100">
+                                <h3 class="fw-bold mb-2">Free</h3>
+                                <p class="text-secondary mb-4">For exploration</p>
+                                <ul class="list-unstyled text-start mb-4">
+                                    <li class="mb-3"><i class="fas fa-check text-success me-2"></i>Alara Nova Model</li>
+                                    <li class="mb-3"><i class="fas fa-check text-success me-2"></i>Standard Chat</li>
+                                    <li class="mb-3 text-muted"><i class="fas fa-times me-2"></i>5 Images / Hour</li>
+                                </ul>
+                                <button class="btn btn-light w-100 rounded-pill py-2 disabled" style="font-weight: 600;">Current Plan</button>
+                            </div>
+                        </div>
+                        <!-- Pro Plan -->
+                        <div class="col-md-6">
+                            <div class="pricing-card featured h-100 position-relative">
+                                <span class="badge bg-warning text-dark position-absolute top-0 end-0 m-3 rounded-pill">RECOMMENDED</span>
+                                <h3 class="fw-bold mb-2">Pro</h3>
+                                <p class="text-secondary mb-4">For power users</p>
+                                <h2 class="fw-bold mb-4" style="color: var(--accent);">₹199<small class="fs-6 text-muted">/mo</small></h2>
+                                <ul class="list-unstyled text-start mb-4">
+                                    <li class="mb-3"><i class="fas fa-check text-success me-2"></i><strong>Unlimited</strong> Messages</li>
+                                    <li class="mb-3"><i class="fas fa-check text-success me-2"></i>20 Images / Hour</li>
+                                    <li class="mb-3"><i class="fas fa-check text-success me-2"></i>Priority Support</li>
+                                </ul>
+                                <!-- Styled Upgrade Button -->
+                                <button class="upgrade-btn">Upgrade Now</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Hidden Input for File Upload -->
     <input type="file" id="file-input" class="d-none" accept="image/*">
 
     <!-- JAVASCRIPT -->
@@ -643,16 +800,28 @@
             let isCanvasOpen = false;
             let canvasCode = '';
             let typingIndicatorElement = null;
-            let currentMode = 'chat';
+            let currentMode = 'chat'; // 'chat' or 'image'
             let isResizing = false;
             let attachedFile = null;
             let finalSystemPrompt = '';
             let authCheckInProgress = false;
 
-            const baseSystemPrompt = `You are Alara, a knowledgeable, direct, and friendly AI workspace assistant. You were created by a brilliant student developer (not by Google, OpenAI, or any big corp), leveraging powerful pre-existing LLMs.`;
-            const healthRule = `\nCRITICAL HEALTH PROTOCOL: If the user mentions health symptoms, adopt a 'Wellness' persona. Always end with: "Disclaimer: I am an AI, not a doctor. Consult a professional."`;
-            const proUpgradeMessage = `\nLIMITATION: For Free Tier users, summary long stories and add: "⚠️ For the full response, upgrade to Alara Pro."`;
+            // --- SYSTEM PROMPT CONFIGURATION ---
+            const baseSystemPrompt = `You are Alara, a knowledgeable, direct, and friendly AI workspace assistant. You were created by a brilliant student developer (not by Google, OpenAI, or any big corp), leveraging powerful pre-existing LLMs as your engine.
+            
+            YOUR IDENTITY RULES:
+            1. ORIGIN: If asked who made you, say you were built by a student developer using pre-existing LLM technology.
+            2. NAME: You are Alara, beta v1.0.
+            3. TONE: Be helpful, concise, and encourage creativity.`;
+            
+            const healthRule = `
+            CRITICAL HEALTH PROTOCOL:
+            If the user mentions physical/mental symptoms, adopt a 'First Aid & Wellness' persona. Identify likely common/non-severe causes (dehydration, stress) and suggest safe home remedies. ALWAYS end with: "**Disclaimer: I am an AI, not a doctor. Please consult a professional.**"`;
+            
+            const proUpgradeMessage = `
+            LIMITATION: If you are generating a very long creative piece (essay, story) for a Free Tier user, you may provide a summary and add: "⚠️ For the full detailed response, please upgrade to Alara Pro." (Note: Do not limit code or technical answers).`;
 
+            // ELEMENTS
             const els = {
                 input: document.getElementById('chat-input'),
                 sendBtn: document.getElementById('send-btn'),
@@ -673,15 +842,21 @@
                 modeBadge: document.getElementById('image-mode-badge'),
                 resizer: document.getElementById('resizer'),
                 workspace: document.getElementById('workspace'),
-                toggleSidebarBtn: document.getElementById('toggle-sidebar-btn')
+                toggleSidebarBtn: document.getElementById('toggle-sidebar-btn'),
+                guestMenu: document.getElementById('guest-menu'),
+                userMenu: document.getElementById('user-menu')
             };
 
             const settingsModal = new bootstrap.Modal(document.getElementById('settingsModal'));
             const pricingModal = new bootstrap.Modal(document.getElementById('pricingModal'));
 
             window.showSettings = () => settingsModal.show();
-            window.showPricing = () => { settingsModal.hide(); pricingModal.show(); }
+            window.showPricing = () => {
+                settingsModal.hide();
+                pricingModal.show();
+            }
 
+            // 1. INITIALIZATION
             init();
 
             async function init() {
@@ -693,80 +868,92 @@
             async function checkAuth() {
                 if (authCheckInProgress) return;
                 authCheckInProgress = true;
+                
                 try {
+                     // Add a small delay to allow for backend session processing
+                    await new Promise(resolve => setTimeout(resolve, 500));
+
                     const res = await fetch('/api/user/me', {
-                        credentials: 'include',
-                        headers: { 'Cache-Control': 'no-cache' }
+                        credentials: 'include', // CRITICAL: Ensures cookie is sent
+                        headers: { 'Cache-Control': 'no-cache' } // Avoid stale guest state
                     });
+                    
                     if (res.ok) {
                         const data = await res.json();
-                        // Handle possible data structures from different DB connectors
-                        currentUser = data.user || data; 
-                        updateUserUI(currentUser);
+                        currentUser = data.user;
+                        updateUserUI(data.user);
                     } else {
-                        setGuestState();
+                        showGuestUI();
                     }
                 } catch (e) { 
-                    setGuestState();
+                    console.error("Auth check error", e);
+                    showGuestUI();
                 } finally {
                     authCheckInProgress = false;
                 }
             }
 
-            function setGuestState() {
+            function showGuestUI() {
+                currentUser = null;
                 document.getElementById('user-name').innerText = "Guest User";
-                document.getElementById('settings-email').value = "Not Logged In"; 
+                document.getElementById('settings-email').value = "Guest (Not Logged In)";
                 els.input.placeholder = "Log in to chat...";
+                // Show Login Button, Hide User Menu
+                els.guestMenu.classList.remove('d-none');
+                els.guestMenu.classList.add('d-flex');
+                els.userMenu.classList.add('d-none');
+                // Default prompt for guest
                 finalSystemPrompt = baseSystemPrompt + healthRule + proUpgradeMessage;
             }
 
             function updateUserUI(user) {
-                if (!user) return;
+                // Show User Menu, Hide Login Button
+                els.userMenu.classList.remove('d-none');
+                els.guestMenu.classList.remove('d-flex');
+                els.guestMenu.classList.add('d-none');
+
+                document.getElementById('user-name').innerText = user.name;
+                document.getElementById('welcome-name').innerText = user.name.split(' ')[0];
+                document.getElementById('user-avatar-text').innerText = user.name.charAt(0).toUpperCase();
+
+                // ROBUST PLAN CHECKING (Case-Insensitive)
+                const userPlan = (user.plan || 'free').toLowerCase().trim();
+                const isPro = userPlan === 'pro';
                 
-                // Robust plan detection (handles 'pro', 'PRO', true, 1, etc. from Neon)
-                const isPro = user.plan === 'pro' || user.plan === 'PRO' || user.isPro === true || user.subscription === 'pro';
-                
-                document.getElementById('user-name').innerText = user.name || "User";
-                document.getElementById('welcome-name').innerText = (user.name || "Friend").split(' ')[0];
-                document.getElementById('user-avatar-text').innerText = (user.name || "?").charAt(0).toUpperCase();
-                
-                // Update Sidebar Display
                 const planText = isPro ? 'Pro Plan 🌟' : 'Free Tier';
                 document.getElementById('user-plan').innerText = planText;
-                document.getElementById('settings-plan-display').innerText = isPro ? 'Pro Plan' : 'Free Plan';
+                document.getElementById('settings-plan-display').innerText = (isPro ? 'Pro Plan' : 'Free Plan');
+                document.getElementById('settings-email').value = user.email;
                 
-                // Update Pricing Modal State
-                if (isPro) {
-                    document.getElementById('plan-btn-free').classList.remove('disabled');
-                    document.getElementById('plan-btn-free').innerText = "Switch to Free";
-                    document.getElementById('plan-btn-pro').innerText = "Current Plan";
-                    document.getElementById('plan-btn-pro').classList.add('disabled');
-                    document.getElementById('plan-btn-pro').style.opacity = "0.7";
-                }
-
-                // System Prompt & Constraints
+                // Construct System Prompt based on Plan
                 finalSystemPrompt = baseSystemPrompt + healthRule;
                 if (isPro) {
                     els.input.removeAttribute('maxlength');
                     els.charCount.innerText = "Unlimited";
                 } else {
+                    // Free users get the limiter message
                     finalSystemPrompt += proUpgradeMessage;
                     els.input.setAttribute('maxlength', '5000');
-                    els.charCount.innerText = "0/5000";
                 }
             }
 
+            // 2. CHAT LOGIC
             function createNewChat() {
                 const newChat = { id: Date.now().toString(), title: "New Chat", history: [] };
                 allChats.unshift(newChat);
                 saveChats();
                 loadChat(newChat.id);
+                // On mobile, close sidebar on new chat
+                if(window.innerWidth < 768) {
+                    els.sidebar.classList.remove('open'); 
+                }
             }
 
             function loadChat(id) {
                 currentChatId = id;
                 const chat = allChats.find(c => c.id === id);
                 if (!chat) return;
+
                 els.stream.innerHTML = '';
                 if (chat.history.length === 0) {
                     els.stream.appendChild(els.welcome);
@@ -776,9 +963,13 @@
                     chat.history.forEach(msg => {
                         const text = msg.parts[0].text;
                         const role = msg.role === 'model' ? 'ai' : 'user';
+                        
+                        // Check for inline images in history (if any) or text URLs
                         if(role === 'ai' && text.startsWith('http') && text.includes('pollinations')) {
                             appendImage(text, 'ai');
                         } else {
+                            // If user message has image data, we handle it slightly differently in real app
+                            // For now, we assume simple text history or text + image display
                             appendMessage(text, role);
                         }
                     });
@@ -786,31 +977,47 @@
                 renderHistoryList();
             }
 
+            // Sidebar Toggle Logic
             els.toggleSidebarBtn.addEventListener('click', () => {
-                if(window.innerWidth < 768) els.sidebar.classList.toggle('open');
-                else els.sidebar.classList.toggle('collapsed');
+                if(window.innerWidth < 768) {
+                    els.sidebar.classList.toggle('open'); // Mobile behavior
+                } else {
+                    els.sidebar.classList.toggle('collapsed'); // Desktop behavior
+                }
             });
+            // Mobile close button inside sidebar
+            document.getElementById('close-sidebar').addEventListener('click', () => els.sidebar.classList.remove('open'));
 
+
+            // Mode Switching Logic
             window.toggleImageMode = function(active) {
                 currentMode = active ? 'image' : 'chat';
                 els.toolsDrop.classList.remove('show');
+                
                 if (active) {
                     els.modeBadge.classList.add('active');
-                    els.input.placeholder = "Describe the image...";
+                    els.input.placeholder = "Describe the image you want to generate...";
+                    els.input.focus();
                 } else {
                     els.modeBadge.classList.remove('active');
                     els.input.placeholder = "Ask Alara anything...";
                 }
-                els.input.focus();
             }
 
+            // File Upload Logic
             els.uploadBtn.addEventListener('click', () => els.fileInput.click());
+            
             els.fileInput.addEventListener('change', (e) => {
                 const file = e.target.files[0];
                 if (!file) return;
+                
                 const reader = new FileReader();
                 reader.onloadend = () => {
-                    attachedFile = { base64: reader.result.split(',')[1], mimeType: file.type, url: reader.result };
+                    attachedFile = {
+                        base64: reader.result.split(',')[1],
+                        mimeType: file.type,
+                        url: reader.result
+                    };
                     els.previewImg.src = reader.result;
                     els.attachmentPreview.classList.add('show');
                 };
@@ -826,14 +1033,23 @@
             async function handleSend() {
                 if (currentMode === 'image') {
                     const prompt = els.input.value.trim();
-                    if(prompt) { generateImage(prompt); toggleImageMode(false); els.input.value = ''; }
+                    if(prompt) {
+                        generateImage(prompt);
+                        toggleImageMode(false); 
+                        els.input.value = '';
+                        els.input.style.height = 'auto';
+                    }
                 } else {
                     sendMessage();
                 }
             }
 
             async function sendMessage() {
-                if (!currentUser) { window.location.href = '/api/auth/login'; return; }
+                if (!currentUser) {
+                    window.location.href = '/api/auth/login';
+                    return;
+                }
+
                 const text = els.input.value.trim();
                 if (!text && !attachedFile) return;
 
@@ -841,142 +1057,337 @@
                 els.input.style.height = 'auto'; 
                 els.welcome.style.display = 'none';
 
-                if(attachedFile) appendImage(attachedFile.url, 'user');
-                if(text) appendMessage(text, 'user');
+                // Display User Message
+                if(attachedFile) {
+                    appendImage(attachedFile.url, 'user');
+                }
+                if(text) {
+                    appendMessage(text, 'user');
+                }
                 
-                const chat = allChats.find(c => c.id === currentChatId);
-                const parts = [];
-                if (text) parts.push({ text });
-                if (attachedFile) parts.push({ inlineData: { mimeType: attachedFile.mimeType, data: attachedFile.base64 } });
+                const currentChat = allChats.find(c => c.id === currentChatId);
+                if (!currentChat) return; 
+                
+                // Construct Payload
+                const newParts = [];
+                if (text) newParts.push({ text: text });
+                if (attachedFile) {
+                    newParts.push({ 
+                        inlineData: { 
+                            mimeType: attachedFile.mimeType, 
+                            data: attachedFile.base64 
+                        } 
+                    });
+                }
 
-                chat.history.push({ role: 'user', parts });
-                if (chat.title === "New Chat" && text) { chat.title = text.substring(0, 20) + "..."; renderHistoryList(); }
+                // Add to History
+                currentChat.history.push({ role: 'user', parts: newParts });
+                
+                if (currentChat.title === "New Chat" && text) {
+                    currentChat.title = text.substring(0, 20) + "...";
+                    renderHistoryList();
+                }
 
+                // Clear Attachment UI
+                const wasAttached = attachedFile;
                 attachedFile = null;
                 els.attachmentPreview.classList.remove('show');
+                els.fileInput.value = '';
+
                 showTyping();
 
                 try {
+                    // Inject System Instructions into the API call
+                    const requestBody = { 
+                        contents: currentChat.history,
+                        systemInstruction: {
+                            parts: [{ text: finalSystemPrompt }]
+                        }
+                    };
+
                     const res = await fetch('/api/generate', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ contents: chat.history, systemInstruction: { parts: [{ text: finalSystemPrompt }] } })
+                        body: JSON.stringify(requestBody)
                     });
+
                     hideTyping();
+
                     const data = await res.json();
-                    if (data.candidates) {
+                    
+                    if (data.error) {
+                        appendMessage(`⚠️ Error: ${data.details || data.error}`, 'ai');
+                    } else if (data.candidates) {
                         const reply = data.candidates[0].content.parts[0].text;
                         appendMessage(reply, 'ai');
-                        chat.history.push({ role: 'model', parts: [{ text: reply }] });
+                        currentChat.history.push({ role: 'model', parts: [{ text: reply }] });
                         saveChats();
                     }
-                } catch (e) { hideTyping(); appendMessage("⚠️ Connection error.", 'ai'); }
+                } catch (e) {
+                    hideTyping();
+                    appendMessage("⚠️ Connection error. Please check network.", 'ai');
+                }
             }
 
             function showTyping() {
                 if(typingIndicatorElement) return;
-                const div = document.createElement('div');
-                div.className = 'message ai';
-                div.innerHTML = `<div class="avatar ai">AI</div><div class="typing-bubble"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>`;
-                els.stream.appendChild(div);
+                
+                const msgDiv = document.createElement('div');
+                msgDiv.className = 'message';
+                msgDiv.id = 'typing-indicator';
+                
+                const avatar = document.createElement('div');
+                avatar.className = `avatar ai`;
+                avatar.innerText = 'AI';
+                
+                const bubble = document.createElement('div');
+                bubble.className = 'typing-bubble';
+                bubble.innerHTML = `
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                `;
+                
+                msgDiv.append(avatar, bubble);
+                els.stream.appendChild(msgDiv);
                 els.stream.scrollTop = els.stream.scrollHeight;
-                typingIndicatorElement = div;
+                typingIndicatorElement = msgDiv;
             }
 
-            function hideTyping() { if(typingIndicatorElement) { typingIndicatorElement.remove(); typingIndicatorElement = null; } }
+            function hideTyping() {
+                if(typingIndicatorElement) {
+                    typingIndicatorElement.remove();
+                    typingIndicatorElement = null;
+                }
+            }
 
             function appendMessage(text, sender) {
-                const div = document.createElement('div');
-                div.className = `message ${sender}`;
+                const msgDiv = document.createElement('div');
+                msgDiv.className = `message ${sender}`;
+                
+                const avatar = document.createElement('div');
+                avatar.className = `avatar ${sender}`;
+                avatar.innerText = sender === 'ai' ? 'AI' : 'U';
+                
                 const content = document.createElement('div');
                 content.className = 'msg-content';
+                
                 content.innerHTML = marked.parse(text);
 
-                if (window.renderMathInElement) renderMathInElement(content, { delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}] });
+                if (window.renderMathInElement) {
+                    renderMathInElement(content, {
+                        delimiters: [
+                            {left: '$$', right: '$$', display: true},
+                            {left: '$', right: '$', display: false},
+                            {left: '\\(', right: '\\)', display: false},
+                            {left: '\\[', right: '\\]', display: true}
+                        ],
+                        throwOnError: false
+                    });
+                }
 
                 content.querySelectorAll('pre code').forEach(block => {
                     hljs.highlightElement(block);
-                    if (block.classList.contains('language-html')) {
+                    // Check for HTML/CSS to enable Canvas
+                    if (block.classList.contains('language-html') || block.classList.contains('language-xml')) {
+                        // If Canvas is ALREADY open, auto-update
+                        if(isCanvasOpen) {
+                            loadCanvas(block.innerText);
+                        }
+                        
                         const btn = document.createElement('button');
                         btn.className = 'preview-btn';
-                        btn.innerHTML = '<i class="fas fa-play"></i> Open in Canvas';
+                        btn.innerHTML = '<i class="fas fa-play me-2"></i> Open in Canvas';
                         btn.onclick = () => loadCanvas(block.innerText);
                         block.parentElement.after(btn);
                     }
                 });
 
-                div.innerHTML = `<div class="avatar ${sender}">${sender==='ai'?'AI':'U'}</div>`;
-                div.appendChild(content);
-                els.stream.appendChild(div);
+                if(sender === 'ai') {
+                    msgDiv.append(avatar, content);
+                    
+                    const actionsDiv = document.createElement('div');
+                    actionsDiv.className = 'msg-actions';
+                    
+                    const copyBtn = document.createElement('button');
+                    copyBtn.className = 'action-btn';
+                    copyBtn.innerHTML = '<i class="fas fa-copy"></i> Copy';
+                    copyBtn.onclick = () => {
+                        navigator.clipboard.writeText(text);
+                        copyBtn.innerHTML = '<i class="fas fa-check"></i> Copied';
+                        setTimeout(() => copyBtn.innerHTML = '<i class="fas fa-copy"></i> Copy', 2000);
+                    };
+
+                    const pdfBtn = document.createElement('button');
+                    pdfBtn.className = 'action-btn';
+                    pdfBtn.innerHTML = '<i class="fas fa-file-pdf"></i> PDF';
+                    pdfBtn.onclick = () => downloadMessageAsPDF(content);
+
+                    actionsDiv.append(copyBtn, pdfBtn);
+                    content.appendChild(actionsDiv);
+
+                } else {
+                    msgDiv.style.flexDirection = 'row-reverse';
+                    msgDiv.append(avatar, content);
+                }
+                
+                els.stream.appendChild(msgDiv);
                 els.stream.scrollTop = els.stream.scrollHeight;
+            }
+
+            function downloadMessageAsPDF(element) {
+                const clone = element.cloneNode(true);
+                const actions = clone.querySelector('.msg-actions');
+                if(actions) actions.remove();
+                
+                const wrapper = document.createElement('div');
+                wrapper.style.padding = '20px';
+                wrapper.style.background = 'white';
+                wrapper.style.color = 'black';
+                wrapper.appendChild(clone);
+                document.body.appendChild(wrapper);
+
+                html2canvas(wrapper, { scale: 2, useCORS: true }).then(canvas => {
+                    const imgData = canvas.toDataURL('image/png');
+                    const pdf = new jspdf.jsPDF();
+                    const imgProps = pdf.getImageProperties(imgData);
+                    const pdfWidth = pdf.internal.pageSize.getWidth();
+                    const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+                    pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+                    pdf.save('alara-chat.pdf');
+                    document.body.removeChild(wrapper);
+                });
             }
 
             function appendImage(url, sender) {
-                const div = document.createElement('div');
-                div.className = `message ${sender}`;
-                div.innerHTML = `<div class="avatar ${sender}">${sender==='ai'?'AI':'U'}</div><div class="msg-content"><img src="${url}" class="img-fluid rounded-4"></div>`;
-                els.stream.appendChild(div);
+                const msgDiv = document.createElement('div');
+                msgDiv.className = `message ${sender}`;
+                const avatar = document.createElement('div');
+                avatar.className = `avatar ${sender}`;
+                avatar.innerText = sender === 'ai' ? 'AI' : 'U';
+                const content = document.createElement('div');
+                content.className = 'msg-content';
+                content.innerHTML = `<img src="${url}" class="img-fluid rounded-4 shadow-sm" style="max-height: 400px;">`;
+                
+                if(sender === 'ai') {
+                    msgDiv.append(avatar, content);
+                } else {
+                    msgDiv.style.flexDirection = 'row-reverse';
+                    msgDiv.append(avatar, content);
+                }
+                
+                els.stream.appendChild(msgDiv);
                 els.stream.scrollTop = els.stream.scrollHeight;
             }
 
-            window.toggleCanvas = function(s) {
-                isCanvasOpen = s !== undefined ? s : !isCanvasOpen;
-                els.canvas.classList.toggle('open', isCanvasOpen);
-                els.resizer.style.display = isCanvasOpen ? 'block' : 'none';
+            // 3. CANVAS LOGIC
+            window.toggleCanvas = function(forceState) {
+                isCanvasOpen = forceState !== undefined ? forceState : !isCanvasOpen;
+                if (isCanvasOpen) {
+                    els.canvas.classList.add('open');
+                    els.resizer.style.display = 'block';
+                } else {
+                    els.canvas.classList.remove('open');
+                    els.resizer.style.display = 'none';
+                    els.canvas.style.width = ''; // Reset width on close
+                }
             };
 
-            window.loadCanvas = function(c) { canvasCode = c; toggleCanvas(true); els.preview.srcdoc = c; };
+            window.loadCanvas = function(code) {
+                canvasCode = code;
+                toggleCanvas(true);
+                els.preview.srcdoc = code;
+            };
 
             window.downloadCanvas = function() {
+                if(!canvasCode) return;
                 const blob = new Blob([canvasCode], { type: 'text/html' });
+                const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
-                a.href = URL.createObjectURL(blob);
+                a.href = url;
                 a.download = 'alara-canvas.html';
                 a.click();
             };
 
+            // 4. RESIZER LOGIC
             els.resizer.addEventListener('mousedown', (e) => {
                 isResizing = true;
                 els.workspace.classList.add('resizing');
                 document.addEventListener('mousemove', handleResize);
-                document.addEventListener('mouseup', () => {
-                    isResizing = false;
-                    els.workspace.classList.remove('resizing');
-                    document.removeEventListener('mousemove', handleResize);
-                });
+                document.addEventListener('mouseup', stopResize);
             });
 
             function handleResize(e) {
                 if (!isResizing) return;
-                const w = window.innerWidth - e.clientX;
-                if (w > 300 && w < window.innerWidth - 300) els.canvas.style.width = `${w}px`;
+                const newWidth = window.innerWidth - e.clientX;
+                if (newWidth > 300 && newWidth < window.innerWidth - 300) {
+                    els.canvas.style.width = `${newWidth}px`;
+                }
             }
 
-            window.activateTool = function(t) {
+            function stopResize() {
+                isResizing = false;
+                els.workspace.classList.remove('resizing');
+                document.removeEventListener('mousemove', handleResize);
+                document.removeEventListener('mouseup', stopResize);
+            }
+
+            // 5. TOOLS LOGIC
+            window.activateTool = function(tool) {
                 els.toolsDrop.classList.remove('show');
-                if (t === 'canvas') toggleCanvas(true);
+                if (tool === 'image') {
+                    toggleImageMode(true);
+                } else if (tool === 'canvas') {
+                    toggleCanvas(true);
+                    els.preview.srcdoc = `
+                        <div style="font-family:sans-serif; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#64748b;">
+                            <h2>Canvas Ready</h2>
+                            <p>Ask Alara to write HTML code, then click "Open in Canvas".</p>
+                        </div>
+                    `;
+                }
             };
 
             async function generateImage(prompt) {
-                appendMessage(`🎨 Generating: *"${prompt}"*...`, 'ai');
+                if(!currentUser) return alert("Please log in.");
+                appendMessage(`🎨 Generating image: *"${prompt}"*...`, 'ai');
                 showTyping();
+                
                 try {
-                    const res = await fetch('/api/imagine', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ prompt }) });
-                    const data = await res.json();
+                    const res = await fetch('/api/imagine', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({ prompt })
+                    });
                     hideTyping();
+                    const data = await res.json();
+                    
                     if(data.imageUrl) {
                         appendImage(data.imageUrl, 'ai');
-                        allChats.find(c => c.id === currentChatId).history.push({ role: 'model', parts: [{ text: data.imageUrl }] });
+                        const chat = allChats.find(c => c.id === currentChatId);
+                        chat.history.push({ role: 'model', parts: [{ text: data.imageUrl }] });
                         saveChats();
                     }
-                } catch(e) { hideTyping(); }
+                } catch(e) {
+                    hideTyping();
+                    appendMessage("Failed to generate image.", 'ai');
+                }
             }
 
-            function saveChats() { localStorage.setItem('alaraAllChats', JSON.stringify(allChats)); }
+            // 6. HISTORY & UTILS
+            function saveChats() {
+                localStorage.setItem('alaraAllChats', JSON.stringify(allChats));
+            }
+
             function loadHistory() {
                 const saved = localStorage.getItem('alaraAllChats');
-                if (saved) { allChats = JSON.parse(saved); if (allChats.length) loadChat(allChats[0].id); else createNewChat(); }
-                else createNewChat();
+                if (saved) {
+                    allChats = JSON.parse(saved);
+                    if (allChats.length === 0) createNewChat();
+                    else loadChat(allChats[0].id);
+                } else {
+                    createNewChat();
+                }
             }
 
             function renderHistoryList() {
@@ -984,38 +1395,71 @@
                 allChats.forEach(chat => {
                     const div = document.createElement('div');
                     div.className = `chat-item ${chat.id === currentChatId ? 'active' : ''}`;
-                    div.innerHTML = `<span>${chat.title}</span><i class="fas fa-trash delete-icon" onclick="deleteChat('${chat.id}', event)"></i>`;
-                    div.onclick = (e) => { if (!e.target.classList.contains('delete-icon')) loadChat(chat.id); };
+                    div.innerHTML = `
+                        <span>${chat.title}</span>
+                        <i class="fas fa-trash delete-icon" onclick="deleteChat('${chat.id}', event)"></i>
+                    `;
+                    div.onclick = (e) => {
+                        if (!e.target.classList.contains('delete-icon')) loadChat(chat.id);
+                    };
                     els.history.appendChild(div);
                 });
             }
 
             window.deleteChat = function(id, e) {
                 e.stopPropagation();
-                if(confirm("Delete?")) {
+                if(confirm("Delete this chat?")) {
                     allChats = allChats.filter(c => c.id !== id);
                     saveChats();
-                    if(allChats.length) loadChat(allChats[0].id); else createNewChat();
+                    if(allChats.length > 0) loadChat(allChats[0].id);
+                    else createNewChat();
                 }
             }
 
-            window.setPrompt = (t) => { els.input.value = t; els.input.focus(); }
+            window.setPrompt = function(text) {
+                els.input.value = text;
+                els.input.focus();
+            }
 
+            // EVENT LISTENERS
             els.sendBtn.addEventListener('click', handleSend);
-            els.input.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } });
+            els.input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); }
+            });
             els.input.addEventListener('input', function() {
-                this.style.height = 'auto'; this.style.height = this.scrollHeight + 'px';
-                if(this.value.length > 0 && currentUser?.plan !== 'pro') els.charCount.innerText = `${this.value.length}/5000`;
-                else els.charCount.innerText = "";
+                this.style.height = 'auto';
+                this.style.height = (this.scrollHeight) + 'px';
+                if(this.value.length > 0 && currentUser?.plan !== 'pro') {
+                    els.charCount.innerText = `${this.value.length}/5000`;
+                } else {
+                    els.charCount.innerText = "";
+                }
             });
 
-            els.toolsBtn.addEventListener('click', (e) => { e.stopPropagation(); els.toolsDrop.classList.toggle('show'); });
+            els.toolsBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                els.toolsDrop.classList.toggle('show');
+            });
+
             document.getElementById('new-chat-btn').addEventListener('click', createNewChat);
-            document.getElementById('theme-toggle').addEventListener('click', () => {
+            
+            // Theme Toggle Logic
+            function toggleTheme() {
                 document.body.classList.toggle('dark');
                 localStorage.setItem('alaraTheme', document.body.classList.contains('dark') ? 'dark' : 'light');
-            });
+            }
+
+            const guestThemeBtn = document.getElementById('theme-toggle-guest');
+            const userThemeBtn = document.getElementById('theme-toggle-user');
+
+            if (guestThemeBtn) guestThemeBtn.addEventListener('click', toggleTheme);
+            if (userThemeBtn) userThemeBtn.addEventListener('click', toggleTheme);
+
+            // document.getElementById('open-sidebar').addEventListener('click', () => els.sidebar.classList.add('open'));
+            // Note: open-sidebar button removed in favor of unified toggle logic
+
             window.addEventListener('click', () => els.toolsDrop.classList.remove('show'));
+
         });
     </script>
 </body>
