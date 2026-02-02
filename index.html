@@ -533,6 +533,7 @@
             transition: all 0.3s ease; box-shadow: 0 4px 15px var(--accent-glow);
         }
         .upgrade-btn:hover { transform: translateY(-2px) scale(1.02); box-shadow: 0 8px 25px var(--accent-glow); color: white; }
+        .upgrade-btn.disabled-plan { background: #6c757d !important; color: white !important; cursor: default !important; transform: none !important; box-shadow: none !important; opacity: 0.8; }
 
         /* Mobile */
         @media (max-width: 768px) {
@@ -592,7 +593,7 @@
                     </div>
                 </div>
                 <ul class="dropdown-menu shadow-lg w-100 border-0 rounded-4 p-2" style="background: var(--bg-card); backdrop-filter: blur(20px);">
-                    <li><button class="dropdown-item rounded-3 py-2 fw-bold" onclick="showPricing()"><i class="fas fa-bolt me-3 text-warning"></i> Upgrade</button></li>
+                    <li><button id="sidebar-upgrade-btn" class="dropdown-item rounded-3 py-2 fw-bold" onclick="showPricing()"><i class="fas fa-bolt me-3 text-warning"></i> Upgrade</button></li>
                     <li><button class="dropdown-item rounded-3 py-2 fw-bold" onclick="showSettings()"><i class="fas fa-cog me-3 text-secondary"></i> Settings</button></li>
                     <li><hr class="dropdown-divider border-secondary opacity-25"></li>
                     <li><button class="dropdown-item rounded-3 py-2 fw-bold" id="theme-toggle-user"><i class="fas fa-moon me-3 text-secondary"></i> Toggle Theme</button></li>
@@ -736,7 +737,7 @@
                                     <div class="small text-muted">Standard Limits</div>
                                 </div>
                             </div>
-                            <button class="soft-button" style="padding: 8px 20px; font-size: 0.9rem; border-radius: 99px;" onclick="showPricing()">Upgrade</button>
+                            <button id="settings-upgrade-btn" class="soft-button" style="padding: 8px 20px; font-size: 0.9rem; border-radius: 99px;" onclick="showPricing()">Upgrade</button>
                         </div>
                     </div>
                 </div>
@@ -780,7 +781,7 @@
                                     <li class="mb-3"><i class="fas fa-check text-success me-2"></i>Priority Support</li>
                                 </ul>
                                 <!-- Styled Upgrade Button -->
-                                <button class="upgrade-btn" onclick="startPayment(10)">Upgrade Now</button>
+                                <button id="modal-upgrade-btn" class="upgrade-btn" onclick="startPayment(10)">Upgrade Now</button>
                             </div>
                         </div>
                     </div>
@@ -847,7 +848,11 @@
                 workspace: document.getElementById('workspace'),
                 toggleSidebarBtn: document.getElementById('toggle-sidebar-btn'),
                 guestMenu: document.getElementById('guest-menu'),
-                userMenu: document.getElementById('user-menu')
+                userMenu: document.getElementById('user-menu'),
+                // Upgrade buttons
+                sidebarUpgradeBtn: document.getElementById('sidebar-upgrade-btn'),
+                settingsUpgradeBtn: document.getElementById('settings-upgrade-btn'),
+                modalUpgradeBtn: document.getElementById('modal-upgrade-btn')
             };
 
             const settingsModal = new bootstrap.Modal(document.getElementById('settingsModal'));
@@ -893,6 +898,10 @@
                         } else {
                             showGuestUI();
                         }
+                    } else if (res.status === 401) {
+                         // FORCE LOGOUT ON 401 TO CLEAR BAD COOKIE
+                         await fetch('/api/auth/logout');
+                         showGuestUI();
                     } else {
                         showGuestUI();
                     }
@@ -929,24 +938,53 @@
 
                 // ROBUST PLAN CHECKING (Case-Insensitive)
                 // Normalize to lower case for comparison: 'Pro', 'PRO', 'pro ' -> 'pro'
-                const rawPlan = user.plan || 'free';
-                const isPro = rawPlan.toLowerCase().trim() === 'pro';
+                const rawPlan = (user.plan || 'free').toLowerCase().trim();
+                const isPro = rawPlan === 'pro';
                 
                 const planText = isPro ? 'Pro Plan 🌟' : 'Free Tier';
                 document.getElementById('user-plan').innerText = planText;
                 document.getElementById('settings-plan-display').innerText = (isPro ? 'Pro Plan' : 'Free Plan');
                 document.getElementById('settings-email').value = user.email;
                 
-                // Construct System Prompt based on Plan
-                finalSystemPrompt = baseSystemPrompt + healthRule;
+                // --- PRO UI LOGIC ---
                 if (isPro) {
+                    // Update System Prompt
+                    finalSystemPrompt = baseSystemPrompt + healthRule;
+                    
+                    // UI Limits
                     els.input.removeAttribute('maxlength');
                     els.charCount.innerText = "Unlimited";
+                    
+                    // DISABLE UPGRADE BUTTONS if already Pro
+                    disableUpgradeButton(els.sidebarUpgradeBtn, "Active Plan");
+                    disableUpgradeButton(els.settingsUpgradeBtn, "Active");
+                    disableUpgradeButton(els.modalUpgradeBtn, "Current Plan");
                 } else {
-                    // Free users get the limiter message
+                    // Free User Logic
                     finalSystemPrompt += proUpgradeMessage;
                     els.input.setAttribute('maxlength', '5000');
+                    
+                    // Enable Upgrade Buttons
+                    enableUpgradeButton(els.sidebarUpgradeBtn, "Upgrade", "showPricing()");
+                    enableUpgradeButton(els.settingsUpgradeBtn, "Upgrade", "showPricing()");
+                    enableUpgradeButton(els.modalUpgradeBtn, "Upgrade Now", "startPayment(10)");
                 }
+            }
+
+            function disableUpgradeButton(btn, text) {
+                if(!btn) return;
+                btn.innerHTML = `<i class="fas fa-check-circle me-2"></i> ${text}`;
+                btn.onclick = null;
+                btn.disabled = true;
+                btn.classList.add('disabled-plan'); // Custom class for styling
+            }
+
+            function enableUpgradeButton(btn, text, action) {
+                if(!btn) return;
+                btn.innerHTML = (text === "Upgrade") ? `<i class="fas fa-bolt me-3 text-warning"></i> Upgrade` : text;
+                btn.onclick = () => eval(action); // Simple re-bind
+                btn.disabled = false;
+                btn.classList.remove('disabled-plan');
             }
 
             // 2. CHAT LOGIC
