@@ -44,20 +44,3 @@ export default async function handler(req, res) {
     } else {
         console.warn("Skipping Pollinations: No API Key found.");
     }
-
-    // STRATEGY 2: Visual Fallback (LoremFlickr)
-    // If the API fails (e.g., out of Pollen) or key is missing, return a relevant stock photo.
-    // This ensures your demo NEVER shows a broken image or error text.
-    const keyword = prompt.split(' ')[0] || 'technology';
-    const fallbackUrl = `https://loremflickr.com/800/600/${encodeURIComponent(keyword)}?random=${Math.random()}`;
-    
-    return res.status(200).json({ imageUrl: fallbackUrl });
-
-  } catch (error) {
-    console.error("Critical Image Error:", error.message);
-    
-    // STRATEGY 3: Last Resort Text Placeholder
-    const placeholder = `https://placehold.co/1024x1024/2d2d2d/FFF?text=${encodedPrompt}`;
-    return res.status(200).json({ imageUrl: placeholder });
-  }
-}
