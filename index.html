@@ -966,7 +966,14 @@
                          }));
                          // If no chats, create new
                          if (allChats.length === 0) createNewChat();
-                         else renderHistoryList();
+                         else {
+                            // Fix: Render history AND load most recent chat
+                            renderHistoryList();
+                            // If user is here for the first time in this session, load their latest work
+                            if (!currentChatId) {
+                                loadChat(allChats[0].id);
+                            }
+                         }
                     }
                 });
 
@@ -1013,20 +1020,9 @@
 
             // 2. CHAT LOGIC
             function createNewChat() {
-                // If user is free and has >= 10 chats, stop them
-                if (currentUser) {
-                    const rawPlan = (currentUser.plan || 'free').toLowerCase().trim();
-                    const isPro = rawPlan === 'pro';
-                    if (!isPro && allChats.length >= 10) {
-                        alert("Free limit reached (10 chats). Please delete old chats or upgrade.");
-                        return;
-                    }
-                }
-
                 const newChat = { id: Date.now().toString(), title: "New Chat", history: [] };
                 allChats.unshift(newChat);
-                // Save to cloud immediately
-                saveChatToCloud(newChat);
+                saveChats();
                 loadChat(newChat.id);
                 // On mobile, close sidebar on new chat
                 if(window.innerWidth < 768) {
@@ -1050,7 +1046,9 @@
                         const role = msg.role === 'model' ? 'ai' : 'user';
                         
                         // Check for inline images in history (if any) or text URLs
-                        if(role === 'ai' && text.startsWith('http') && text.includes('pollinations')) {
+                        // Updated check: Includes more image sources to fix refresh bug
+                        if(role === 'ai' && (text.startsWith('http') || text.startsWith('data:image')) && 
+                           (text.includes('pollinations') || text.includes('lexica') || text.includes('loremflickr') || text.includes('placehold'))) {
                             appendImage(text, 'ai');
                         } else {
                             // If user message has image data, we handle it slightly differently in real app
