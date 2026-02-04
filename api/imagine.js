@@ -49,18 +49,3 @@ export default async function handler(req, res) {
             console.error("Pollinations API error:", e.message);
         }
     }
-
-    // STRATEGY: Pollinations AI (URL Construction)
-    // Fallback if no key is present or if API failed. 
-    // Using '/p/' path for better stability as seen in docs.
-    const pollinationsUrl = `https://pollinations.ai/p/${encodedPrompt}?width=1024&height=1024&seed=${seed}&nologo=true&model=flux`;
-    
-    return res.status(200).json({ imageUrl: pollinationsUrl });
-
-  } catch (error) {
-    console.error("Critical Image Error:", error.message);
-    // Simple text placeholder if everything explodes, just to keep UI from crashing
-    const placeholder = `https://placehold.co/1024x1024/2d2d2d/FFF?text=${encodedPrompt}`;
-    return res.status(200).json({ imageUrl: placeholder });
-  }
-}
