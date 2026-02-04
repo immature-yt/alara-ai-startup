@@ -869,7 +869,10 @@
 
             async function init() {
                 if(localStorage.getItem('alaraTheme') === 'dark') document.body.classList.add('dark');
-                loadHistory();
+                // Removed loadHistory() here, it should be cloud synced ideally, but keeping logic
+                // For now assuming we still want to save chats. If switching to Cloud Sync, loadHistory would be async fetch.
+                // Keeping local storage logic as per user request to maintain current state + fixes.
+                loadHistory(); 
                 await checkAuth();
             }
 
@@ -950,6 +953,23 @@
                 document.getElementById('settings-plan-display').innerText = (isPro ? 'Pro Plan' : 'Free Plan');
                 document.getElementById('settings-email').value = user.email;
                 
+                // CLOUD SYNC LOGIC (LOAD CHATS FROM SERVER)
+                fetch('/api/chats').then(res => res.json()).then(data => {
+                    if (data.chats) {
+                         // Map database fields to frontend structure if needed
+                         // Assuming api/chats.js returns { chats: [{id, title, history}] }
+                         // Merging with local or replacing? Replacing is safer for sync.
+                         allChats = data.chats.map(c => ({
+                             id: c.id,
+                             title: c.title,
+                             history: c.history
+                         }));
+                         // If no chats, create new
+                         if (allChats.length === 0) createNewChat();
+                         else renderHistoryList();
+                    }
+                });
+
                 // --- PRO UI LOGIC ---
                 if (isPro) {
                     // Update System Prompt
@@ -993,9 +1013,20 @@
 
             // 2. CHAT LOGIC
             function createNewChat() {
+                // If user is free and has >= 10 chats, stop them
+                if (currentUser) {
+                    const rawPlan = (currentUser.plan || 'free').toLowerCase().trim();
+                    const isPro = rawPlan === 'pro';
+                    if (!isPro && allChats.length >= 10) {
+                        alert("Free limit reached (10 chats). Please delete old chats or upgrade.");
+                        return;
+                    }
+                }
+
                 const newChat = { id: Date.now().toString(), title: "New Chat", history: [] };
                 allChats.unshift(newChat);
-                saveChats();
+                // Save to cloud immediately
+                saveChatToCloud(newChat);
                 loadChat(newChat.id);
                 // On mobile, close sidebar on new chat
                 if(window.innerWidth < 768) {
@@ -1140,6 +1171,7 @@
                 if (currentChat.title === "New Chat" && text) {
                     currentChat.title = text.substring(0, 20) + "...";
                     renderHistoryList();
+                    saveChatToCloud(currentChat); // Save title change
                 }
 
                 // Clear Attachment UI
@@ -1175,7 +1207,8 @@
                         const reply = data.candidates[0].content.parts[0].text;
                         appendMessage(reply, 'ai');
                         currentChat.history.push({ role: 'model', parts: [{ text: reply }] });
-                        saveChats();
+                        // SAVE TO CLOUD INSTEAD OF LOCAL STORAGE
+                        saveChatToCloud(currentChat); 
                     }
                 } catch (e) {
                     hideTyping();
@@ -1420,7 +1453,7 @@
                         appendImage(data.imageUrl, 'ai');
                         const chat = allChats.find(c => c.id === currentChatId);
                         chat.history.push({ role: 'model', parts: [{ text: data.imageUrl }] });
-                        saveChats();
+                        saveChatToCloud(chat);
                     }
                 } catch(e) {
                     hideTyping();
@@ -1428,20 +1461,48 @@
                 }
             }
 
-            // 6. HISTORY & UTILS
+            // --- CLOUD SYNC FUNCTIONS ---
+            async function saveChatToCloud(chat) {
+                if (!currentUser) return; // Don't sync for guests
+                try {
+                    await fetch('/api/chats', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            id: chat.id,
+                            title: chat.title,
+                            history: chat.history
+                        })
+                    });
+                } catch (e) { console.error("Cloud sync failed", e); }
+            }
+
+            async function deleteChatFromCloud(id) {
+                if (!currentUser) return;
+                try {
+                    await fetch(`/api/chats?id=${id}`, { method: 'DELETE' });
+                } catch (e) { console.error("Cloud delete failed", e); }
+            }
+            
+            // Replaced LocalStorage calls
             function saveChats() {
-                localStorage.setItem('alaraAllChats', JSON.stringify(allChats));
+                // No longer needed for cloud, but maybe for guest?
+                // For simplicity, we just use Cloud for logged in, nothing for guest persistance across reload? 
+                // Or keep localStorage for guests?
+                // Let's keep localStorage for guests as a fallback.
+                if(!currentUser) {
+                    localStorage.setItem('alaraAllChats', JSON.stringify(allChats));
+                }
             }
 
             function loadHistory() {
-                const saved = localStorage.getItem('alaraAllChats');
-                if (saved) {
-                    allChats = JSON.parse(saved);
-                    if (allChats.length === 0) createNewChat();
-                    else loadChat(allChats[0].id);
-                } else {
-                    createNewChat();
-                }
+                 // For guests, load from local. For Users, we load from Cloud in updateUserUI.
+                 const saved = localStorage.getItem('alaraAllChats');
+                 if (saved && !currentUser) {
+                     allChats = JSON.parse(saved);
+                     if (allChats.length === 0) createNewChat();
+                     else loadChat(allChats[0].id);
+                 }
             }
 
             function renderHistoryList() {
@@ -1449,13 +1510,8 @@
                 allChats.forEach(chat => {
                     const div = document.createElement('div');
                     div.className = `chat-item ${chat.id === currentChatId ? 'active' : ''}`;
-                    div.innerHTML = `
-                        <span>${chat.title}</span>
-                        <i class="fas fa-trash delete-icon" onclick="deleteChat('${chat.id}', event)"></i>
-                    `;
-                    div.onclick = (e) => {
-                        if (!e.target.classList.contains('delete-icon')) loadChat(chat.id);
-                    };
+                    div.innerHTML = `<span>${chat.title}</span><i class="fas fa-trash delete-icon" onclick="deleteChat('${chat.id}', event)"></i>`;
+                    div.onclick = (e) => { if (!e.target.classList.contains('delete-icon')) loadChat(chat.id); };
                     els.history.appendChild(div);
                 });
             }
@@ -1464,56 +1520,42 @@
                 e.stopPropagation();
                 if(confirm("Delete this chat?")) {
                     allChats = allChats.filter(c => c.id !== id);
-                    saveChats();
+                    if (currentUser) deleteChatFromCloud(id);
+                    else saveChats();
+                    
                     if(allChats.length > 0) loadChat(allChats[0].id);
                     else createNewChat();
                 }
             }
 
-            window.setPrompt = function(text) {
-                els.input.value = text;
-                els.input.focus();
+            window.setPrompt = function(text) { els.input.value = text; els.input.focus(); }
+            // Payment Logic (Same as before)
+            window.startPayment = async function(amount) {
+                try {
+                    const orderRes = await fetch('/api/payment/create-order', { method: 'POST', headers: { 'Content-Type': 'application/json' } });
+                    if (!orderRes.ok) { alert("Could not start payment. Please try again."); return; }
+                    const order = await orderRes.json();
+                    const options = {
+                        "key": order.key, "amount": order.amount, "currency": order.currency, "name": "Alara AI", "description": "Pro Plan Upgrade", "order_id": order.id, 
+                        "handler": async function (response){
+                            const verifyRes = await fetch('/api/payment/verify', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ razorpay_payment_id: response.razorpay_payment_id, razorpay_order_id: response.razorpay_order_id, razorpay_signature: response.razorpay_signature }) });
+                            const verifyData = await verifyRes.json();
+                            if(verifyData.success) { alert("Payment Successful! Upgraded to Pro."); location.reload(); } else { alert("Payment verification failed."); }
+                        }, "theme": { "color": "#db2777" }
+                    };
+                    const rzp1 = new Razorpay(options); rzp1.open();
+                } catch (e) { console.error("Payment Error", e); alert("Payment failed to initialize."); }
             }
 
-            // EVENT LISTENERS
             els.sendBtn.addEventListener('click', handleSend);
-            els.input.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); }
-            });
-            els.input.addEventListener('input', function() {
-                this.style.height = 'auto';
-                this.style.height = (this.scrollHeight) + 'px';
-                if(this.value.length > 0 && currentUser?.plan !== 'pro') {
-                    els.charCount.innerText = `${this.value.length}/5000`;
-                } else {
-                    els.charCount.innerText = "";
-                }
-            });
-
-            els.toolsBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                els.toolsDrop.classList.toggle('show');
-            });
-
+            els.input.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } });
+            els.input.addEventListener('input', function() { this.style.height = 'auto'; this.style.height = (this.scrollHeight) + 'px'; if(this.value.length > 0 && currentUser?.plan !== 'pro') { els.charCount.innerText = `${this.value.length}/5000`; } else { els.charCount.innerText = ""; } });
+            els.toolsBtn.addEventListener('click', (e) => { e.stopPropagation(); els.toolsDrop.classList.toggle('show'); });
             document.getElementById('new-chat-btn').addEventListener('click', createNewChat);
-            
-            // Theme Toggle Logic
-            function toggleTheme() {
-                document.body.classList.toggle('dark');
-                localStorage.setItem('alaraTheme', document.body.classList.contains('dark') ? 'dark' : 'light');
-            }
-
-            const guestThemeBtn = document.getElementById('theme-toggle-guest');
-            const userThemeBtn = document.getElementById('theme-toggle-user');
-
-            if (guestThemeBtn) guestThemeBtn.addEventListener('click', toggleTheme);
-            if (userThemeBtn) userThemeBtn.addEventListener('click', toggleTheme);
-
-            // document.getElementById('open-sidebar').addEventListener('click', () => els.sidebar.classList.add('open'));
-            // Note: open-sidebar button removed in favor of unified toggle logic
-
+            function toggleTheme() { document.body.classList.toggle('dark'); localStorage.setItem('alaraTheme', document.body.classList.contains('dark') ? 'dark' : 'light'); }
+            const guestThemeBtn = document.getElementById('theme-toggle-guest'); const userThemeBtn = document.getElementById('theme-toggle-user');
+            if (guestThemeBtn) guestThemeBtn.addEventListener('click', toggleTheme); if (userThemeBtn) userThemeBtn.addEventListener('click', toggleTheme);
             window.addEventListener('click', () => els.toolsDrop.classList.remove('show'));
-
         });
     </script>
 </body>
