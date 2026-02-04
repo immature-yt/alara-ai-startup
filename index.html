@@ -774,14 +774,14 @@
                                 <span class="badge bg-warning text-dark position-absolute top-0 end-0 m-3 rounded-pill">RECOMMENDED</span>
                                 <h3 class="fw-bold mb-2">Pro</h3>
                                 <p class="text-secondary mb-4">For power users</p>
-                                <h2 class="fw-bold mb-4" style="color: var(--accent);">₹10<small class="fs-6 text-muted">/mo</small></h2>
+                                <h2 class="fw-bold mb-4" style="color: var(--accent);">₹199<small class="fs-6 text-muted">/mo</small></h2>
                                 <ul class="list-unstyled text-start mb-4">
                                     <li class="mb-3"><i class="fas fa-check text-success me-2"></i><strong>Unlimited</strong> Messages</li>
                                     <li class="mb-3"><i class="fas fa-check text-success me-2"></i>20 Images / Hour</li>
                                     <li class="mb-3"><i class="fas fa-check text-success me-2"></i>Priority Support</li>
                                 </ul>
                                 <!-- Styled Upgrade Button -->
-                                <button id="modal-upgrade-btn" class="upgrade-btn" onclick="startPayment(10)">Upgrade Now</button>
+                                <button id="modal-upgrade-btn" class="upgrade-btn" onclick="startPayment(199)">Upgrade Now</button>
                             </div>
                         </div>
                     </div>
@@ -901,6 +901,10 @@
                     } else if (res.status === 401) {
                          // FORCE LOGOUT ON 401 TO CLEAR BAD COOKIE
                          await fetch('/api/auth/logout');
+                         // Force clear bad cookies in JS as a fallback
+                         document.cookie.split(";").forEach(function(c) { 
+                           document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
+                         });
                          showGuestUI();
                     } else {
                         showGuestUI();
@@ -967,7 +971,7 @@
                     // Enable Upgrade Buttons
                     enableUpgradeButton(els.sidebarUpgradeBtn, "Upgrade", "showPricing()");
                     enableUpgradeButton(els.settingsUpgradeBtn, "Upgrade", "showPricing()");
-                    enableUpgradeButton(els.modalUpgradeBtn, "Upgrade Now", "startPayment(10)");
+                    enableUpgradeButton(els.modalUpgradeBtn, "Upgrade Now", "startPayment(199)");
                 }
             }
 
@@ -1469,60 +1473,6 @@
             window.setPrompt = function(text) {
                 els.input.value = text;
                 els.input.focus();
-            }
-
-            // PAYMENT LOGIC
-            window.startPayment = async function(amount) {
-                try {
-                    const orderRes = await fetch('/api/payment/create-order', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' }
-                    });
-                    
-                    if (!orderRes.ok) {
-                        alert("Could not start payment. Please try again.");
-                        return;
-                    }
-
-                    const order = await orderRes.json();
-                    
-                    const options = {
-                        "key": order.key, // Use key from server response
-                        "amount": order.amount, 
-                        "currency": order.currency,
-                        "name": "Alara AI",
-                        "description": "Pro Plan Upgrade",
-                        "order_id": order.id, 
-                        "handler": async function (response){
-                            // Verify Payment
-                            const verifyRes = await fetch('/api/payment/verify', {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({
-                                    razorpay_payment_id: response.razorpay_payment_id,
-                                    razorpay_order_id: response.razorpay_order_id,
-                                    razorpay_signature: response.razorpay_signature
-                                })
-                            });
-
-                            const verifyData = await verifyRes.json();
-                            if(verifyData.success) {
-                                alert("Payment Successful! Upgraded to Pro.");
-                                location.reload();
-                            } else {
-                                alert("Payment verification failed.");
-                            }
-                        },
-                        "theme": {
-                            "color": "#db2777"
-                        }
-                    };
-                    const rzp1 = new Razorpay(options);
-                    rzp1.open();
-                } catch (e) {
-                    console.error("Payment Error", e);
-                    alert("Payment failed to initialize.");
-                }
             }
 
             // EVENT LISTENERS
