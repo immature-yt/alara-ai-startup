@@ -10,62 +10,56 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Prompt is required' });
   }
 
-  // Clean the prompt for URLs
+  // Clean the prompt
   const encodedPrompt = encodeURIComponent(prompt);
+  const seed = Math.floor(Math.random() * 1000000);
 
   try {
-    // ---------------------------------------------------------
-    // STRATEGY 1: Lexica.art (Best for Demos)
-    // Searches a massive DB of high-quality Stable Diffusion images.
-    // ---------------------------------------------------------
-    try {
-        const lexicaRes = await fetch(`https://lexica.art/api/v1/search?q=${encodedPrompt}`);
-        
-        if (lexicaRes.ok) {
-            const lexicaData = await lexicaRes.json();
-            if (lexicaData.images && lexicaData.images.length > 0) {
-                // Return a random image from the top 5 results for variety
-                const randomIndex = Math.floor(Math.random() * Math.min(5, lexicaData.images.length));
-                return res.status(200).json({ imageUrl: lexicaData.images[randomIndex].src });
-            }
-        }
-    } catch (e) {
-        console.warn("Lexica search failed, trying fallback...", e.message);
-    }
-
-    // ---------------------------------------------------------
-    // STRATEGY 2: Pollinations AI (Live Generation)
-    // We try the 'flux' model which is often more stable than default
-    // ---------------------------------------------------------
-    try {
-        const seed = Math.floor(Math.random() * 1000000);
-        // Using 'flux' model explicitly and removing complex params to reduce 502 chance
-        const pollinationsUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=1024&height=1024&seed=${seed}&model=flux`;
-
-        // Check if the image is actually generating (Head request)
-        const check = await fetch(pollinationsUrl, { method: 'HEAD', signal: AbortSignal.timeout(3500) });
-        
-        if (check.ok) {
-            return res.status(200).json({ imageUrl: pollinationsUrl });
-        }
-    } catch (e) {
-        console.warn("Pollinations failed:", e.message);
-    }
-
-    // ---------------------------------------------------------
-    // STRATEGY 3: Visual Fallback (LoremFlickr)
-    // Instead of text, return a real stock photo matching the keywords.
-    // Much better for a live presentation than an error message.
-    // ---------------------------------------------------------
-    // Extract the first valid keyword from prompt or default to 'technology'
-    const keyword = prompt.split(' ')[0] || 'technology';
-    const fallbackUrl = `https://loremflickr.com/800/600/${encodeURIComponent(keyword)}?random=${Math.random()}`;
+    const apiKey = process.env.POLLINATIONS_API_KEY;
     
-    return res.status(200).json({ imageUrl: fallbackUrl });
+    // STRATEGY: Pollinations AI (Authenticated)
+    // Uses your API Key to guarantee generation (No 502s, No Redirects).
+    if (apiKey) {
+        try {
+            const response = await fetch('https://image.pollinations.ai/openai/images/generations', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${apiKey}`,
+                },
+                body: JSON.stringify({
+                    model: 'flux', // High quality, lower cost than flux-pro
+                    prompt: prompt,
+                    n: 1,
+                    size: '1024x1024',
+                    seed: seed
+                })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                if (data.data && data.data[0] && data.data[0].url) {
+                    return res.status(200).json({ imageUrl: data.data[0].url });
+                }
+            } else {
+                console.warn("Pollinations Auth API failed:", response.status, response.statusText);
+                // Continue to URL construction if API call fails
+            }
+        } catch (e) {
+            console.error("Pollinations API error:", e.message);
+        }
+    }
+
+    // STRATEGY: Pollinations AI (URL Construction)
+    // Fallback if no key is present or if API failed. 
+    // Using '/p/' path for better stability as seen in docs.
+    const pollinationsUrl = `https://pollinations.ai/p/${encodedPrompt}?width=1024&height=1024&seed=${seed}&nologo=true&model=flux`;
+    
+    return res.status(200).json({ imageUrl: pollinationsUrl });
 
   } catch (error) {
     console.error("Critical Image Error:", error.message);
-    // Absolute last resort: The text placeholder
+    // Simple text placeholder if everything explodes, just to keep UI from crashing
     const placeholder = `https://placehold.co/1024x1024/2d2d2d/FFF?text=${encodedPrompt}`;
     return res.status(200).json({ imageUrl: placeholder });
   }
