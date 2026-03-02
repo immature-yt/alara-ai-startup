@@ -902,12 +902,11 @@
                             showGuestUI();
                         }
                     } else if (res.status === 401) {
-                         // FORCE LOGOUT ON 401 TO CLEAR BAD COOKIE
-                         await fetch('/api/auth/logout');
-                         // Force clear bad cookies in JS as a fallback
-                         document.cookie.split(";").forEach(function(c) { 
-                           document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
-                         });
+                         // FIX: Just gracefully fall back to Guest UI.
+                         // Do not attempt to fetch('/api/auth/logout') or clear cookies in JS here.
+                         // 1. JS can't clear HttpOnly cookies anyway.
+                         // 2. If it's a false 401 (e.g. database cold start), forcing logout breaks the session.
+                         // 3. When the user clicks Login again, the new cookie safely overwrites the old one.
                          showGuestUI();
                     } else {
                         showGuestUI();
