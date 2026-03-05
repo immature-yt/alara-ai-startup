@@ -21,7 +21,7 @@ export default async function handler(req, res) {
     
     if (apiKey) {
         // Using 'flux' as per docs. Adding 'nologo=true' to keep it professional.
-        const url = `https://gen.pollinations.ai/image/${encodedPrompt}?model=zimage&nologo=true`;
+        const url = `https://gen.pollinations.ai/image/${encodedPrompt}?model=flux&nologo=true`;
         
         const response = await fetch(url, {
             method: 'GET',
@@ -40,7 +40,18 @@ export default async function handler(req, res) {
             return res.status(200).json({ imageUrl: dataUrl });
         } else {
             console.warn(`Pollinations API Error: ${response.status} ${response.statusText}`);
+            // FIXED: Send an error response back to the frontend instead of hanging
+            return res.status(500).json({ error: `Image API rejected the request: ${response.statusText}` });
         }
     } else {
         console.warn("Skipping Pollinations: No API Key found.");
+        // FIXED: Send an error response if the API key is missing
+        return res.status(500).json({ error: 'API Key is missing on the server' });
     }
+
+  } catch (error) {
+      console.error("Imagine API Crash:", error);
+      // FIXED: Catch any other crashes and send a proper 500 response
+      return res.status(500).json({ error: 'Internal server crash during image generation' });
+  }
+}
