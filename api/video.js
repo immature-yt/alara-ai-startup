@@ -34,47 +34,42 @@ export default async function handler(req, res) {
   if (!apiKey) return res.status(500).json({ error: 'API Key missing' });
 
   try {
-      // 3. Generate Video using OpenAI compatible endpoint (Returns URL directly)
-      const response = await fetch('https://image.pollinations.ai/openai/images/generations', {
-          method: 'POST',
+      // 3. Generate Video using native Pollinations GET endpoint
+      const encodedPrompt = encodeURIComponent(prompt);
+      const url = `https://gen.pollinations.ai/video/${encodedPrompt}?model=grok-video`;
+
+      const response = await fetch(url, {
+          method: 'GET',
           headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${apiKey}`,
-          },
-          body: JSON.stringify({
-              model: 'grok-video',
-              prompt: prompt,
-              n: 1
-          })
+              'Authorization': `Bearer ${apiKey}`
+          }
       });
 
       if (!response.ok) {
           const errText = await response.text();
           console.error("Video Gen Error:", errText);
-          return res.status(response.status).json({ error: 'Generation failed', details: "Pollinations server is busy." });
+          return res.status(response.status).json({ error: 'Generation failed', details: "Pollinations server is busy or timed out." });
       }
 
-      const data = await response.json();
-      
-      if (data.data && data.data[0] && data.data[0].url) {
-          const videoUrl = data.data[0].url;
+      // Convert binary video stream to Base64 Data URL to bypass frontend Auth/CORS issues
+      const arrayBuffer = await response.arrayBuffer();
+      const buffer = Buffer.from(arrayBuffer);
+      const base64Video = buffer.toString('base64');
+      const dataUrl = `data:video/mp4;base64,${base64Video}`;
 
-          // 4. Deduct 25,000 Credits (Only if successful and not Pro)
-          if (user.plan !== 'pro') {
-              try {
-                  await sql`UPDATE users SET credits = GREATEST(credits - 25000, 0) WHERE id = ${user.id}`;
-              } catch (dbErr) {
-                  console.error('Failed to deduct video credits:', dbErr);
-              }
+      // 4. Deduct 25,000 Credits (Only if successful and not Pro)
+      if (user.plan !== 'pro') {
+          try {
+              await sql`UPDATE users SET credits = GREATEST(credits - 25000, 0) WHERE id = ${user.id}`;
+          } catch (dbErr) {
+              console.error('Failed to deduct video credits:', dbErr);
           }
-
-          return res.status(200).json({ videoUrl });
-      } else {
-          return res.status(500).json({ error: 'Failed to extract video URL' });
       }
+
+      return res.status(200).json({ videoUrl: dataUrl });
 
   } catch (error) {
       console.error("Critical Video Error:", error);
-      return res.status(500).json({ error: 'Internal Server Error' });
+      return res.status(500).json({ error: 'Internal Server Error', details: error.message });
   }
 }
