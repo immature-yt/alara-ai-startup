@@ -229,6 +229,16 @@
             box-shadow: var(--shadow-light);
             backdrop-filter: blur(10px);
         }
+        
+        /* Wallet/Credits Display */
+        .credit-wallet {
+            display: flex; align-items: center; gap: 0.5rem;
+            background: var(--accent-light); color: var(--accent);
+            padding: 0.35rem 1rem; border-radius: 999px;
+            font-size: 0.85rem; font-weight: 700; border: 1px solid var(--accent);
+            cursor: pointer; transition: 0.2s;
+        }
+        .credit-wallet:hover { background: var(--accent); color: white; }
 
         #chat-stream { flex: 1; overflow-y: auto; padding: 1rem 2rem; scroll-behavior: smooth; }
 
@@ -593,7 +603,7 @@
                     </div>
                 </div>
                 <ul class="dropdown-menu shadow-lg w-100 border-0 rounded-4 p-2" style="background: var(--bg-card); backdrop-filter: blur(20px);">
-                    <li><button id="sidebar-upgrade-btn" class="dropdown-item rounded-3 py-2 fw-bold" onclick="showPricing()"><i class="fas fa-bolt me-3 text-warning"></i> Upgrade</button></li>
+                    <li><button id="sidebar-upgrade-btn" class="dropdown-item rounded-3 py-2 fw-bold" onclick="showPricing()"><i class="fas fa-bolt me-3 text-warning"></i> Top Up / Upgrade</button></li>
                     <li><button class="dropdown-item rounded-3 py-2 fw-bold" onclick="showSettings()"><i class="fas fa-cog me-3 text-secondary"></i> Settings</button></li>
                     <li><hr class="dropdown-divider border-secondary opacity-25"></li>
                     <li><button class="dropdown-item rounded-3 py-2 fw-bold" id="theme-toggle-user"><i class="fas fa-moon me-3 text-secondary"></i> Toggle Theme</button></li>
@@ -609,15 +619,22 @@
         <!-- CHAT PANE -->
         <section id="chat-pane">
             <div class="top-nav">
-                <!-- Hamburger / Toggle Sidebar -->
-                <button class="btn p-0 text-secondary" id="toggle-sidebar-btn" title="Toggle Sidebar">
-                    <i class="fas fa-bars fa-lg"></i>
-                </button>
-                
-                <div class="model-pill">
-                    <span>Alara Nova</span>
+                <div class="d-flex align-items-center gap-3">
+                    <!-- Hamburger / Toggle Sidebar -->
+                    <button class="btn p-0 text-secondary" id="toggle-sidebar-btn" title="Toggle Sidebar">
+                        <i class="fas fa-bars fa-lg"></i>
+                    </button>
+                    
+                    <div class="model-pill">
+                        <span>Alara Nova</span>
+                    </div>
                 </div>
-                <div style="width: 24px;"></div>
+                
+                <!-- Token Wallet UI (Hidden by default for guests) -->
+                <div class="credit-wallet d-none" id="credit-wallet-btn" onclick="showPricing()">
+                    <i class="fas fa-bolt"></i>
+                    <span id="credit-display">Loading...</span>
+                </div>
             </div>
 
             <div id="chat-stream">
@@ -737,7 +754,7 @@
                                     <div class="small text-muted">Standard Limits</div>
                                 </div>
                             </div>
-                            <button id="settings-upgrade-btn" class="soft-button" style="padding: 8px 20px; font-size: 0.9rem; border-radius: 99px;" onclick="showPricing()">Upgrade</button>
+                            <button id="settings-upgrade-btn" class="soft-button" style="padding: 8px 20px; font-size: 0.9rem; border-radius: 99px;" onclick="showPricing()">Manage</button>
                         </div>
                     </div>
                 </div>
@@ -747,41 +764,56 @@
 
     <!-- PRICING MODAL -->
     <div class="modal fade" id="pricingModal" tabindex="-1">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
             <div class="modal-content border-0 rounded-5 shadow-lg" style="background: var(--bg-body);">
                 <div class="modal-header border-0 pb-0 pt-4 px-4">
-                    <h5 class="modal-title fw-bold font-header w-100 text-center fs-3">Upgrade Alara</h5>
+                    <h5 class="modal-title fw-bold font-header w-100 text-center fs-3">Choose Your Energy</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body p-5">
                     <div class="row g-4">
                         <!-- Free Plan -->
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <div class="pricing-card h-100">
-                                <h3 class="fw-bold mb-2">Free</h3>
-                                <p class="text-secondary mb-4">For exploration</p>
+                                <h3 class="fw-bold mb-2">Explorer</h3>
+                                <p class="text-secondary mb-4">Daily allowance</p>
+                                <h2 class="fw-bold mb-4">₹0<small class="fs-6 text-muted">/day</small></h2>
                                 <ul class="list-unstyled text-start mb-4">
-                                    <li class="mb-3"><i class="fas fa-check text-success me-2"></i>Alara Nova Model</li>
-                                    <li class="mb-3"><i class="fas fa-check text-success me-2"></i>Standard Chat</li>
-                                    <li class="mb-3 text-muted"><i class="fas fa-times me-2"></i>5 Images / Hour</li>
+                                    <li class="mb-3"><i class="fas fa-check text-success me-2"></i>100k Credits / Day</li>
+                                    <li class="mb-3"><i class="fas fa-check text-success me-2"></i>5 Images / Day</li>
+                                    <li class="mb-3 text-muted"><i class="fas fa-times me-2"></i>No Priority Support</li>
                                 </ul>
                                 <button class="btn btn-light w-100 rounded-pill py-2 disabled" style="font-weight: 600;">Current Plan</button>
                             </div>
                         </div>
-                        <!-- Pro Plan -->
-                        <div class="col-md-6">
-                            <div class="pricing-card featured h-100 position-relative">
-                                <span class="badge bg-warning text-dark position-absolute top-0 end-0 m-3 rounded-pill">RECOMMENDED</span>
-                                <h3 class="fw-bold mb-2">Pro</h3>
-                                <p class="text-secondary mb-4">For power users</p>
-                                <h2 class="fw-bold mb-4" style="color: var(--accent);">₹199<small class="fs-6 text-muted">/mo</small></h2>
+                        <!-- Sparks Plan -->
+                        <div class="col-md-4">
+                            <div class="pricing-card h-100 position-relative" style="border: 2px solid #3b82f6; background: linear-gradient(180deg, var(--bg-card) 0%, rgba(59, 130, 246, 0.1) 100%);">
+                                <span class="badge position-absolute top-0 end-0 m-3 rounded-pill" style="background: #3b82f6;">STUDENT PICK</span>
+                                <h3 class="fw-bold mb-2" style="color: #3b82f6;">Sparks</h3>
+                                <p class="text-secondary mb-4">Pay as you go</p>
+                                <h2 class="fw-bold mb-4" style="color: #3b82f6;">₹49<small class="fs-6 text-muted">/top-up</small></h2>
                                 <ul class="list-unstyled text-start mb-4">
-                                    <li class="mb-3"><i class="fas fa-check text-success me-2"></i><strong>Unlimited</strong> Messages</li>
-                                    <li class="mb-3"><i class="fas fa-check text-success me-2"></i>20 Images / Hour</li>
-                                    <li class="mb-3"><i class="fas fa-check text-success me-2"></i>Priority Support</li>
+                                    <li class="mb-3"><i class="fas fa-check text-success me-2"></i><strong>200,000</strong> Credits instantly</li>
+                                    <li class="mb-3"><i class="fas fa-check text-success me-2"></i>Credits never expire</li>
+                                    <li class="mb-3"><i class="fas fa-check text-success me-2"></i>Perfect for assignments</li>
                                 </ul>
-                                <!-- Styled Upgrade Button -->
-                                <button id="modal-upgrade-btn" class="upgrade-btn" onclick="startPayment(199)">Upgrade Now</button>
+                                <button class="btn text-white w-100 rounded-pill py-2" style="background: #3b82f6; font-weight: 700; transition: 0.3s;" onclick="startPayment(49)">Buy Sparks</button>
+                            </div>
+                        </div>
+                        <!-- Pro Plan -->
+                        <div class="col-md-4">
+                            <div class="pricing-card featured h-100 position-relative">
+                                <span class="badge bg-warning text-dark position-absolute top-0 end-0 m-3 rounded-pill">BEST VALUE</span>
+                                <h3 class="fw-bold mb-2">Pro</h3>
+                                <p class="text-secondary mb-4">For heavy creators</p>
+                                <h2 class="fw-bold mb-4" style="color: var(--accent);">₹399<small class="fs-6 text-muted">/28 days</small></h2>
+                                <ul class="list-unstyled text-start mb-4">
+                                    <li class="mb-3"><i class="fas fa-check text-success me-2"></i><strong>Unlimited</strong> Usage*</li>
+                                    <li class="mb-3"><i class="fas fa-check text-success me-2"></i><strong>Unlimited</strong> Images</li>
+                                    <li class="mb-3"><i class="fas fa-check text-success me-2"></i>Priority New Features</li>
+                                </ul>
+                                <button id="modal-upgrade-btn" class="upgrade-btn" onclick="startPayment(399)">Subscribe Pro</button>
                             </div>
                         </div>
                     </div>
@@ -823,7 +855,7 @@
             If the user mentions physical/mental symptoms, adopt a 'First Aid & Wellness' persona. Identify likely common/non-severe causes (dehydration, stress) and suggest safe home remedies. ALWAYS end with: "**Disclaimer: I am an AI, not a doctor. Please consult a professional.**"`;
             
             const proUpgradeMessage = `
-            LIMITATION: If you are generating a very long creative piece (essay, story) for a Free Tier user, you may provide a summary and add: "⚠️ For the full detailed response, please upgrade to Alara Pro." (Note: Do not limit code or technical answers).`;
+            LIMITATION: If you are generating a very long creative piece (essay, story) for a Free Tier user, you may provide a summary and add: "⚠️ For the full detailed response, please upgrade to Alara Pro or buy Sparks." (Note: Do not limit code or technical answers).`;
 
             // ELEMENTS
             const els = {
@@ -849,6 +881,8 @@
                 toggleSidebarBtn: document.getElementById('toggle-sidebar-btn'),
                 guestMenu: document.getElementById('guest-menu'),
                 userMenu: document.getElementById('user-menu'),
+                creditWalletBtn: document.getElementById('credit-wallet-btn'),
+                creditDisplay: document.getElementById('credit-display'),
                 // Upgrade buttons
                 sidebarUpgradeBtn: document.getElementById('sidebar-upgrade-btn'),
                 settingsUpgradeBtn: document.getElementById('settings-upgrade-btn'),
@@ -869,9 +903,6 @@
 
             async function init() {
                 if(localStorage.getItem('alaraTheme') === 'dark') document.body.classList.add('dark');
-                // Removed loadHistory() here, it should be cloud synced ideally, but keeping logic
-                // For now assuming we still want to save chats. If switching to Cloud Sync, loadHistory would be async fetch.
-                // Keeping local storage logic as per user request to maintain current state + fixes.
                 loadHistory(); 
                 await checkAuth();
             }
@@ -881,12 +912,10 @@
                 authCheckInProgress = true;
                 
                 try {
-                     // Add a small delay to allow for backend session processing
                     await new Promise(resolve => setTimeout(resolve, 500));
 
-                    // Cache buster + No-Cache header to prevent 401 loop
                     const res = await fetch('/api/user/me?ts=' + Date.now(), {
-                        credentials: 'include', // CRITICAL: Ensures cookie is sent
+                        credentials: 'include', 
                         headers: { 
                             'Cache-Control': 'no-cache',
                             'Pragma': 'no-cache'
@@ -902,11 +931,10 @@
                             showGuestUI();
                         }
                     } else if (res.status === 401) {
-                         // FIX: Just gracefully fall back to Guest UI.
-                         // Do not attempt to fetch('/api/auth/logout') or clear cookies in JS here.
-                         // 1. JS can't clear HttpOnly cookies anyway.
-                         // 2. If it's a false 401 (e.g. database cold start), forcing logout breaks the session.
-                         // 3. When the user clicks Login again, the new cookie safely overwrites the old one.
+                         await fetch('/api/auth/logout');
+                         document.cookie.split(";").forEach(function(c) { 
+                           document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
+                         });
                          showGuestUI();
                     } else {
                         showGuestUI();
@@ -924,80 +952,71 @@
                 document.getElementById('user-name').innerText = "Guest User";
                 document.getElementById('settings-email').value = "Guest (Not Logged In)";
                 els.input.placeholder = "Log in to chat...";
-                // Show Login Button, Hide User Menu
                 els.guestMenu.classList.remove('d-none');
                 els.guestMenu.classList.add('d-flex');
                 els.userMenu.classList.add('d-none');
-                // Default prompt for guest
+                els.creditWalletBtn.classList.add('d-none');
                 finalSystemPrompt = baseSystemPrompt + healthRule + proUpgradeMessage;
             }
 
             function updateUserUI(user) {
-                // Show User Menu, Hide Login Button
                 els.userMenu.classList.remove('d-none');
                 els.guestMenu.classList.remove('d-flex');
                 els.guestMenu.classList.add('d-none');
+                els.creditWalletBtn.classList.remove('d-none');
 
                 document.getElementById('user-name').innerText = user.name;
                 document.getElementById('welcome-name').innerText = user.name.split(' ')[0];
                 document.getElementById('user-avatar-text').innerText = user.name.charAt(0).toUpperCase();
 
-                // ROBUST PLAN CHECKING (Case-Insensitive)
-                // Normalize to lower case for comparison: 'Pro', 'PRO', 'pro ' -> 'pro'
                 const rawPlan = (user.plan || 'free').toLowerCase().trim();
                 const isPro = rawPlan === 'pro';
                 
+                // MOCK CREDITS FOR NOW (Until DB is updated)
+                const mockCredits = isPro ? 'Unlimited' : '100,000';
+                els.creditDisplay.innerText = mockCredits;
+
                 const planText = isPro ? 'Pro Plan 🌟' : 'Free Tier';
                 document.getElementById('user-plan').innerText = planText;
                 document.getElementById('settings-plan-display').innerText = (isPro ? 'Pro Plan' : 'Free Plan');
                 document.getElementById('settings-email').value = user.email;
                 
-                // CLOUD SYNC LOGIC (LOAD CHATS FROM SERVER)
+                // CLOUD SYNC LOGIC
                 fetch('/api/chats').then(res => res.json()).then(data => {
                     if (data.chats) {
-                         // Map database fields to frontend structure if needed
-                         // Assuming api/chats.js returns { chats: [{id, title, history}] }
-                         // Merging with local or replacing? Replacing is safer for sync.
                          allChats = data.chats.map(c => ({
                              id: c.id,
                              title: c.title,
                              history: c.history
                          }));
-                         // If no chats, create new
-                         if (allChats.length === 0) createNewChat();
-                         else {
-                            // Fix: Render history AND load most recent chat
+                         
+                         // FIX: Ghost Chat Bug
+                         if (allChats.length === 0) {
+                             createNewChat();
+                         } else {
                             renderHistoryList();
-                            // If user is here for the first time in this session, load their latest work
+                            // Only load the most recent chat if we aren't currently viewing one
                             if (!currentChatId) {
                                 loadChat(allChats[0].id);
                             }
                          }
                     }
-                });
+                }).catch(e => console.warn("Cloud load failed, keeping local if any", e));
 
                 // --- PRO UI LOGIC ---
                 if (isPro) {
-                    // Update System Prompt
                     finalSystemPrompt = baseSystemPrompt + healthRule;
-                    
-                    // UI Limits
                     els.input.removeAttribute('maxlength');
                     els.charCount.innerText = "Unlimited";
-                    
-                    // DISABLE UPGRADE BUTTONS if already Pro
                     disableUpgradeButton(els.sidebarUpgradeBtn, "Active Plan");
                     disableUpgradeButton(els.settingsUpgradeBtn, "Active");
                     disableUpgradeButton(els.modalUpgradeBtn, "Current Plan");
                 } else {
-                    // Free User Logic
                     finalSystemPrompt += proUpgradeMessage;
                     els.input.setAttribute('maxlength', '5000');
-                    
-                    // Enable Upgrade Buttons
-                    enableUpgradeButton(els.sidebarUpgradeBtn, "Upgrade", "showPricing()");
-                    enableUpgradeButton(els.settingsUpgradeBtn, "Upgrade", "showPricing()");
-                    enableUpgradeButton(els.modalUpgradeBtn, "Upgrade Now", "startPayment(199)");
+                    enableUpgradeButton(els.sidebarUpgradeBtn, "Top Up / Upgrade", "showPricing()");
+                    enableUpgradeButton(els.settingsUpgradeBtn, "Manage Plans", "showPricing()");
+                    enableUpgradeButton(els.modalUpgradeBtn, "Subscribe Pro", "startPayment(399)");
                 }
             }
 
@@ -1006,13 +1025,13 @@
                 btn.innerHTML = `<i class="fas fa-check-circle me-2"></i> ${text}`;
                 btn.onclick = null;
                 btn.disabled = true;
-                btn.classList.add('disabled-plan'); // Custom class for styling
+                btn.classList.add('disabled-plan'); 
             }
 
             function enableUpgradeButton(btn, text, action) {
                 if(!btn) return;
-                btn.innerHTML = (text === "Upgrade") ? `<i class="fas fa-bolt me-3 text-warning"></i> Upgrade` : text;
-                btn.onclick = () => eval(action); // Simple re-bind
+                btn.innerHTML = (text === "Top Up / Upgrade") ? `<i class="fas fa-bolt me-3 text-warning"></i> ${text}` : text;
+                btn.onclick = () => eval(action); 
                 btn.disabled = false;
                 btn.classList.remove('disabled-plan');
             }
@@ -1022,15 +1041,18 @@
                 const newChat = { id: Date.now().toString(), title: "New Chat", history: [] };
                 allChats.unshift(newChat);
                 saveChats();
+                
+                // Explicitly set ID to fix Ghost chat bug
+                currentChatId = newChat.id;
                 loadChat(newChat.id);
-                // On mobile, close sidebar on new chat
+                
                 if(window.innerWidth < 768) {
                     els.sidebar.classList.remove('open'); 
                 }
             }
 
             function loadChat(id) {
-                currentChatId = id;
+                currentChatId = id; // Ensure ID is set
                 const chat = allChats.find(c => c.id === id);
                 if (!chat) return;
 
@@ -1044,14 +1066,14 @@
                         const text = msg.parts[0].text;
                         const role = msg.role === 'model' ? 'ai' : 'user';
                         
-                        // Check for inline images in history (if any) or text URLs
-                        // Updated check: Includes more image sources to fix refresh bug
-                        if(role === 'ai' && (text.startsWith('http') || text.startsWith('data:image')) && 
-                           (text.includes('pollinations') || text.includes('lexica') || text.includes('loremflickr') || text.includes('placehold'))) {
+                        // FIX: Base64 Image Reload Bug
+                        // Checks if it starts with data:image/ OR it's an http link from known generators
+                        if(role === 'ai' && (
+                            text.startsWith('data:image/') || 
+                            (text.startsWith('http') && (text.includes('pollinations') || text.includes('lexica')))
+                        )) {
                             appendImage(text, 'ai');
                         } else {
-                            // If user message has image data, we handle it slightly differently in real app
-                            // For now, we assume simple text history or text + image display
                             appendMessage(text, role);
                         }
                     });
@@ -1062,12 +1084,11 @@
             // Sidebar Toggle Logic
             els.toggleSidebarBtn.addEventListener('click', () => {
                 if(window.innerWidth < 768) {
-                    els.sidebar.classList.toggle('open'); // Mobile behavior
+                    els.sidebar.classList.toggle('open');
                 } else {
-                    els.sidebar.classList.toggle('collapsed'); // Desktop behavior
+                    els.sidebar.classList.toggle('collapsed');
                 }
             });
-            // Mobile close button inside sidebar
             document.getElementById('close-sidebar').addEventListener('click', () => els.sidebar.classList.remove('open'));
 
 
@@ -1132,6 +1153,11 @@
                     return;
                 }
 
+                // Guard for ghost chat
+                if (!currentChatId) {
+                    createNewChat();
+                }
+
                 const text = els.input.value.trim();
                 if (!text && !attachedFile) return;
 
@@ -1139,18 +1165,12 @@
                 els.input.style.height = 'auto'; 
                 els.welcome.style.display = 'none';
 
-                // Display User Message
-                if(attachedFile) {
-                    appendImage(attachedFile.url, 'user');
-                }
-                if(text) {
-                    appendMessage(text, 'user');
-                }
+                if(attachedFile) appendImage(attachedFile.url, 'user');
+                if(text) appendMessage(text, 'user');
                 
                 const currentChat = allChats.find(c => c.id === currentChatId);
                 if (!currentChat) return; 
                 
-                // Construct Payload
                 const newParts = [];
                 if (text) newParts.push({ text: text });
                 if (attachedFile) {
@@ -1162,16 +1182,14 @@
                     });
                 }
 
-                // Add to History
                 currentChat.history.push({ role: 'user', parts: newParts });
                 
                 if (currentChat.title === "New Chat" && text) {
                     currentChat.title = text.substring(0, 20) + "...";
                     renderHistoryList();
-                    saveChatToCloud(currentChat); // Save title change
                 }
+                saveChatToCloud(currentChat); // Save instantly
 
-                // Clear Attachment UI
                 const wasAttached = attachedFile;
                 attachedFile = null;
                 els.attachmentPreview.classList.remove('show');
@@ -1180,12 +1198,9 @@
                 showTyping();
 
                 try {
-                    // Inject System Instructions into the API call
                     const requestBody = { 
                         contents: currentChat.history,
-                        systemInstruction: {
-                            parts: [{ text: finalSystemPrompt }]
-                        }
+                        systemInstruction: { parts: [{ text: finalSystemPrompt }] }
                     };
 
                     const res = await fetch('/api/generate', {
@@ -1195,7 +1210,6 @@
                     });
 
                     hideTyping();
-
                     const data = await res.json();
                     
                     if (data.error) {
@@ -1204,7 +1218,6 @@
                         const reply = data.candidates[0].content.parts[0].text;
                         appendMessage(reply, 'ai');
                         currentChat.history.push({ role: 'model', parts: [{ text: reply }] });
-                        // SAVE TO CLOUD INSTEAD OF LOCAL STORAGE
                         saveChatToCloud(currentChat); 
                     }
                 } catch (e) {
@@ -1215,23 +1228,15 @@
 
             function showTyping() {
                 if(typingIndicatorElement) return;
-                
                 const msgDiv = document.createElement('div');
                 msgDiv.className = 'message';
                 msgDiv.id = 'typing-indicator';
-                
                 const avatar = document.createElement('div');
                 avatar.className = `avatar ai`;
                 avatar.innerText = 'AI';
-                
                 const bubble = document.createElement('div');
                 bubble.className = 'typing-bubble';
-                bubble.innerHTML = `
-                    <div class="typing-dot"></div>
-                    <div class="typing-dot"></div>
-                    <div class="typing-dot"></div>
-                `;
-                
+                bubble.innerHTML = `<div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>`;
                 msgDiv.append(avatar, bubble);
                 els.stream.appendChild(msgDiv);
                 els.stream.scrollTop = els.stream.scrollHeight;
@@ -1248,14 +1253,11 @@
             function appendMessage(text, sender) {
                 const msgDiv = document.createElement('div');
                 msgDiv.className = `message ${sender}`;
-                
                 const avatar = document.createElement('div');
                 avatar.className = `avatar ${sender}`;
                 avatar.innerText = sender === 'ai' ? 'AI' : 'U';
-                
                 const content = document.createElement('div');
                 content.className = 'msg-content';
-                
                 content.innerHTML = marked.parse(text);
 
                 if (window.renderMathInElement) {
@@ -1265,20 +1267,14 @@
                             {left: '$', right: '$', display: false},
                             {left: '\\(', right: '\\)', display: false},
                             {left: '\\[', right: '\\]', display: true}
-                        ],
-                        throwOnError: false
+                        ], throwOnError: false
                     });
                 }
 
                 content.querySelectorAll('pre code').forEach(block => {
                     hljs.highlightElement(block);
-                    // Check for HTML/CSS to enable Canvas
                     if (block.classList.contains('language-html') || block.classList.contains('language-xml')) {
-                        // If Canvas is ALREADY open, auto-update
-                        if(isCanvasOpen) {
-                            loadCanvas(block.innerText);
-                        }
-                        
+                        if(isCanvasOpen) loadCanvas(block.innerText);
                         const btn = document.createElement('button');
                         btn.className = 'preview-btn';
                         btn.innerHTML = '<i class="fas fa-play me-2"></i> Open in Canvas';
@@ -1289,10 +1285,8 @@
 
                 if(sender === 'ai') {
                     msgDiv.append(avatar, content);
-                    
                     const actionsDiv = document.createElement('div');
                     actionsDiv.className = 'msg-actions';
-                    
                     const copyBtn = document.createElement('button');
                     copyBtn.className = 'action-btn';
                     copyBtn.innerHTML = '<i class="fas fa-copy"></i> Copy';
@@ -1301,20 +1295,16 @@
                         copyBtn.innerHTML = '<i class="fas fa-check"></i> Copied';
                         setTimeout(() => copyBtn.innerHTML = '<i class="fas fa-copy"></i> Copy', 2000);
                     };
-
                     const pdfBtn = document.createElement('button');
                     pdfBtn.className = 'action-btn';
                     pdfBtn.innerHTML = '<i class="fas fa-file-pdf"></i> PDF';
                     pdfBtn.onclick = () => downloadMessageAsPDF(content);
-
                     actionsDiv.append(copyBtn, pdfBtn);
                     content.appendChild(actionsDiv);
-
                 } else {
                     msgDiv.style.flexDirection = 'row-reverse';
                     msgDiv.append(avatar, content);
                 }
-                
                 els.stream.appendChild(msgDiv);
                 els.stream.scrollTop = els.stream.scrollHeight;
             }
@@ -1323,14 +1313,12 @@
                 const clone = element.cloneNode(true);
                 const actions = clone.querySelector('.msg-actions');
                 if(actions) actions.remove();
-                
                 const wrapper = document.createElement('div');
                 wrapper.style.padding = '20px';
                 wrapper.style.background = 'white';
                 wrapper.style.color = 'black';
                 wrapper.appendChild(clone);
                 document.body.appendChild(wrapper);
-
                 html2canvas(wrapper, { scale: 2, useCORS: true }).then(canvas => {
                     const imgData = canvas.toDataURL('image/png');
                     const pdf = new jspdf.jsPDF();
@@ -1359,7 +1347,6 @@
                     msgDiv.style.flexDirection = 'row-reverse';
                     msgDiv.append(avatar, content);
                 }
-                
                 els.stream.appendChild(msgDiv);
                 els.stream.scrollTop = els.stream.scrollHeight;
             }
@@ -1373,7 +1360,7 @@
                 } else {
                     els.canvas.classList.remove('open');
                     els.resizer.style.display = 'none';
-                    els.canvas.style.width = ''; // Reset width on close
+                    els.canvas.style.width = ''; 
                 }
             };
 
@@ -1434,6 +1421,8 @@
 
             async function generateImage(prompt) {
                 if(!currentUser) return alert("Please log in.");
+                if (!currentChatId) createNewChat();
+
                 appendMessage(`🎨 Generating image: *"${prompt}"*...`, 'ai');
                 showTyping();
                 
@@ -1460,40 +1449,27 @@
 
             // --- CLOUD SYNC FUNCTIONS ---
             async function saveChatToCloud(chat) {
-                if (!currentUser) return; // Don't sync for guests
+                if (!currentUser) return; 
                 try {
                     await fetch('/api/chats', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            id: chat.id,
-                            title: chat.title,
-                            history: chat.history
-                        })
+                        body: JSON.stringify({ id: chat.id, title: chat.title, history: chat.history })
                     });
                 } catch (e) { console.error("Cloud sync failed", e); }
             }
 
             async function deleteChatFromCloud(id) {
                 if (!currentUser) return;
-                try {
-                    await fetch(`/api/chats?id=${id}`, { method: 'DELETE' });
-                } catch (e) { console.error("Cloud delete failed", e); }
+                try { await fetch(`/api/chats?id=${id}`, { method: 'DELETE' }); } 
+                catch (e) { console.error("Cloud delete failed", e); }
             }
             
-            // Replaced LocalStorage calls
             function saveChats() {
-                // No longer needed for cloud, but maybe for guest?
-                // For simplicity, we just use Cloud for logged in, nothing for guest persistance across reload? 
-                // Or keep localStorage for guests?
-                // Let's keep localStorage for guests as a fallback.
-                if(!currentUser) {
-                    localStorage.setItem('alaraAllChats', JSON.stringify(allChats));
-                }
+                if(!currentUser) { localStorage.setItem('alaraAllChats', JSON.stringify(allChats)); }
             }
 
             function loadHistory() {
-                 // For guests, load from local. For Users, we load from Cloud in updateUserUI.
                  const saved = localStorage.getItem('alaraAllChats');
                  if (saved && !currentUser) {
                      allChats = JSON.parse(saved);
@@ -1508,7 +1484,14 @@
                     const div = document.createElement('div');
                     div.className = `chat-item ${chat.id === currentChatId ? 'active' : ''}`;
                     div.innerHTML = `<span>${chat.title}</span><i class="fas fa-trash delete-icon" onclick="deleteChat('${chat.id}', event)"></i>`;
-                    div.onclick = (e) => { if (!e.target.classList.contains('delete-icon')) loadChat(chat.id); };
+                    div.onclick = (e) => { 
+                        if (!e.target.classList.contains('delete-icon')) {
+                            // Update active UI state
+                            document.querySelectorAll('.chat-item').forEach(el => el.classList.remove('active'));
+                            div.classList.add('active');
+                            loadChat(chat.id); 
+                        }
+                    };
                     els.history.appendChild(div);
                 });
             }
@@ -1521,23 +1504,53 @@
                     else saveChats();
                     
                     if(allChats.length > 0) loadChat(allChats[0].id);
-                    else createNewChat();
+                    else {
+                        currentChatId = null;
+                        els.stream.innerHTML = '';
+                        els.stream.appendChild(els.welcome);
+                        els.welcome.style.display = 'block';
+                    }
+                    renderHistoryList();
                 }
             }
 
             window.setPrompt = function(text) { els.input.value = text; els.input.focus(); }
-            // Payment Logic (Same as before)
+            
+            // Payment Logic
             window.startPayment = async function(amount) {
                 try {
-                    const orderRes = await fetch('/api/payment/create-order', { method: 'POST', headers: { 'Content-Type': 'application/json' } });
+                    // Send amount to backend
+                    const orderRes = await fetch('/api/payment/create-order', { 
+                        method: 'POST', 
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ amount: amount }) // Send 49 or 399
+                    });
+                    
                     if (!orderRes.ok) { alert("Could not start payment. Please try again."); return; }
                     const order = await orderRes.json();
+                    
                     const options = {
-                        "key": order.key, "amount": order.amount, "currency": order.currency, "name": "Alara AI", "description": "Pro Plan Upgrade", "order_id": order.id, 
+                        "key": order.key, "amount": order.amount, "currency": order.currency, 
+                        "name": "Alara AI", "description": amount === 49 ? "Sparks Top-Up" : "Pro Plan Subscribe", 
+                        "order_id": order.id, 
                         "handler": async function (response){
-                            const verifyRes = await fetch('/api/payment/verify', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ razorpay_payment_id: response.razorpay_payment_id, razorpay_order_id: response.razorpay_order_id, razorpay_signature: response.razorpay_signature }) });
+                            const verifyRes = await fetch('/api/payment/verify', { 
+                                method: 'POST', 
+                                headers: { 'Content-Type': 'application/json' }, 
+                                body: JSON.stringify({ 
+                                    razorpay_payment_id: response.razorpay_payment_id, 
+                                    razorpay_order_id: response.razorpay_order_id, 
+                                    razorpay_signature: response.razorpay_signature,
+                                    plan_purchased: amount === 49 ? 'sparks' : 'pro' // Tell backend what to provision
+                                }) 
+                            });
                             const verifyData = await verifyRes.json();
-                            if(verifyData.success) { alert("Payment Successful! Upgraded to Pro."); location.reload(); } else { alert("Payment verification failed."); }
+                            if(verifyData.success) { 
+                                alert("Payment Successful! Refreshing workspace..."); 
+                                location.reload(); 
+                            } else { 
+                                alert("Payment verification failed."); 
+                            }
                         }, "theme": { "color": "#db2777" }
                     };
                     const rzp1 = new Razorpay(options); rzp1.open();
