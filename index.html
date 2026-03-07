@@ -286,6 +286,13 @@
             border-radius: 0.8rem;
             margin-top: 0.5rem;
         }
+        
+        .msg-content video {
+            max-width: 100%;
+            border-radius: 0.8rem;
+            margin-top: 0.5rem;
+            box-shadow: var(--shadow-light);
+        }
 
         /* Action Buttons */
         .msg-actions {
@@ -489,7 +496,7 @@
             position: absolute; bottom: 110%; left: 1rem;
             background: var(--bg-card); backdrop-filter: blur(20px);
             border: 1px solid var(--border); border-radius: 1.5rem;
-            width: 220px; padding: 0.5rem; z-index: 100;
+            width: 260px; padding: 0.5rem; z-index: 100;
             display: none; flex-direction: column;
             box-shadow: var(--shadow-light-hover);
             animation: popUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -502,6 +509,7 @@
             color: var(--text-primary); text-decoration: none;
             display: flex; align-items: center; gap: 1rem;
             cursor: pointer; font-weight: 700; transition: 0.2s;
+            position: relative;
         }
         .dropdown-item-custom:hover { background: var(--accent-light); color: var(--accent); }
 
@@ -674,20 +682,23 @@
                     
                     <!-- Mode Badge (Hidden by default) -->
                     <div id="image-mode-badge" class="mode-badge">
-                        <i class="fas fa-image me-1"></i> Image Mode
-                        <i class="fas fa-times close-mode" onclick="toggleImageMode(false)"></i>
+                        <span id="mode-badge-content"></span>
                     </div>
 
                     <!-- Tools Dropdown -->
                     <div class="custom-dropdown" id="tools-dropdown">
-                        <div class="dropdown-item-custom" onclick="toggleImageMode(true)">
-                            <i class="fas fa-wand-magic-sparkles" style="color: var(--accent);"></i> Generate Image
+                        <div class="dropdown-item-custom" onclick="toggleMode('image')">
+                            <i class="fas fa-image" style="color: var(--accent);"></i> Generate Image
+                        </div>
+                        <div class="dropdown-item-custom" onclick="toggleMode('video')">
+                            <i class="fas fa-video text-primary"></i> 
+                            <div>
+                                Generate Video <br>
+                                <small class="text-muted" style="font-size: 0.75rem; font-weight: 500;">Cost: 25k <i class="fas fa-bolt text-warning"></i></small>
+                            </div>
                         </div>
                         <div class="dropdown-item-custom" onclick="activateTool('canvas')">
                             <i class="fas fa-code text-warning"></i> Open Canvas
-                        </div>
-                        <div class="dropdown-item-custom text-muted" style="cursor: not-allowed; opacity: 0.7;">
-                            <i class="fas fa-file-powerpoint"></i> Create PPT <span class="badge bg-secondary ms-auto rounded-pill" style="font-size: 0.6em;">SOON</span>
                         </div>
                     </div>
 
@@ -796,7 +807,7 @@
                                 <ul class="list-unstyled text-start mb-4">
                                     <li class="mb-3"><i class="fas fa-check text-success me-2"></i><strong>200,000</strong> Credits instantly</li>
                                     <li class="mb-3"><i class="fas fa-check text-success me-2"></i>Credits never expire</li>
-                                    <li class="mb-3"><i class="fas fa-check text-success me-2"></i>Perfect for assignments</li>
+                                    <li class="mb-3"><i class="fas fa-check text-success me-2"></i>Perfect for assignments & Videos</li>
                                 </ul>
                                 <button class="btn text-white w-100 rounded-pill py-2" style="background: #3b82f6; font-weight: 700; transition: 0.3s;" onclick="startPayment(49)">Buy Sparks</button>
                             </div>
@@ -810,7 +821,7 @@
                                 <h2 class="fw-bold mb-4" style="color: var(--accent);">₹399<small class="fs-6 text-muted">/28 days</small></h2>
                                 <ul class="list-unstyled text-start mb-4">
                                     <li class="mb-3"><i class="fas fa-check text-success me-2"></i><strong>Unlimited</strong> Usage*</li>
-                                    <li class="mb-3"><i class="fas fa-check text-success me-2"></i><strong>Unlimited</strong> Images</li>
+                                    <li class="mb-3"><i class="fas fa-check text-success me-2"></i><strong>Unlimited</strong> Images & Videos</li>
                                     <li class="mb-3"><i class="fas fa-check text-success me-2"></i>Priority New Features</li>
                                 </ul>
                                 <button id="modal-upgrade-btn" class="upgrade-btn" onclick="startPayment(399)">Subscribe Pro</button>
@@ -836,7 +847,7 @@
             let isCanvasOpen = false;
             let canvasCode = '';
             let typingIndicatorElement = null;
-            let currentMode = 'chat'; // 'chat' or 'image'
+            let currentMode = 'chat'; // 'chat', 'image', or 'video'
             let isResizing = false;
             let attachedFile = null;
             let finalSystemPrompt = '';
@@ -876,6 +887,7 @@
                 sidebar: document.getElementById('sidebar'),
                 charCount: document.getElementById('char-count'),
                 modeBadge: document.getElementById('image-mode-badge'),
+                modeBadgeContent: document.getElementById('mode-badge-content'),
                 resizer: document.getElementById('resizer'),
                 workspace: document.getElementById('workspace'),
                 toggleSidebarBtn: document.getElementById('toggle-sidebar-btn'),
@@ -883,7 +895,6 @@
                 userMenu: document.getElementById('user-menu'),
                 creditWalletBtn: document.getElementById('credit-wallet-btn'),
                 creditDisplay: document.getElementById('credit-display'),
-                // Upgrade buttons
                 sidebarUpgradeBtn: document.getElementById('sidebar-upgrade-btn'),
                 settingsUpgradeBtn: document.getElementById('settings-upgrade-btn'),
                 modalUpgradeBtn: document.getElementById('modal-upgrade-btn')
@@ -972,7 +983,6 @@
                 const rawPlan = (user.plan || 'free').toLowerCase().trim();
                 const isPro = rawPlan === 'pro';
                 
-                // MAPPED DIRECTLY FROM THE DB NOW:
                 els.creditDisplay.innerText = isPro ? 'Unlimited' : (user.formattedCredits || user.credits);
 
                 const planText = isPro ? 'Pro Plan 🌟' : 'Free Tier';
@@ -993,13 +1003,12 @@
                              createNewChat();
                          } else {
                             renderHistoryList();
-                            // Only load the most recent chat if we aren't currently viewing one
                             if (!currentChatId) {
                                 loadChat(allChats[0].id);
                             }
                          }
                     }
-                }).catch(e => console.warn("Cloud load failed, keeping local if any", e));
+                }).catch(e => console.warn("Cloud load failed", e));
 
                 // --- PRO UI LOGIC ---
                 if (isPro) {
@@ -1039,13 +1048,9 @@
                 const newChat = { id: Date.now().toString(), title: "New Chat", history: [] };
                 allChats.unshift(newChat);
                 saveChats();
-                
                 currentChatId = newChat.id;
                 loadChat(newChat.id);
-                
-                if(window.innerWidth < 768) {
-                    els.sidebar.classList.remove('open'); 
-                }
+                if(window.innerWidth < 768) els.sidebar.classList.remove('open'); 
             }
 
             function loadChat(id) {
@@ -1063,11 +1068,17 @@
                         const text = msg.parts[0].text;
                         const role = msg.role === 'model' ? 'ai' : 'user';
                         
-                        if(role === 'ai' && (
-                            text.startsWith('data:image/') || 
-                            (text.startsWith('http') && (text.includes('pollinations') || text.includes('lexica')))
-                        )) {
-                            appendImage(text, 'ai');
+                        // Parse special tags for multimedia
+                        if (role === 'ai') {
+                            if (text.startsWith('[VIDEO]')) {
+                                appendVideo(text.replace('[VIDEO]', ''), 'ai');
+                            } 
+                            else if ((text.startsWith('data:image/') || (text.startsWith('http') && (text.includes('pollinations') || text.includes('lexica'))))) {
+                                appendImage(text, 'ai');
+                            } 
+                            else {
+                                appendMessage(text, role);
+                            }
                         } else {
                             appendMessage(text, role);
                         }
@@ -1078,23 +1089,26 @@
 
             // Sidebar Toggle Logic
             els.toggleSidebarBtn.addEventListener('click', () => {
-                if(window.innerWidth < 768) {
-                    els.sidebar.classList.toggle('open');
-                } else {
-                    els.sidebar.classList.toggle('collapsed');
-                }
+                if(window.innerWidth < 768) els.sidebar.classList.toggle('open');
+                else els.sidebar.classList.toggle('collapsed');
             });
             document.getElementById('close-sidebar').addEventListener('click', () => els.sidebar.classList.remove('open'));
 
 
             // Mode Switching Logic
-            window.toggleImageMode = function(active) {
-                currentMode = active ? 'image' : 'chat';
+            window.toggleMode = function(mode) {
+                currentMode = mode;
                 els.toolsDrop.classList.remove('show');
                 
-                if (active) {
+                if (mode === 'image') {
                     els.modeBadge.classList.add('active');
+                    els.modeBadgeContent.innerHTML = `<i class="fas fa-image me-1"></i> Image Mode <i class="fas fa-times close-mode" onclick="toggleMode('chat')"></i>`;
                     els.input.placeholder = "Describe the image you want to generate...";
+                    els.input.focus();
+                } else if (mode === 'video') {
+                    els.modeBadge.classList.add('active');
+                    els.modeBadgeContent.innerHTML = `<i class="fas fa-video me-1"></i> Video Mode <i class="fas fa-times close-mode" onclick="toggleMode('chat')"></i>`;
+                    els.input.placeholder = "Describe the video you want to generate (Cost: 25k Energy)...";
                     els.input.focus();
                 } else {
                     els.modeBadge.classList.remove('active');
@@ -1133,7 +1147,15 @@
                     const prompt = els.input.value.trim();
                     if(prompt) {
                         generateImage(prompt);
-                        toggleImageMode(false); 
+                        toggleMode('chat'); 
+                        els.input.value = '';
+                        els.input.style.height = 'auto';
+                    }
+                } else if (currentMode === 'video') {
+                    const prompt = els.input.value.trim();
+                    if(prompt) {
+                        generateVideo(prompt);
+                        toggleMode('chat'); 
                         els.input.value = '';
                         els.input.style.height = 'auto';
                     }
@@ -1143,14 +1165,8 @@
             }
 
             async function sendMessage() {
-                if (!currentUser) {
-                    window.location.href = '/api/auth/login';
-                    return;
-                }
-
-                if (!currentChatId) {
-                    createNewChat();
-                }
+                if (!currentUser) { window.location.href = '/api/auth/login'; return; }
+                if (!currentChatId) createNewChat();
 
                 const text = els.input.value.trim();
                 if (!text && !attachedFile) return;
@@ -1168,16 +1184,10 @@
                 const newParts = [];
                 if (text) newParts.push({ text: text });
                 if (attachedFile) {
-                    newParts.push({ 
-                        inlineData: { 
-                            mimeType: attachedFile.mimeType, 
-                            data: attachedFile.base64 
-                        } 
-                    });
+                    newParts.push({ inlineData: { mimeType: attachedFile.mimeType, data: attachedFile.base64 } });
                 }
 
                 currentChat.history.push({ role: 'user', parts: newParts });
-                
                 if (currentChat.title === "New Chat" && text) {
                     currentChat.title = text.substring(0, 20) + "...";
                     renderHistoryList();
@@ -1206,11 +1216,10 @@
                     hideTyping();
                     const data = await res.json();
                     
-                    // HANDLE 403 OUT OF CREDITS
                     if (res.status === 403) {
                         appendMessage(`⚠️ **Out of Energy!** ${data.details}`, 'ai');
-                        currentChat.history.pop(); // Remove the user message so they can try again later
-                        showPricing(); // Auto pop-up the pricing modal!
+                        currentChat.history.pop(); 
+                        showPricing(); 
                         return;
                     }
 
@@ -1222,11 +1231,9 @@
                         currentChat.history.push({ role: 'model', parts: [{ text: reply }] });
                         saveChatToCloud(currentChat); 
                         
-                        // Deduct credits visually in UI without doing a full fetch if not Pro
                         if (currentUser.plan !== 'pro') {
                            let currentVal = parseInt(els.creditDisplay.innerText.replace(/,/g, ''));
                            if (!isNaN(currentVal)) {
-                               // Approximate deduction visually (Backend does the real math)
                                els.creditDisplay.innerText = Math.max(0, currentVal - 100).toLocaleString();
                            }
                         }
@@ -1352,12 +1359,28 @@
                 content.className = 'msg-content';
                 content.innerHTML = `<img src="${url}" class="img-fluid rounded-4 shadow-sm" style="max-height: 400px;">`;
                 
-                if(sender === 'ai') {
-                    msgDiv.append(avatar, content);
-                } else {
-                    msgDiv.style.flexDirection = 'row-reverse';
-                    msgDiv.append(avatar, content);
-                }
+                if(sender === 'ai') { msgDiv.append(avatar, content); } 
+                else { msgDiv.style.flexDirection = 'row-reverse'; msgDiv.append(avatar, content); }
+                els.stream.appendChild(msgDiv);
+                els.stream.scrollTop = els.stream.scrollHeight;
+            }
+            
+            function appendVideo(url, sender) {
+                const msgDiv = document.createElement('div');
+                msgDiv.className = `message ${sender}`;
+                const avatar = document.createElement('div');
+                avatar.className = `avatar ${sender}`;
+                avatar.innerText = sender === 'ai' ? 'AI' : 'U';
+                const content = document.createElement('div');
+                content.className = 'msg-content';
+                
+                // Render as video player
+                content.innerHTML = `
+                    <video src="${url}" controls autoplay loop muted class="img-fluid rounded-4 shadow-sm" style="max-height: 400px; width: 100%; object-fit: cover;"></video>
+                `;
+                
+                if(sender === 'ai') { msgDiv.append(avatar, content); } 
+                else { msgDiv.style.flexDirection = 'row-reverse'; msgDiv.append(avatar, content); }
                 els.stream.appendChild(msgDiv);
                 els.stream.scrollTop = els.stream.scrollHeight;
             }
@@ -1375,20 +1398,13 @@
                 }
             };
 
-            window.loadCanvas = function(code) {
-                canvasCode = code;
-                toggleCanvas(true);
-                els.preview.srcdoc = code;
-            };
-
+            window.loadCanvas = function(code) { canvasCode = code; toggleCanvas(true); els.preview.srcdoc = code; };
             window.downloadCanvas = function() {
                 if(!canvasCode) return;
                 const blob = new Blob([canvasCode], { type: 'text/html' });
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
-                a.href = url;
-                a.download = 'alara-canvas.html';
-                a.click();
+                a.href = url; a.download = 'alara-canvas.html'; a.click();
             };
 
             // 4. RESIZER LOGIC
@@ -1398,15 +1414,11 @@
                 document.addEventListener('mousemove', handleResize);
                 document.addEventListener('mouseup', stopResize);
             });
-
             function handleResize(e) {
                 if (!isResizing) return;
                 const newWidth = window.innerWidth - e.clientX;
-                if (newWidth > 300 && newWidth < window.innerWidth - 300) {
-                    els.canvas.style.width = `${newWidth}px`;
-                }
+                if (newWidth > 300 && newWidth < window.innerWidth - 300) els.canvas.style.width = `${newWidth}px`;
             }
-
             function stopResize() {
                 isResizing = false;
                 els.workspace.classList.remove('resizing');
@@ -1417,21 +1429,14 @@
             // 5. TOOLS LOGIC
             window.activateTool = function(tool) {
                 els.toolsDrop.classList.remove('show');
-                if (tool === 'image') {
-                    toggleImageMode(true);
-                } else if (tool === 'canvas') {
+                if (tool === 'canvas') {
                     toggleCanvas(true);
-                    els.preview.srcdoc = `
-                        <div style="font-family:sans-serif; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#64748b;">
-                            <h2>Canvas Ready</h2>
-                            <p>Ask Alara to write HTML code, then click "Open in Canvas".</p>
-                        </div>
-                    `;
+                    els.preview.srcdoc = `<div style="font-family:sans-serif; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#64748b;"><h2>Canvas Ready</h2><p>Ask Alara to write HTML code, then click "Open in Canvas".</p></div>`;
                 }
             };
 
             async function generateImage(prompt) {
-                if(!currentUser) return alert("Please log in.");
+                if(!currentUser) return window.location.href = '/api/auth/login';
                 if (!currentChatId) createNewChat();
 
                 appendMessage(`🎨 Generating image: *"${prompt}"*...`, 'ai');
@@ -1439,14 +1444,11 @@
                 
                 try {
                     const res = await fetch('/api/imagine', {
-                        method: 'POST',
-                        headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({ prompt })
+                        method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ prompt })
                     });
                     hideTyping();
                     const data = await res.json();
 
-                    // Handle 403 Image Limit
                     if (res.status === 403) {
                         appendMessage(`⚠️ **Limit Reached:** ${data.details}`, 'ai');
                         showPricing();
@@ -1460,8 +1462,49 @@
                         saveChatToCloud(chat);
                     }
                 } catch(e) {
+                    hideTyping(); appendMessage("Failed to generate image.", 'ai');
+                }
+            }
+            
+            async function generateVideo(prompt) {
+                if(!currentUser) return window.location.href = '/api/auth/login';
+                if (!currentChatId) createNewChat();
+
+                appendMessage(`🎥 Directing scene: *"${prompt}"*... (Videos take a few moments to process)`, 'ai');
+                showTyping();
+                
+                try {
+                    const res = await fetch('/api/video', {
+                        method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ prompt })
+                    });
                     hideTyping();
-                    appendMessage("Failed to generate image.", 'ai');
+                    const data = await res.json();
+
+                    if (res.status === 403) {
+                        appendMessage(`⚠️ **Out of Energy!** ${data.details}`, 'ai');
+                        showPricing();
+                        return;
+                    }
+                    
+                    if(data.videoUrl) {
+                        appendVideo(data.videoUrl, 'ai');
+                        const chat = allChats.find(c => c.id === currentChatId);
+                        // Save with [VIDEO] prefix so it loads correctly on refresh
+                        chat.history.push({ role: 'model', parts: [{ text: `[VIDEO]${data.videoUrl}` }] });
+                        saveChatToCloud(chat);
+                        
+                        // Visual credit deduction
+                        if (currentUser.plan !== 'pro') {
+                           let currentVal = parseInt(els.creditDisplay.innerText.replace(/,/g, ''));
+                           if (!isNaN(currentVal)) {
+                               els.creditDisplay.innerText = Math.max(0, currentVal - 25000).toLocaleString();
+                           }
+                        }
+                    } else {
+                        appendMessage(`⚠️ Generation failed: ${data.details || 'Server busy'}`, 'ai');
+                    }
+                } catch(e) {
+                    hideTyping(); appendMessage("Failed to connect to video servers.", 'ai');
                 }
             }
 
@@ -1470,8 +1513,7 @@
                 if (!currentUser) return; 
                 try {
                     await fetch('/api/chats', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        method: 'POST', headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ id: chat.id, title: chat.title, history: chat.history })
                     });
                 } catch (e) { console.error("Cloud sync failed", e); }
@@ -1483,9 +1525,7 @@
                 catch (e) { console.error("Cloud delete failed", e); }
             }
             
-            function saveChats() {
-                if(!currentUser) { localStorage.setItem('alaraAllChats', JSON.stringify(allChats)); }
-            }
+            function saveChats() { if(!currentUser) { localStorage.setItem('alaraAllChats', JSON.stringify(allChats)); } }
 
             function loadHistory() {
                  const saved = localStorage.getItem('alaraAllChats');
