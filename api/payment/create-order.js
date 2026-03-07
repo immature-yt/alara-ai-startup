@@ -3,7 +3,6 @@ import cookie from 'cookie';
 import jwt from 'jsonwebtoken';
 
 // Initialize Razorpay
-// Ensure RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET are in Vercel Env Vars
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,
   key_secret: process.env.RAZORPAY_KEY_SECRET,
@@ -21,11 +20,14 @@ export default async function handler(req, res) {
   }
 
   try {
-      // 2. Create Order
-      // Amount is in "paise" (smallest currency unit). 
-      // ₹199 = 19900 paise.
+      // 2. Get Amount from Frontend (Default to 399 if missing)
+      const { amount = 399 } = req.body;
+      
+      // Amount is in "paise" (smallest currency unit). Multiply by 100.
+      const amountInPaise = amount * 100;
+
       const options = {
-          amount: 16900,  // Changed to ₹199 for Pro Plan testing
+          amount: amountInPaise, 
           currency: "INR",
           receipt: "order_rcptid_" + Date.now(),
           payment_capture: 1
@@ -33,8 +35,11 @@ export default async function handler(req, res) {
 
       const order = await razorpay.orders.create(options);
       
-      // Send order ID to frontend
-      res.status(200).json(order);
+      // Send order ID and key to frontend
+      res.status(200).json({
+          ...order,
+          key: process.env.RAZORPAY_KEY_ID
+      });
       
   } catch (error) {
       console.error('Razorpay Error:', error);
