@@ -36,7 +36,7 @@ export default async function handler(req, res) {
   try {
       // 3. Generate Video using native Pollinations GET endpoint
       const encodedPrompt = encodeURIComponent(prompt);
-      const url = `https://gen.pollinations.ai/video/${encodedPrompt}?model=grok-video`;
+      const url = `https://gen.pollinations.ai/video/${encodedPrompt}?model=grok-video&duration=6`;
 
       const response = await fetch(url, {
           method: 'GET',
