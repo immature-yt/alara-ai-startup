@@ -972,9 +972,8 @@
                 const rawPlan = (user.plan || 'free').toLowerCase().trim();
                 const isPro = rawPlan === 'pro';
                 
-                // MOCK CREDITS FOR NOW (Until DB is updated)
-                const mockCredits = isPro ? 'Unlimited' : '100,000';
-                els.creditDisplay.innerText = mockCredits;
+                // MAPPED DIRECTLY FROM THE DB NOW:
+                els.creditDisplay.innerText = isPro ? 'Unlimited' : (user.formattedCredits || user.credits);
 
                 const planText = isPro ? 'Pro Plan 🌟' : 'Free Tier';
                 document.getElementById('user-plan').innerText = planText;
@@ -990,7 +989,6 @@
                              history: c.history
                          }));
                          
-                         // FIX: Ghost Chat Bug
                          if (allChats.length === 0) {
                              createNewChat();
                          } else {
@@ -1042,7 +1040,6 @@
                 allChats.unshift(newChat);
                 saveChats();
                 
-                // Explicitly set ID to fix Ghost chat bug
                 currentChatId = newChat.id;
                 loadChat(newChat.id);
                 
@@ -1052,7 +1049,7 @@
             }
 
             function loadChat(id) {
-                currentChatId = id; // Ensure ID is set
+                currentChatId = id; 
                 const chat = allChats.find(c => c.id === id);
                 if (!chat) return;
 
@@ -1066,8 +1063,6 @@
                         const text = msg.parts[0].text;
                         const role = msg.role === 'model' ? 'ai' : 'user';
                         
-                        // FIX: Base64 Image Reload Bug
-                        // Checks if it starts with data:image/ OR it's an http link from known generators
                         if(role === 'ai' && (
                             text.startsWith('data:image/') || 
                             (text.startsWith('http') && (text.includes('pollinations') || text.includes('lexica')))
@@ -1153,7 +1148,6 @@
                     return;
                 }
 
-                // Guard for ghost chat
                 if (!currentChatId) {
                     createNewChat();
                 }
@@ -1188,7 +1182,7 @@
                     currentChat.title = text.substring(0, 20) + "...";
                     renderHistoryList();
                 }
-                saveChatToCloud(currentChat); // Save instantly
+                saveChatToCloud(currentChat); 
 
                 const wasAttached = attachedFile;
                 attachedFile = null;
@@ -1212,6 +1206,14 @@
                     hideTyping();
                     const data = await res.json();
                     
+                    // HANDLE 403 OUT OF CREDITS
+                    if (res.status === 403) {
+                        appendMessage(`⚠️ **Out of Energy!** ${data.details}`, 'ai');
+                        currentChat.history.pop(); // Remove the user message so they can try again later
+                        showPricing(); // Auto pop-up the pricing modal!
+                        return;
+                    }
+
                     if (data.error) {
                         appendMessage(`⚠️ Error: ${data.details || data.error}`, 'ai');
                     } else if (data.candidates) {
@@ -1219,6 +1221,15 @@
                         appendMessage(reply, 'ai');
                         currentChat.history.push({ role: 'model', parts: [{ text: reply }] });
                         saveChatToCloud(currentChat); 
+                        
+                        // Deduct credits visually in UI without doing a full fetch if not Pro
+                        if (currentUser.plan !== 'pro') {
+                           let currentVal = parseInt(els.creditDisplay.innerText.replace(/,/g, ''));
+                           if (!isNaN(currentVal)) {
+                               // Approximate deduction visually (Backend does the real math)
+                               els.creditDisplay.innerText = Math.max(0, currentVal - 100).toLocaleString();
+                           }
+                        }
                     }
                 } catch (e) {
                     hideTyping();
@@ -1434,6 +1445,13 @@
                     });
                     hideTyping();
                     const data = await res.json();
+
+                    // Handle 403 Image Limit
+                    if (res.status === 403) {
+                        appendMessage(`⚠️ **Limit Reached:** ${data.details}`, 'ai');
+                        showPricing();
+                        return;
+                    }
                     
                     if(data.imageUrl) {
                         appendImage(data.imageUrl, 'ai');
@@ -1486,7 +1504,6 @@
                     div.innerHTML = `<span>${chat.title}</span><i class="fas fa-trash delete-icon" onclick="deleteChat('${chat.id}', event)"></i>`;
                     div.onclick = (e) => { 
                         if (!e.target.classList.contains('delete-icon')) {
-                            // Update active UI state
                             document.querySelectorAll('.chat-item').forEach(el => el.classList.remove('active'));
                             div.classList.add('active');
                             loadChat(chat.id); 
@@ -1519,11 +1536,10 @@
             // Payment Logic
             window.startPayment = async function(amount) {
                 try {
-                    // Send amount to backend
                     const orderRes = await fetch('/api/payment/create-order', { 
                         method: 'POST', 
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ amount: amount }) // Send 49 or 399
+                        body: JSON.stringify({ amount: amount }) 
                     });
                     
                     if (!orderRes.ok) { alert("Could not start payment. Please try again."); return; }
@@ -1541,7 +1557,7 @@
                                     razorpay_payment_id: response.razorpay_payment_id, 
                                     razorpay_order_id: response.razorpay_order_id, 
                                     razorpay_signature: response.razorpay_signature,
-                                    plan_purchased: amount === 49 ? 'sparks' : 'pro' // Tell backend what to provision
+                                    plan_purchased: amount === 49 ? 'sparks' : 'pro' 
                                 }) 
                             });
                             const verifyData = await verifyRes.json();
