@@ -8,7 +8,6 @@ export default async function handler(req, res) {
   const { prompt } = req.body;
   if (!prompt) return res.status(400).json({ error: 'Prompt is required' });
 
-  // 1. Authenticate Request
   const cookies = cookie.parse(req.headers.cookie || '');
   const token = cookies.alara_session;
   if (!token) return res.status(401).json({ error: 'Unauthorized. Please log in.' });
@@ -22,8 +21,6 @@ export default async function handler(req, res) {
       return res.status(401).json({ error: 'Invalid session token' });
   }
 
-  // 2. ENFORCE IMAGE LIMITS
-  // Free users get 5 images per day. Pro users get unlimited.
   if (user.plan !== 'pro' && user.free_images_used >= 5) {
       return res.status(403).json({ 
           error: 'Image Limit Reached', 
@@ -31,43 +28,17 @@ export default async function handler(req, res) {
       });
   }
 
-  const encodedPrompt = encodeURIComponent(prompt);
-  const apiKey = process.env.POLLINATIONS_API_KEY;
-
   try {
-    if (apiKey) {
-        const url = `https://gen.pollinations.ai/image/${encodedPrompt}?model=flux&nologo=true`;
-        
-        const response = await fetch(url, {
-            method: 'GET',
-            headers: { 'Authorization': `Bearer ${apiKey}` }
-        });
+      if (user.plan !== 'pro') {
+          await sql`UPDATE users SET free_images_used = free_images_used + 1 WHERE id = ${user.id}`;
+      }
 
-        if (response.ok) {
-            // Convert to Base64 to bypass CORS/frontend rendering issues
-            const arrayBuffer = await response.arrayBuffer();
-            const buffer = Buffer.from(arrayBuffer);
-            const base64Image = buffer.toString('base64');
-            const dataUrl = `data:image/jpeg;base64,${base64Image}`;
-            
-            // 3. Increment usage counter in DB
-            try {
-                await sql`UPDATE users SET free_images_used = free_images_used + 1 WHERE id = ${user.id}`;
-            } catch(dbErr) {
-                console.error("Failed to count image usage:", dbErr);
-            }
-
-            return res.status(200).json({ imageUrl: dataUrl });
-        }
-    }
-
-    // Fallback if API fails
-    const fallbackUrl = `https://loremflickr.com/800/600/${encodeURIComponent(prompt.split(' ')[0] || 'technology')}?random=${Math.random()}`;
-    return res.status(200).json({ imageUrl: fallbackUrl });
+      // Return the Stealth Proxy URL
+      const proxyUrl = `/api/media?type=image&q=${encodeURIComponent(prompt)}`;
+      return res.status(200).json({ imageUrl: proxyUrl });
 
   } catch (error) {
-    console.error("Image Error:", error.message);
-    const placeholder = `https://placehold.co/1024x1024/2d2d2d/FFF?text=${encodedPrompt}`;
-    return res.status(200).json({ imageUrl: placeholder });
+      console.error("Image DB Error:", error);
+      return res.status(500).json({ error: 'Internal Server Error' });
   }
 }
