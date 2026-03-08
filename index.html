@@ -1439,7 +1439,17 @@
                 if(!currentUser) return window.location.href = '/api/auth/login';
                 if (!currentChatId) createNewChat();
 
-                appendMessage(`🎨 Generating image: *"${prompt}"*...`, 'ai');
+                const currentChat = allChats.find(c => c.id === currentChatId);
+
+                // FIX: Add User Prompt to Chat History!
+                appendMessage(`*(Image Prompt)*: ${prompt}`, 'user');
+                currentChat.history.push({ role: 'user', parts: [{ text: `Generate an image: ${prompt}` }] });
+                
+                if (currentChat.title === "New Chat") {
+                    currentChat.title = prompt.substring(0, 20) + "...";
+                    renderHistoryList();
+                }
+
                 showTyping();
                 
                 try {
@@ -1457,9 +1467,8 @@
                     
                     if(data.imageUrl) {
                         appendImage(data.imageUrl, 'ai');
-                        const chat = allChats.find(c => c.id === currentChatId);
-                        chat.history.push({ role: 'model', parts: [{ text: data.imageUrl }] });
-                        saveChatToCloud(chat);
+                        currentChat.history.push({ role: 'model', parts: [{ text: data.imageUrl }] });
+                        saveChatToCloud(currentChat);
                     }
                 } catch(e) {
                     hideTyping(); appendMessage("Failed to generate image.", 'ai');
@@ -1470,7 +1479,17 @@
                 if(!currentUser) return window.location.href = '/api/auth/login';
                 if (!currentChatId) createNewChat();
 
-                appendMessage(`🎥 Directing scene: *"${prompt}"*... (Videos take a few moments to process)`, 'ai');
+                const currentChat = allChats.find(c => c.id === currentChatId);
+
+                // FIX: Add User Prompt to Chat History!
+                appendMessage(`*(Video Prompt)*: ${prompt}`, 'user');
+                currentChat.history.push({ role: 'user', parts: [{ text: `Generate a video: ${prompt}` }] });
+
+                if (currentChat.title === "New Chat") {
+                    currentChat.title = prompt.substring(0, 20) + "...";
+                    renderHistoryList();
+                }
+
                 showTyping();
                 
                 try {
@@ -1488,10 +1507,8 @@
                     
                     if(data.videoUrl) {
                         appendVideo(data.videoUrl, 'ai');
-                        const chat = allChats.find(c => c.id === currentChatId);
-                        // Save with [VIDEO] prefix so it loads correctly on refresh
-                        chat.history.push({ role: 'model', parts: [{ text: `[VIDEO]${data.videoUrl}` }] });
-                        saveChatToCloud(chat);
+                        currentChat.history.push({ role: 'model', parts: [{ text: `[VIDEO]${data.videoUrl}` }] });
+                        saveChatToCloud(currentChat);
                         
                         // Visual credit deduction
                         if (currentUser.plan !== 'pro') {
@@ -1512,10 +1529,17 @@
             async function saveChatToCloud(chat) {
                 if (!currentUser) return; 
                 try {
-                    await fetch('/api/chats', {
+                    const response = await fetch('/api/chats', {
                         method: 'POST', headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ id: chat.id, title: chat.title, history: chat.history })
                     });
+
+                    // FIX: Catch Payload Too Large Error (Vercel 4.5MB Limit)
+                    if (response.status === 413) {
+                        console.error("Vercel Limit Exceeded: Chat history is too large.");
+                        alert("⚠️ Vercel Limit Reached: This chat contains too many videos/images and exceeds the 4.5MB cloud storage limit. Please start a New Chat for further media generation to ensure your work is saved!");
+                    }
+
                 } catch (e) { console.error("Cloud sync failed", e); }
             }
 
