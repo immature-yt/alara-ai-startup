@@ -9,7 +9,7 @@ export default async function handler(req, res) {
   
     let targetUrl = '';
     if (type === 'video') {
-      targetUrl = `https://gen.pollinations.ai/video/${encodedPrompt}?model=grok-video`;
+      targetUrl = `https://gen.pollinations.ai/video/${encodedPrompt}?model=grok-video&duration=6&aspectRatio="16:9"`;
     } else {
       targetUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?nologo=true`;
     }
