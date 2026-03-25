@@ -9,7 +9,7 @@ export default async function handler(req, res) {
   
     let targetUrl = '';
     if (type === 'video') {
-      targetUrl = `https://gen.pollinations.ai/video/${encodedPrompt}?model=grok-video&duration=6&enhance=true`;
+      targetUrl = `https://gen.pollinations.ai/video/${encodedPrompt}?model=ltx-2&duration=6&enhance=true`;
     } else {
       targetUrl = `https://gen.pollinations.ai/prompt/${encodedPrompt}?model=flux&nologo=true`;
     }
