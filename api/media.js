@@ -30,7 +30,7 @@ export default async function handler(req, res) {
       // Set caching headers so it doesn't re-generate every time they refresh
       res.setHeader('Cache-Control', 'public, max-age=86400, s-maxage=86400');
   
-      // Stream the raw binary buffer directly to the user's browser 
+      // Stream the raw binary buffer directly to the user's browser
       const arrayBuffer = await response.arrayBuffer();
       const buffer = Buffer.from(arrayBuffer);
       res.send(buffer);
