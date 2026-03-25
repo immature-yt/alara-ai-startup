@@ -11,7 +11,7 @@ export default async function handler(req, res) {
     if (type === 'video') {
       targetUrl = `https://gen.pollinations.ai/video/${encodedPrompt}?model=grok-video&duration=6&enhance=true`;
     } else {
-      targetUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?model=flux&nologo=true`;
+      targetUrl = `https://gen.pollinations.ai/prompt/${encodedPrompt}?model=flux&nologo=true`;
     }
   
     try {
