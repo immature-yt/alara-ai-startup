@@ -16,6 +16,7 @@ export default async function handler(req, res) {
   
     try {
       // Fetch media from Pollinations
+      // THE FIX: Attach the VIP wristband (API Key) to EVERYTHING, including images!
       const response = await fetch(targetUrl, {
         headers: apiKey ? { 'Authorization': `Bearer ${apiKey}` } : {}
       });
