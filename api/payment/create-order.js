@@ -1,8 +1,6 @@
 import Razorpay from 'razorpay';
 import cookie from 'cookie';
-import jwt from 'jsonwebtoken';
 
-// Initialize Razorpay
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,
   key_secret: process.env.RAZORPAY_KEY_SECRET,
@@ -20,8 +18,9 @@ export default async function handler(req, res) {
   }
 
   try {
-      // 2. Get Amount from Frontend (Default to 399 if missing)
-      const { amount = 399 } = req.body;
+      // 2. Get Amount from Frontend
+      const { amount } = req.body;
+      if (!amount) return res.status(400).json({ error: 'Amount is required' });
       
       // Amount is in "paise" (smallest currency unit). Multiply by 100.
       const amountInPaise = amount * 100;
