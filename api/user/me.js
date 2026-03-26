@@ -18,9 +18,9 @@ export default async function handler(req, res) {
     }
 
     try {
-        // Fetch User and all new limit columns
+        // Fetch User and all NEW limit columns
         const { rows } = await sql`
-            SELECT id, name, email, plan, role, credits, plan_expiry, free_images_used, last_reset_date 
+            SELECT id, name, email, plan, role, credits, plan_expiry, videos_used_today, images_used_today, last_reset_date 
             FROM users 
             WHERE id = ${decoded.userId};
         `;
@@ -29,39 +29,44 @@ export default async function handler(req, res) {
         
         let user = rows[0];
 
-        // --- 1. PRO EXPIRY CHECK ---
-        if (user.plan === 'pro' && user.plan_expiry) {
+        // --- 1. 28-DAY PLAN EXPIRY CHECK (For ALL Paid Tiers) ---
+        // If they are on any paid plan, check if the 28-day clock ran out
+        if (['pro', 'elite', 'luxury'].includes(user.plan) && user.plan_expiry) {
             const now = new Date();
             const expiry = new Date(user.plan_expiry);
             if (now > expiry) {
-                // Pro expired, revert to free
-                await sql`UPDATE users SET plan = 'free' WHERE id = ${user.id}`;
+                // Plan expired, revert to 'free' and wipe the expiry date
+                await sql`UPDATE users SET plan = 'free', plan_expiry = NULL WHERE id = ${user.id}`;
                 user.plan = 'free';
+                user.plan_expiry = null;
             }
         }
 
-        // --- 2. DAILY RESET LOGIC (For Free Users) ---
+        // --- 2. DAILY RESET LOGIC (The Midnight Refresh) ---
         const today = new Date().toDateString();
         const lastReset = user.last_reset_date ? new Date(user.last_reset_date).toDateString() : '';
 
         if (today !== lastReset) {
             let newCredits = user.credits;
             
-            // If they are on the Free plan, they get reset to EXACTLY 100,000 (It doesn't stack)
-            if (user.plan === 'free') {
+            // THE FIRE SPARKS FIX: 
+            // If they are Free, only top them up to 100k if they are below it.
+            // If they bought Sparks and have 250k, this leaves their balance alone!
+            if (user.plan === 'free' && newCredits < 100000) {
                 newCredits = 100000; 
             } 
-            // Note: If they are Pro, or bought Sparks, they keep their current accumulated balance!
 
             await sql`
                 UPDATE users 
                 SET last_reset_date = CURRENT_TIMESTAMP, 
-                    free_images_used = 0,
+                    videos_used_today = 0,
+                    images_used_today = 0,
                     credits = ${newCredits}
                 WHERE id = ${user.id}
             `;
             
-            user.free_images_used = 0;
+            user.videos_used_today = 0;
+            user.images_used_today = 0;
             user.credits = newCredits;
         }
 
