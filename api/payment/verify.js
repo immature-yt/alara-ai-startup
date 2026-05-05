@@ -74,7 +74,7 @@ export default async function handler(req, res) {
                 WHERE id = ${userId}
             `;
         }
-        else if (amountPaid === 2499) {
+        else if (amountPaid === 5400) {
             // LUXURY PLAN
             await sql`
                 UPDATE users 
