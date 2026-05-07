@@ -62,7 +62,7 @@ export default async function handler(req, res) {
                 WHERE id = ${userId}
             `;
         }
-        else if (amountPaid === 1799) {
+        else if (amountPaid === 1799 || amountPaid === 510) {
             // ELITE PLAN
             await sql`
                 UPDATE users 
